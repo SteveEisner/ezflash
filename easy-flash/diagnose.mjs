@@ -43,6 +43,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
     let opened = false;
     let reader;
     let text = "";
+    let bytesRead = 0;
     try {
       if (!port.readable) {
         await port.open({ baudRate });
@@ -53,7 +54,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
       if (!reader) return { ...parseDiagnosticText(""), portInfo: info };
       const decoder = new TextDecoder();
       const deadline = Date.now() + timeoutMs;
-      while (text.length < maxBytes && Date.now() < deadline) {
+      while (bytesRead < maxBytes && Date.now() < deadline) {
         const remaining = Math.max(1, deadline - Date.now());
         let result;
         try {
@@ -66,10 +67,14 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
         }
         if (result.timeout) { await reader.cancel?.(); break; }
         if (result.done) break;
-        if (result.value) text += decoder.decode(result.value, { stream: true });
+        if (result.value) {
+          const chunk = result.value.subarray(0, maxBytes - bytesRead);
+          bytesRead += chunk.byteLength;
+          text += decoder.decode(chunk, { stream: bytesRead < maxBytes });
+        }
       }
       text += decoder.decode();
-      const parsed = parseDiagnosticText(text.slice(0, maxBytes));
+      const parsed = parseDiagnosticText(text);
       onText(parsed.raw);
       return { ...parsed, portInfo: info };
     } finally {
