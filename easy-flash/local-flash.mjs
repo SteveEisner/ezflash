@@ -13,7 +13,7 @@ export function chipFamily(value) {
 function samePortInfo(left,right) { return (left.usbVendorId ?? null)===(right.usbVendorId ?? null) && (left.usbProductId ?? null)===(right.usbProductId ?? null); }
 function flashSize(bytes) { const value=bytes/(1024*1024); if (!Number.isInteger(value)) throw new Error("Unsupported manifest flash size"); return `${value}MB`; }
 
-export function createFlashRuntime({ serial=navigator.serial, Loader=ESPLoader, TransportClass=Transport, fetchImpl=fetch, cryptoImpl=crypto, delay=(milliseconds)=>new Promise((resolve)=>setTimeout(resolve,milliseconds)) }={}) {
+export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader=ESPLoader, TransportClass=Transport, fetchImpl=globalThis.fetch, cryptoImpl=globalThis.crypto, delay=(milliseconds)=>new Promise((resolve)=>setTimeout(resolve,milliseconds)) }={}) {
 	let active=null; let flashInProgress=false; let invalidated=()=>{};
 	async function sha256Hex(bytes) { const digest=await cryptoImpl.subtle.digest("SHA-256",bytes); return Array.from(new Uint8Array(digest),(byte)=>byte.toString(16).padStart(2,"0")).join(""); }
 	async function close(session) { if (!session) return; try { await session.transport.disconnect(); } catch {} }
@@ -74,5 +74,5 @@ export const connectToController=runtime.connectToController;
 export const installConnectedController=runtime.installConnectedController;
 export const disconnectController=runtime.disconnectController;
 export const setInvalidationHandler=runtime.setInvalidationHandler;
-export function canFlashLocally(){return window.isSecureContext && "serial" in navigator;}
+export function canFlashLocally(){return globalThis.window?.isSecureContext === true && !!globalThis.navigator?.serial;}
 // AI: end
