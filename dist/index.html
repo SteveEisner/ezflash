@@ -11,7 +11,7 @@
 <body>
 	<header class="masthead">
 		<div class="brand"><span class="mark">WT</span><div><strong>WLEDTubes</strong><small>Easy Flash</small></div></div>
-		<nav id="maintainer-nav" role="tablist" aria-label="Easy Flash sections"><button type="button" id="flashTab" role="tab" aria-selected="true" aria-controls="flashView" tabindex="0">Flash</button><button type="button" id="statusTab" role="tab" aria-selected="false" aria-controls="statusView" tabindex="-1">Status</button></nav>
+		<nav id="maintainer-nav" role="tablist" aria-label="Easy Flash sections"><button type="button" id="flashTab" role="tab" aria-selected="true" aria-controls="flashView" tabindex="0">Flash</button><button type="button" id="statusTab" role="tab" aria-selected="false" aria-controls="statusView" tabindex="-1">Status</button><button type="button" id="diagnoseTab" role="tab" aria-selected="false" aria-controls="diagnoseView" tabindex="-1">Diagnose</button></nav>
 	</header>
 	<main id="flashView" role="tabpanel" aria-labelledby="flashTab">
 		<section class="hero"><p class="eyebrow">WLEDTUBES · EASY FLASH</p><h1>Buy. Build. <em>Rave.</em></h1></section>
@@ -31,6 +31,7 @@
 		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p></section>
 	</main>
 	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><p class="eyebrow">WLEDTUBES · MAINTAINER</p><h1>Release status</h1><p class="lede">Read-only provenance snapshot. This tab cannot install, flash, or contact a device.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release evidence.</p></div></section>
+	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><p class="eyebrow">WLEDTUBES · READ-ONLY</p><h1>Diagnose a controller</h1><p class="lede">Look for a connected WLEDTubes controller and read its diagnostic banner. Nothing is written, flashed, reset, or configured here.</p><div class="diagnose-card"><div class="controller-state" id="diagnoseState" role="status" aria-live="polite"><span class="state-dot"></span><div><strong id="diagnoseTitle">No controller inspected</strong><p id="diagnoseMessage">Choose Inspect to check for supported read-only telemetry.</p></div></div><button type="button" class="primary" id="diagnoseInspect">Inspect connected controller</button><div id="diagnoseFacts" class="diagnose-facts" hidden></div></div><div class="recovery-note"><h2>Recovery guidance</h2><p>If the banner says rescue or safe mode, LEDs and network are intentionally absent. The device may still be recoverable. Use Flash only after confirming the exact target; Diagnose never starts recovery on its own.</p><p id="diagnoseCaveat">Missing or unsupported telemetry is not a healthy-state signal.</p></div></section>
 	<footer>Tubes v14 / WLED 16 · Local and integrity-checked · Supported browsers: Chrome or Edge over HTTPS; Safari and Firefox can download but cannot use Web Serial.</footer>
 	<script type="module" src="app.mjs"></script>
 	<script type="module" src="maintainer/status.mjs"></script>

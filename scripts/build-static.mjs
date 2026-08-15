@@ -9,7 +9,7 @@ if(!/^[a-z0-9][a-z0-9._-]*$/i.test(release)) throw Error('invalid immutable rele
 const receiptPath=resolve(value('--receipt')||process.env.EASY_FLASH_BUILD_RECEIPT||'build/easy-flash-firmware/build-receipt.json');
 const receipt=await verifyBuildReceipt(receiptPath,{allowFixture:args.includes('--fixture')});
 const receiptRoot=dirname(receiptPath), out=resolve(root,'dist'), releaseRoot=resolve(out,'releases',release), provenanceRoot=resolve(releaseRoot,'provenance'); await rm(out,{recursive:true,force:true}); await mkdir(resolve(releaseRoot,'firmware'),{recursive:true}); await mkdir(provenanceRoot,{recursive:true});
-for(const f of ['index.html','styles.css','firmware-bench.css','app.mjs','hosted-release.mjs','local-flash.mjs','profiles.mjs','firmware-ui.mjs','device-identity.mjs','safety-contract.mjs','operation-receipts.mjs']) await cp(resolve(root,'easy-flash',f),resolve(out,f));
+for(const f of ['index.html','styles.css','firmware-bench.css','app.mjs','hosted-release.mjs','local-flash.mjs','profiles.mjs','firmware-ui.mjs','device-identity.mjs','safety-contract.mjs','operation-receipts.mjs','diagnose.mjs']) await cp(resolve(root,'easy-flash',f),resolve(out,f));
 await cp(resolve(root,'easy-flash/maintainer'),resolve(out,'maintainer'),{recursive:true}); await cp(resolve(root,'easy-flash/maintainer/status.mjs'),resolve(out,'maintainer/status.mjs'));
 await cp(resolve(root,'easy-flash/vendor'),resolve(out,'vendor'),{recursive:true});
 const source=JSON.parse(await readFile(resolve(root,'easy-flash/firmware-manifest.json'),'utf8')), variant=source.variants[0], artifact=receipt.artifacts.usb, name=basename(artifact.path), publicPath=`releases/${release}/firmware/${name}`;
