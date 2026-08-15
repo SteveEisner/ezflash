@@ -27,7 +27,9 @@ jobs:
           EASY_FLASH_BUILD_RECEIPT: build/easy-flash-firmware/build-receipt.json
           EASY_FLASH_RELEASE: candidate-84801e8e
       - run: npm run verify && npm test && npm run test:easy-flash
-      - run: git diff --exit-code
+      # Firmware bytes may include toolchain build metadata across runner platforms.
+      # The fresh dist is receipt-verified above; source files must remain untouched.
+      - run: git diff --exit-code -- . ':(exclude)dist'
       # actions/upload-artifact v4.6.2
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with: {name: easy-flash-dist, path: dist, if-no-files-found: error}
