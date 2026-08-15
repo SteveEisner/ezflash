@@ -3,9 +3,78 @@
   "receiptDigestAlgorithm": "sha256-stable-json-v1",
   "pathBase": "release-directory",
   "sourceReceiptDigestAlgorithm": "sha256-stable-json-v1",
-  "sourceReceiptDigestSha256": "3a4180be3d628f43f11c230bbb96fbc05c89ee97383b1a0bcc79ccb430bbebf9",
+  "sourceReceiptDigestSha256": "3e149dfb322b36f6eae246a826b45792a04078af2f5bedd72031596b2265096d",
   "sourceReceipt": {
     "schemaVersion": 1,
+    "receiptDigestAlgorithm": "sha256-stable-json-v1",
+    "pathBase": "release-directory",
+    "sourceReceiptDigestAlgorithm": "sha256-stable-json-v1",
+    "sourceReceiptDigestSha256": "2ed4245c74c0d64830b5b426e02ac9b2613d6777a3290b74427591bbcb791f86",
+    "sourceReceipt": {
+      "schemaVersion": 1,
+      "mode": "production",
+      "source": {
+        "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+        "commit": "84801e8e2c61458dc0d79c9ba646a4cec3a44f39",
+        "clean": true
+      },
+      "environment": "esp32_quinled_dig2go_tubes",
+      "contract": {
+        "path": "update-contract.json",
+        "lengthBytes": 4555,
+        "sha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0"
+      },
+      "partition": {
+        "path": "WLED_ESP32_4MB_1MB_FS.csv",
+        "lengthBytes": 260,
+        "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+        "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv"
+      },
+      "artifacts": {
+        "usb": {
+          "path": "merged.bin",
+          "lengthBytes": 1325248,
+          "sha256": "b11923d2808c1fd1949ec05250ff469e3780f7e420337c4591f9eb3bf2649665",
+          "kind": "complete-merged-image",
+          "transport": "usb",
+          "writeOffset": 0,
+          "components": [
+            {
+              "id": "bootloader",
+              "offset": 4096,
+              "lengthBytes": 17376,
+              "sha256": "3b827cbff49bcd26eb3a37d8d2801c15317e8007cb251c8b546c5bfa33dba416"
+            },
+            {
+              "id": "partitions",
+              "offset": 32768,
+              "lengthBytes": 3072,
+              "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+            },
+            {
+              "id": "boot-app0",
+              "offset": 57344,
+              "lengthBytes": 8192,
+              "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+            },
+            {
+              "id": "application",
+              "offset": 65536,
+              "lengthBytes": 1259712,
+              "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9"
+            }
+          ]
+        },
+        "ota": {
+          "path": "firmware.bin",
+          "lengthBytes": 1259712,
+          "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9",
+          "kind": "application-image",
+          "transport": "ota",
+          "buildOffset": 65536
+        }
+      }
+    },
     "mode": "production",
     "source": {
       "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -20,15 +89,15 @@
     },
     "partition": {
       "path": "WLED_ESP32_4MB_1MB_FS.csv",
+      "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv",
       "lengthBytes": 260,
-      "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
-      "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv"
+      "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44"
     },
     "artifacts": {
       "usb": {
         "path": "merged.bin",
-        "lengthBytes": 1325408,
-        "sha256": "82406247eafeeeaa1ab38c2aa6ba008ed1414145268161541c7dc5dcc1b40d3c",
+        "lengthBytes": 1325248,
+        "sha256": "b11923d2808c1fd1949ec05250ff469e3780f7e420337c4591f9eb3bf2649665",
         "kind": "complete-merged-image",
         "transport": "usb",
         "writeOffset": 0,
@@ -54,20 +123,22 @@
           {
             "id": "application",
             "offset": 65536,
-            "lengthBytes": 1259872,
-            "sha256": "7b68f0a4f0552443a7be79a9da1a2bef3c8d2b6672b5207f9d2858c762b58b03"
+            "lengthBytes": 1259712,
+            "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9"
           }
         ]
       },
       "ota": {
-        "path": "firmware.bin",
-        "lengthBytes": 1259872,
-        "sha256": "7b68f0a4f0552443a7be79a9da1a2bef3c8d2b6672b5207f9d2858c762b58b03",
+        "lengthBytes": 1259712,
+        "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9",
         "kind": "application-image",
         "transport": "ota",
-        "buildOffset": 65536
+        "buildOffset": 65536,
+        "published": false,
+        "path": "firmware.bin"
       }
-    }
+    },
+    "receiptDigestSha256": "d904fed10a40c6a78993a682235fd99017d7972f215ca4f6c188ccff7bad509d"
   },
   "mode": "production",
   "source": {
@@ -90,8 +161,8 @@
   "artifacts": {
     "usb": {
       "path": "firmware/merged.bin",
-      "lengthBytes": 1325408,
-      "sha256": "82406247eafeeeaa1ab38c2aa6ba008ed1414145268161541c7dc5dcc1b40d3c",
+      "lengthBytes": 1325248,
+      "sha256": "b11923d2808c1fd1949ec05250ff469e3780f7e420337c4591f9eb3bf2649665",
       "kind": "complete-merged-image",
       "transport": "usb",
       "writeOffset": 0,
@@ -117,19 +188,19 @@
         {
           "id": "application",
           "offset": 65536,
-          "lengthBytes": 1259872,
-          "sha256": "7b68f0a4f0552443a7be79a9da1a2bef3c8d2b6672b5207f9d2858c762b58b03"
+          "lengthBytes": 1259712,
+          "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9"
         }
       ]
     },
     "ota": {
-      "lengthBytes": 1259872,
-      "sha256": "7b68f0a4f0552443a7be79a9da1a2bef3c8d2b6672b5207f9d2858c762b58b03",
+      "lengthBytes": 1259712,
+      "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9",
       "kind": "application-image",
       "transport": "ota",
       "buildOffset": 65536,
       "published": false
     }
   },
-  "receiptDigestSha256": "944a13ae178a9c7db0b79d06d958487411d0295670c08374f41815584b4e9e23"
+  "receiptDigestSha256": "056fd6401df0c7f38844adef801bb87e5ed916bf90d55a09332e41ea745a250c"
 }

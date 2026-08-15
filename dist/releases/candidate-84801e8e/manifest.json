@@ -40,8 +40,8 @@
           "kind": "complete-merged-image",
           "transport": "usb",
           "path": "releases/candidate-84801e8e/firmware/merged.bin",
-          "sizeBytes": 1325408,
-          "sha256": "82406247eafeeeaa1ab38c2aa6ba008ed1414145268161541c7dc5dcc1b40d3c",
+          "sizeBytes": 1325248,
+          "sha256": "b11923d2808c1fd1949ec05250ff469e3780f7e420337c4591f9eb3bf2649665",
           "offset": 0,
           "components": [
             {
@@ -65,8 +65,8 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1259872,
-              "sha256": "7b68f0a4f0552443a7be79a9da1a2bef3c8d2b6672b5207f9d2858c762b58b03"
+              "sizeBytes": 1259712,
+              "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9"
             }
           ]
         }
@@ -78,15 +78,15 @@
     }
   ],
   "provenance": {
-    "receiptDigestSha256": "944a13ae178a9c7db0b79d06d958487411d0295670c08374f41815584b4e9e23",
-    "sourceReceiptDigestSha256": "3a4180be3d628f43f11c230bbb96fbc05c89ee97383b1a0bcc79ccb430bbebf9",
+    "receiptDigestSha256": "056fd6401df0c7f38844adef801bb87e5ed916bf90d55a09332e41ea745a250c",
+    "sourceReceiptDigestSha256": "3e149dfb322b36f6eae246a826b45792a04078af2f5bedd72031596b2265096d",
     "contractSha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0",
     "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
     "mode": "production",
     "evidence": {
       "receipt": {
         "path": "releases/candidate-84801e8e/provenance/build-receipt.json",
-        "sha256": "6f4cf1cf563f789f917f3e0db6fb9a273e9e8126b492c71653e4d1470c8050c4"
+        "sha256": "128f460ec562eb3eafc92bc333a048d113939a5ce6b71470471ce1beb95228a5"
       },
       "contract": {
         "path": "releases/candidate-84801e8e/provenance/update-contract.json",
