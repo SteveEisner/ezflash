@@ -1,17 +1,31 @@
 name: Build Easy Flash
-on: [push, workflow_dispatch]
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
 jobs:
   build:
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with: {repository: SteveEisner/WLEDtubes, ref: 84801e8e, path: vendor/WLEDtubes}
-      - uses: actions/setup-node@v4
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      # actions/checkout v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: SteveEisner/WLEDtubes
+          ref: 84801e8e2c61458dc0d79c9ba646a4cec3a44f39
+          path: vendor/WLEDtubes
+          persist-credentials: false
+      # actions/setup-node v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with: {node-version: 20, cache: npm}
       - run: npm ci
-      - run: test -f vendor/WLEDtubes/platformio.ini && grep -q 'esp32_quinled_dig2go_tubes' vendor/WLEDtubes/platformio.ini
-      - run: npm run build && npm run verify && npm test
-      - uses: actions/upload-artifact@v4
-        with: {name: easy-flash-dist, path: dist}
+      - run: python3 -m pip install --requirement vendor/WLEDtubes/requirements.txt
+      - run: node scripts/build-firmware.mjs --source vendor/WLEDtubes --output build/easy-flash-firmware
+      - run: node scripts/verify-build-receipt.mjs build/easy-flash-firmware/build-receipt.json
+      - run: npm run build
+        env: {EASY_FLASH_BUILD_RECEIPT: build/easy-flash-firmware/build-receipt.json}
+      - run: npm run verify && npm test && npm run test:easy-flash
+      - run: git diff --exit-code
+      # actions/upload-artifact v4.6.2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with: {name: easy-flash-dist, path: dist, if-no-files-found: error}

@@ -1,1 +1,4 @@
-{"releaseId":"v0"}
+{
+  "releaseId": "v0",
+  "manifest": "releases/v0/manifest.json"
+}

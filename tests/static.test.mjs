@@ -2,3 +2,4 @@ import test from 'node:test'; import assert from 'node:assert/strict'; import {r
 test('browser graph has no node imports',async()=>{for(const f of ['app.mjs','local-flash.mjs','profiles.mjs','firmware-ui.mjs','device-identity.mjs','safety-contract.mjs'])assert.doesNotMatch(await readFile(`easy-flash/${f}`,'utf8'),/node:/)});
 test('static build complete',async()=>{for(const f of ['dist/index.html','dist/current.json','dist/_headers'])await readFile(f)});
 test('support guidance exists',async()=>assert.match(await readFile('easy-flash/index.html','utf8'),/Chrome|Edge|serial/i));
+test('built static graph consumes current manifest and artifact without an API dependency',async()=>{const graph=(await Promise.all(['app.mjs','hosted-release.mjs','local-flash.mjs'].map(f=>readFile(`dist/${f}`,'utf8')))).join('\n');assert.doesNotMatch(graph,/\/api\//);assert.match(graph,/current\.json/);assert.match(graph,/manifest\.json/);assert.match(graph,/artifact\.url/)});

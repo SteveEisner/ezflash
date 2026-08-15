@@ -25,7 +25,8 @@ export function createFlashRuntime({ serial=navigator.serial, Loader=ESPLoader, 
 	serial?.addEventListener?.("disconnect",(event)=>{ void invalidate("disconnect",event.port || event.target); });
 
 	async function fetchVerifiedImage(variant,artifact) {
-		const response=await fetchImpl(`/api/firmware/${encodeURIComponent(variant.id)}/usb`,{headers:{"X-Easy-Flash-Hardware-Family":variant.target.hardwareFamily,"X-Easy-Flash-Chip":variant.target.chip,"X-Easy-Flash-Flash-Bytes":String(variant.target.flashSizeBytes),"X-Easy-Flash-Partition-Sha256":variant.partition.tableSha256}});
+		if (!artifact.url) throw new Error("The hosted firmware URL is missing");
+		const response=await fetchImpl(artifact.url,{cache:"force-cache",credentials:"same-origin"});
 		if (!response.ok) { const error=new Error("Firmware image is unavailable"); error.failureStage="transport"; throw error; }
 		return new Uint8Array(await response.arrayBuffer());
 	}
@@ -61,7 +62,7 @@ export function createFlashRuntime({ serial=navigator.serial, Loader=ESPLoader, 
 			onStatus("Backup is unavailable in this browser flow. Installing without erasing saved settings…"); failureStage="write";
 			await session.loader.writeFlash({fileArray,flashMode:variant.target.flashMode||"keep",flashFreq:"keep",flashSize:flashSize(variant.target.flashSizeBytes),eraseAll:false,compress:false,reportProgress(_index,written,total){onProgress(Math.round((written/total)*100));}});
 			failureStage="reset"; await session.loader.after("hard_reset"); onProgress(100); onStatus("Restarting the controller…"); await delay(3000);
-			const result={chipName:session.chipName,bytesWritten:intendedBytes,sha256:artifact.sha256,boardEvidence:evidence,backup:"unavailable",readback:"writer-verified",health:"unverified"}; onReceipt(installReceipt(variant,artifact,evidence,intendedBytes,startedAt)); return result;
+			const result={chipName:session.chipName,bytesWritten:intendedBytes,sha256:artifact.sha256,boardEvidence:evidence,backup:"unavailable",writeEvidence:"Write call returned; no readback performed",readbackVerified:false,health:"unverified"}; onReceipt(installReceipt(variant,artifact,evidence,intendedBytes,startedAt)); return result;
 		} catch(error) { error.failureStage ||= failureStage; error.intendedBytes=intendedBytes; const receipt=failureReceipt(variant,artifact,evidence,error,intendedBytes,startedAt); error.receipt=receipt; onReceipt(receipt); throw error; }
 		finally { flashInProgress=false; if (active===session) active=null; await close(session); }
 	}
