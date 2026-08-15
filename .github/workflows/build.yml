@@ -23,7 +23,9 @@ jobs:
       - run: node scripts/build-firmware.mjs --source vendor/WLEDtubes --output build/easy-flash-firmware
       - run: node scripts/verify-build-receipt.mjs build/easy-flash-firmware/build-receipt.json
       - run: npm run build
-        env: {EASY_FLASH_BUILD_RECEIPT: build/easy-flash-firmware/build-receipt.json}
+        env:
+          EASY_FLASH_BUILD_RECEIPT: build/easy-flash-firmware/build-receipt.json
+          EASY_FLASH_RELEASE: candidate-84801e8e
       - run: npm run verify && npm test && npm run test:easy-flash
       - run: git diff --exit-code
       # actions/upload-artifact v4.6.2
