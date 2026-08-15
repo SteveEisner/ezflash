@@ -93,6 +93,9 @@ test("parses exact rescue and button banners without broad rescue matches", () =
   assert.equal(parseDiagnosticText("AP mode active; no network yet").rescue, false);
   assert.equal(parseDiagnosticText("WLED button diagnostics: STUCK_BUTTON").buttonProblem, true);
   assert.equal(parseDiagnosticText("WLED button diagnostics: healthy").buttonDiagnostics, "healthy");
+  assert.equal(parseDiagnosticText("WLED button diagnostics: AVAILABLE").buttonDiagnostics, "available");
+  assert.equal(parseDiagnosticText("WLED button diagnostics: INACTIVE").buttonDiagnostics, "inactive");
+  assert.equal(parseDiagnosticText("WLED button diagnostics: AVAILABLE").buttonProblem, false);
   assert.equal(parseDiagnosticText("WLED button diagnostics: disabled (WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS)").buttonDiagnostics, "disabled");
 });
 

@@ -51,9 +51,9 @@ test('explicit fixture mode produces a provenance-bound receipt which verifies',
 test('fixture static release carries equivalent provenance and remains production-rejected', async () => {
   const temp=await mkdtemp(join(tmpdir(),'easy-flash-fixture-release-')), receiptDir=join(temp,'receipt');
   try {
-    await cp(new URL('../easy-flash',import.meta.url),join(temp,'easy-flash'),{recursive:true});
+    for (const path of ['dependency-lock.json','easy-flash','scripts']) await cp(new URL(`../${path}`,import.meta.url),join(temp,path),{recursive:true});
     await cp(new URL('../_headers',import.meta.url),join(temp,'_headers'));
-    let result=run('scripts/build-firmware.mjs',['--fixture','--output',receiptDir]);
+    let result=runAt(temp,'scripts/build-firmware.mjs',['--fixture','--output',receiptDir]);
     assert.equal(result.status,0,result.stderr);
     result=runAt(temp,'scripts/build-static.mjs',['--fixture','--release','fixture-test','--receipt',join(receiptDir,'build-receipt.json')]);
     assert.equal(result.status,0,result.stderr);

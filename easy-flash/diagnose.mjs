@@ -4,7 +4,7 @@ const RESCUE_PATTERNS = [
   /WLED rescue mode active\. Flash over serial, or send 'format'\/'reboot'\./i,
   /WLED rescue mode: (?:skipping config|LED output skipped|usermods skipped|WiFi scan skipped|network interfaces skipped)/i,
 ];
-const BUTTON_DIAGNOSTIC = /WLED button diagnostics:\s*(STUCK_BUTTON|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
+const BUTTON_DIAGNOSTIC = /WLED button diagnostics:\s*(STUCK_BUTTON|AVAILABLE|INACTIVE|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
 const DEFAULT_BAUD_RATE = 115200;
 const READ_WINDOW_MS = 1200;
 const MAX_BYTES = 8192;
@@ -25,7 +25,7 @@ export function parseDiagnosticText(text = "") {
     chip: chip || null,
     button: buttonDiagnostic,
     buttonProblem: buttonDiagnostic?.toUpperCase() === "STUCK_BUTTON",
-    buttonDiagnostics: buttonDiagnostic?.toLowerCase() === "healthy" ? "healthy" : buttonDiagnostic?.toLowerCase().startsWith("disabled") ? "disabled" : buttonDiagnostic ? "problem" : null,
+    buttonDiagnostics: ["available", "inactive", "healthy"].includes(buttonDiagnostic?.toLowerCase()) ? buttonDiagnostic.toLowerCase() : buttonDiagnostic?.toLowerCase().startsWith("disabled") ? "disabled" : buttonDiagnostic ? "problem" : null,
   };
 }
 

@@ -4,7 +4,7 @@ const RESCUE_PATTERNS = [
   /WLED rescue mode active\. Flash over serial, or send 'format'\/'reboot'\./i,
   /WLED rescue mode: (?:skipping config|LED output skipped|usermods skipped|WiFi scan skipped|network interfaces skipped)/i,
 ];
-const BUTTON_DIAGNOSTIC = /WLED button diagnostics:\s*(STUCK_BUTTON|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
+const BUTTON_DIAGNOSTIC = /WLED button diagnostics:\s*(STUCK_BUTTON|AVAILABLE|INACTIVE|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
 const DEFAULT_BAUD_RATE = 115200;
 const READ_WINDOW_MS = 1200;
 const MAX_BYTES = 8192;
@@ -25,7 +25,7 @@ export function parseDiagnosticText(text = "") {
     chip: chip || null,
     button: buttonDiagnostic,
     buttonProblem: buttonDiagnostic?.toUpperCase() === "STUCK_BUTTON",
-    buttonDiagnostics: buttonDiagnostic?.toLowerCase() === "healthy" ? "healthy" : buttonDiagnostic?.toLowerCase().startsWith("disabled") ? "disabled" : buttonDiagnostic ? "problem" : null,
+    buttonDiagnostics: ["available", "inactive", "healthy"].includes(buttonDiagnostic?.toLowerCase()) ? buttonDiagnostic.toLowerCase() : buttonDiagnostic?.toLowerCase().startsWith("disabled") ? "disabled" : buttonDiagnostic ? "problem" : null,
   };
 }
 
@@ -43,6 +43,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
     let opened = false;
     let reader;
     let text = "";
+    let bytesRead = 0;
     try {
       if (!port.readable) {
         await port.open({ baudRate });
@@ -53,7 +54,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
       if (!reader) return { ...parseDiagnosticText(""), portInfo: info };
       const decoder = new TextDecoder();
       const deadline = Date.now() + timeoutMs;
-      while (text.length < maxBytes && Date.now() < deadline) {
+      while (bytesRead < maxBytes && Date.now() < deadline) {
         const remaining = Math.max(1, deadline - Date.now());
         let result;
         try {
@@ -66,10 +67,14 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
         }
         if (result.timeout) { await reader.cancel?.(); break; }
         if (result.done) break;
-        if (result.value) text += decoder.decode(result.value, { stream: true });
+        if (result.value) {
+          const chunk = result.value.subarray(0, maxBytes - bytesRead);
+          bytesRead += chunk.byteLength;
+          text += decoder.decode(chunk, { stream: bytesRead < maxBytes });
+        }
       }
       text += decoder.decode();
-      const parsed = parseDiagnosticText(text.slice(0, maxBytes));
+      const parsed = parseDiagnosticText(text);
       onText(parsed.raw);
       return { ...parsed, portInfo: info };
     } finally {
