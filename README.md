@@ -18,7 +18,7 @@ The ESP ROM can prove a compatible chip family, but it cannot prove the controll
 
 A successful `esptool-js` write return means the writer accepted the requested bytes. This flow performs **no flash readback**, so it does not claim byte-for-byte destination verification. A requested reset also does not prove that WLED booted or that attached lights are healthy; the result asks the operator to check the lights and preserves that health limitation.
 
-This repository correction includes no device access, firmware write, deployment, DNS change, push, or remote mutation.
+Repository builds and previews do not contact or flash a controller. Device access begins only after a person opens the hosted page and explicitly chooses **Connect**; a firmware write still requires the separate **Install** action.
 
 ## Reproducible release input
 
@@ -41,5 +41,68 @@ Each immutable release also carries public provenance under `releases/<release-i
 ## Tracked `dist` policy
 
 `dist/` remains tracked as a generated, verified **pilot snapshot** so the complete static hosting graph can be reviewed without running a device or deployment. It is not evidence of a current dependency build merely because it is present in Git. Any production candidate must regenerate it from the fresh machine receipt, run release verification and tests, and review the resulting diff. Generated firmware binaries are never auto-committed or auto-deployed.
+
+## Integration-agent guide
+
+This repository is a delivery adapter, not a second firmware authority. An integrating agent must preserve these ownership boundaries:
+
+- `SteveEisner/WLEDtubes` owns firmware source, hardware targets, PlatformIO environments, partition geometry, and the canonical update contract.
+- `dependency-lock.json` selects one full WLEDTubes commit and one approved environment. Update both the lock and the workflow checkout/ref/release ID together; never point at a floating branch.
+- Easy Flash owns the static browser UI, Web Serial adapter, release packaging and verification, GitHub Actions build lane, and Vercel-ready static configuration.
+- Vercel serves the reviewed tracked `dist/`. It must not compile firmware, obtain GitHub secrets, or redefine target identity.
+
+### What GitHub Actions does
+
+On a push, pull request, or manual dispatch, [`.github/workflows/build.yml`](.github/workflows/build.yml):
+
+1. checks out Easy Flash and the exact WLEDTubes commit pinned in `dependency-lock.json`;
+2. installs the pinned Node/Python build prerequisites;
+3. runs the WLED web prerequisite, validates deterministic contract generation, and compiles only `esp32_quinled_dig2go_tubes`;
+4. creates the merged USB recovery image from authoritative build outputs and canonical offsets;
+5. emits and verifies a production build receipt binding repository, full commit, clean-tree state, environment, contract, partition, artifacts, and component hashes;
+6. generates `dist/current.json`, the immutable release manifest, firmware, and public provenance bundle;
+7. verifies the release and runs the static, supply-chain, browser-state, and safety suites;
+8. confirms source/configuration files were not changed by generation; and
+9. uploads `easy-flash-dist` for human review.
+
+The workflow deliberately does **not** deploy, push generated files, create releases, contact a device, or use Vercel credentials. Cross-platform toolchain metadata can make separately built firmware bytes differ; every fresh artifact is therefore admitted by its own verified source-bound receipt rather than by assuming macOS and Linux outputs are byte-identical.
+
+### Integrating a new canonical WLEDTubes revision
+
+1. Start from a reviewed WLEDTubes commit that already contains the required target, contract, partition definition, and build scripts.
+2. Update `dependency-lock.json` with the exact 40-character upstream commit and approved environment.
+3. Update the immutable checkout ref and `EASY_FLASH_RELEASE` in `.github/workflows/build.yml`. The release ID must be stable and must match the generated `current.json`/manifest paths.
+4. Run a fresh production build and verification:
+
+   ```sh
+   npm ci
+   node scripts/build-firmware.mjs \
+     --source ../WLEDTubes \
+     --output build/easy-flash-firmware
+   EASY_FLASH_BUILD_RECEIPT=build/easy-flash-firmware/build-receipt.json \
+   EASY_FLASH_RELEASE=<immutable-release-id> \
+     npm run build
+   npm run verify
+   npm test
+   npm run test:easy-flash
+   git diff --check
+   ```
+
+5. Review the complete `dist/` diff and public provenance. Do not accept missing evidence, a dirty source checkout, the wrong environment, changed partition geometry, duplicate/missing components, or a mutable/cross-origin artifact path.
+6. Push normally and require the GitHub Actions run to build and upload a green `easy-flash-dist` artifact.
+7. Download that exact CI artifact, run `npm run verify` against it, and inspect the hosted beginner flow before promoting the tracked snapshot or asking the hosting owner to deploy.
+
+### Invariants an integrating agent must not weaken
+
+- Opening the page and **Connect** never write firmware; only **Install** may cross the write boundary.
+- Generic ESP ROM/VID/PID evidence does not prove a QuinLED Dig2Go. When exact machine proof is unavailable, the printed-model confirmation remains required and target-bound.
+- The prepared session is bound to an immutable token and the exact `SerialPort`; disconnect, reconnect, port replacement, or changed chip evidence invalidates it.
+- Whole-image length/SHA-256 and every required component ID, offset, bound, overlap rule, and slice hash are checked immediately before write.
+- `eraseAll` remains false. Backup, readback, boot health, and mesh rejoin are never claimed when they were not observed.
+- No runtime Node server, `/api` firmware route, service worker, telemetry, account, firmware chooser, automatic write, or parallel hardware-identity registry may be introduced.
+
+### Vercel handoff
+
+[`vercel.json`](vercel.json) explicitly sets `outputDirectory` to `dist` and leaves install/build commands empty. Connecting the repository should serve the reviewed tracked snapshot; Vercel must not invoke the receipt-dependent production builder. `current.json` revalidates, while immutable release paths receive long-lived caching. The hosting owner remains responsible for the Vercel project and DNS.
 
 Third-party notices are in [`NOTICES.md`](NOTICES.md) and [`easy-flash/THIRD_PARTY_NOTICES.md`](easy-flash/THIRD_PARTY_NOTICES.md).
