@@ -1,0 +1,17 @@
+name: Build Easy Flash
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: {repository: SteveEisner/WLEDtubes, ref: 84801e8e, path: vendor/WLEDtubes}
+      - uses: actions/setup-node@v4
+        with: {node-version: 20, cache: npm}
+      - run: npm ci
+      - run: test -f vendor/WLEDtubes/platformio.ini && grep -q 'esp32_quinled_dig2go_tubes' vendor/WLEDtubes/platformio.ini
+      - run: npm run build && npm run verify && npm test
+      - uses: actions/upload-artifact@v4
+        with: {name: easy-flash-dist, path: dist}

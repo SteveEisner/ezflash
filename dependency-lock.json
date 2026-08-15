@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+  "ref": "84801e8e",
+  "commit": "84801e8e",
+  "environment": "esp32_quinled_dig2go_tubes",
+  "status": "temporary-reviewed-ref",
+  "promotion": "Promote to main only after PR67 canonical contract and generator land; update ref and review receipt before release."
+}

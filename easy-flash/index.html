@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#12100e">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+	<title>WLEDTubes Easy Flash</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<header><div class="brand"><span class="mark">WT</span><div><strong>WLEDTubes</strong><small>Easy Flash</small></div></div><span class="status">LOCAL USB BETA</span></header>
+	<main>
+		<section class="hero"><p class="eyebrow">WLEDTUBES · EASY FLASH</p><h1>Buy. Build. <em>Rave.</em></h1></section>
+		<section class="install-card" aria-labelledby="installTitle">
+			<p class="kicker">INSTALL YOUR CONTROLLER</p>
+			<h2 id="installTitle">Plug in your controller</h2>
+			<p class="lede" id="instruction">Connect the controller to this computer with a USB data cable, then choose Connect.</p>
+			<div class="controller-state" id="controllerState" role="status" aria-live="polite">
+				<span class="state-dot"></span><div><strong>Waiting for controller</strong><p id="controllerStatus">Nothing will be installed when you connect.</p></div>
+			</div>
+			<button type="button" class="primary" id="connect">Connect</button>
+			<label class="physical-confirmation" id="physicalConfirmation" hidden><input id="confirmedDig2Go" type="checkbox" aria-describedby="confirmationGuidance"><span><strong>Yes, this is a QuinLED Dig2Go</strong><small id="confirmationGuidance">I checked the name printed on the controller. The computer detected a compatible ESP chip, but cannot prove the board model.</small></span></label>
+			<button type="button" class="primary install" id="install" disabled hidden>Install</button>
+			<p class="action-note" id="actionNote" hidden>Install replaces the controller firmware. It never starts automatically.</p>
+			<details id="advancedDetails"><summary>Advanced details</summary><dl id="technicalDetails"><div><dt>Firmware</dt><dd>Loading verified Dig2Go firmware…</dd></div></dl></details>
+		</section>
+		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p></section>
+	</main>
+	<footer>Tubes v14 / WLED 16 · Local and integrity-checked</footer>
+	<script type="module" src="app.mjs"></script>
+</body>
+</html>
