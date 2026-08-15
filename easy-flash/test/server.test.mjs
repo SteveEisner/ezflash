@@ -22,7 +22,7 @@ after(async () => {
 test("serves the laptop USB prototype without an unverified local-build artifact API", async () => {
 	const page = await fetch(`http://127.0.0.1:${port}/`);
 	assert.equal(page.status, 200);
-	assert.match(await page.text(), /LOCAL USB BETA/);
+	assert.doesNotMatch(await page.text(), /LOCAL USB BETA/);
 	assert.equal((await fetch(`http://127.0.0.1:${port}/api/artifact`)).status, 404);
 });
 

@@ -23,6 +23,16 @@ test('production build-static refuses checked-in firmware without a fresh receip
   assert.match(result.stderr, /receipt/i);
 });
 
+test('fixture firmware build is portable from an arbitrary checkout path', async () => {
+  const checkout=await mkdtemp(join(tmpdir(),'easy-flash-portable-')), out=join(checkout,'receipt');
+  try {
+    for (const path of ['dependency-lock.json','easy-flash','scripts']) await cp(new URL(`../${path}`,import.meta.url),join(checkout,path),{recursive:true});
+    const result=spawnSync(process.execPath,[join(checkout,'scripts/build-firmware.mjs'),'--fixture','--output',out],{cwd:checkout,encoding:'utf8'});
+    assert.equal(result.status,0,result.stderr);
+    await readFile(join(out,'build-receipt.json'));
+  } finally { await rm(checkout,{recursive:true,force:true}); }
+});
+
 test('explicit fixture mode produces a provenance-bound receipt which verifies', async () => {
   const out=await mkdtemp(join(tmpdir(),'easy-flash-fixture-'));
   try {
@@ -104,4 +114,12 @@ test('workflow is least privilege, immutable, builds dependency, and never deplo
   assert.match(workflow,/git diff --exit-code -- \. '\:\(exclude\)dist'/);
   assert.match(workflow,/upload-artifact/);
   assert.doesNotMatch(workflow,/vercel|deploy/i);
+});
+
+test('Vercel serves the tracked dist without a firmware-receipt build', async () => {
+  const config=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url)));
+  assert.equal(config.outputDirectory,'dist');
+  assert.ok(!('buildCommand' in config) || config.buildCommand === null || config.buildCommand === '');
+  assert.ok(config.headers.some(({source,headers})=>source==='/current.json'&&headers.some(({key,value})=>key==='Cache-Control'&&/no-cache/.test(value))));
+  assert.ok(config.headers.some(({source,headers})=>source==='/releases/(.*)'&&headers.some(({key,value})=>key==='Cache-Control'&&/immutable/.test(value))));
 });

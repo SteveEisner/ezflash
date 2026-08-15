@@ -21,7 +21,7 @@ function fixture({exactBoard=false}={}) {
 }
 
 test("UI seam blocks unchecked confirmation and passes exact target-bound assertion when checked",async()=>{
-	const f=fixture();await f.app.connect();assert.equal(f.doc.activeElement,f.doc.nodes["#confirmedDig2Go"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/confirm.*then choose Install/i);
+	const f=fixture();assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,true);await f.app.connect();assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,false);assert.equal(f.doc.activeElement,f.doc.nodes["#confirmedDig2Go"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/confirm.*then choose Install/i);
 	await f.app.install();assert.equal(f.counts(),0);
 	f.doc.nodes["#confirmedDig2Go"].checked=true;f.doc.nodes["#confirmedDig2Go"].dispatch("change");await f.app.install();assert.equal(f.counts(),1);
 	assert.deepEqual(f.args().physicalConfirmation,{asserted:true,targetId:"previous-stable-control",printedModel:"QuinLED Dig2Go"});assert.equal(f.args().sessionToken.id,"token");assert.equal(f.args().port.id,"port");
@@ -45,7 +45,7 @@ test("one chooser cancellation leaves the idle reconnect state without a write",
 });
 
 test("exact evidence focuses Install; disconnect resets confirmation and prevents stale reuse",async()=>{
-	const f=fixture({exactBoard:true});await f.app.connect();assert.equal(f.doc.activeElement,f.doc.nodes["#install"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/choose Install/i);
+	const f=fixture({exactBoard:true});await f.app.connect();assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,true);assert.equal(f.doc.activeElement,f.doc.nodes["#install"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/choose Install/i);
 	f.doc.nodes["#confirmedDig2Go"].checked=true;f.disconnect();assert.equal(f.doc.nodes["#confirmedDig2Go"].checked,false);assert.equal(f.doc.nodes["#install"].hidden,true);assert.equal(f.doc.nodes["#install"].disabled,true);assert.equal(f.doc.activeElement,f.doc.nodes["#connect"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/disconnected.*reconnect/i);await f.app.install();assert.equal(f.counts(),0);
 });
 

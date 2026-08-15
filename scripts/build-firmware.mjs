@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 import {cp,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve,join,basename} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {fileEvidence,jsonHash,sha256} from './release-provenance.mjs';
 
 const args=process.argv.slice(2), fixture=args.includes('--fixture');
 const value=name=>{const i=args.indexOf(name); return i<0?undefined:args[i+1]};
-const out=resolve(value('--output')||'build/easy-flash-firmware'), root=resolve('..'), lock=JSON.parse(await readFile(resolve(root,'WLEDTubes-Easy-Flash/dependency-lock.json'),'utf8'));
-const source=resolve(value('--source')||join(root,'WLEDTubes'));
+const repoRoot=fileURLToPath(new URL('..',import.meta.url)), workspaceRoot=resolve(repoRoot,'..');
+const out=resolve(value('--output')||'build/easy-flash-firmware'), lock=JSON.parse(await readFile(join(repoRoot,'dependency-lock.json'),'utf8'));
+const source=resolve(value('--source')||join(workspaceRoot,'WLEDTubes'));
 const run=(cmd,a,cwd=source)=>{const r=spawnSync(cmd,a,{cwd,stdio:'inherit'});if(r.status!==0)throw Error(`${cmd} failed (${r.status})`)};
 await mkdir(out,{recursive:true});
 let contractPath, partitionPath, usbPath, otaPath, clean=true, builtComponents;
 if(fixture) {
-  const easy=resolve(root,'WLEDTubes-Easy-Flash/easy-flash');
+  const easy=join(repoRoot,'easy-flash');
   const manifest=JSON.parse(await readFile(join(easy,'firmware-manifest.json'))), variant=manifest.variants[0], merged=variant.artifacts.find(a=>a.transport==='usb');
   contractPath=join(out,'fixture-update-contract.json'); partitionPath=join(out,'fixture-partition-evidence.json');
   await writeFile(contractPath,JSON.stringify({schemaVersion:1,targets:[{id:'quinled-dig2go',partition:{csvPath:'fixture-partition-evidence.json',otaSlots:[variant.partition.otaSlot]}}],artifacts:[{targetId:'quinled-dig2go',kind:'complete-merged-image',transport:'usb',components:merged.components.map(c=>({id:c.name,offset:c.offset,lengthBytes:c.sizeBytes}))}]}));
