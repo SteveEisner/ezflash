@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "receiptDigestAlgorithm": "sha256-stable-json-v1",
+  "pathBase": "release-directory",
+  "sourceReceiptDigestAlgorithm": "sha256-stable-json-v1",
+  "sourceReceiptDigestSha256": "60d3c0e28f4ce763839b60c1789b7bd66b6b54a9cafbb02db1966500326e5d60",
+  "sourceReceipt": {
+    "schemaVersion": 1,
+    "mode": "fixture",
+    "source": {
+      "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+      "commit": "84801e8e2c61458dc0d79c9ba646a4cec3a44f39",
+      "clean": true
+    },
+    "environment": "esp32_quinled_dig2go_tubes",
+    "contract": {
+      "path": "update-contract.json",
+      "lengthBytes": 490,
+      "sha256": "396faa52e0d7acf8e51d9b25311f2167c0010f7a8f25ef8ebcf2a6e84c219e42"
+    },
+    "partition": {
+      "path": "fixture-partition-evidence.json",
+      "lengthBytes": 215,
+      "sha256": "2eefb5ab4fdcf269d07d36286299fd671c52506200f1cdefad861c62005f2b81",
+      "csvPath": "fixture-partition-evidence.json"
+    },
+    "artifacts": {
+      "usb": {
+        "path": "merged.bin",
+        "lengthBytes": 1324928,
+        "sha256": "4608ebbe3fbaa8406214e85c5e116f35d06c46ad9e703d38a797e13dc0214b91",
+        "kind": "complete-merged-image",
+        "transport": "usb",
+        "writeOffset": 0,
+        "components": [
+          {
+            "id": "bootloader",
+            "offset": 4096,
+            "lengthBytes": 15936,
+            "sha256": "5b6c865321f53124d9ec9467b72daa0572b4387f725051f785771447d3dab095"
+          },
+          {
+            "id": "partitions",
+            "offset": 32768,
+            "lengthBytes": 3072,
+            "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+          },
+          {
+            "id": "boot-app0",
+            "offset": 57344,
+            "lengthBytes": 8192,
+            "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+          },
+          {
+            "id": "application",
+            "offset": 65536,
+            "lengthBytes": 1259392,
+            "sha256": "bf6dc2feedb1669361471e9cc2224b1b2b1ba0e15602e58258dfde4e41569f2d"
+          }
+        ]
+      },
+      "ota": {
+        "path": "firmware.bin",
+        "lengthBytes": 1259392,
+        "sha256": "bf6dc2feedb1669361471e9cc2224b1b2b1ba0e15602e58258dfde4e41569f2d",
+        "kind": "application-image",
+        "transport": "ota",
+        "buildOffset": 65536
+      }
+    }
+  },
+  "mode": "fixture",
+  "source": {
+    "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+    "commit": "84801e8e2c61458dc0d79c9ba646a4cec3a44f39",
+    "clean": true
+  },
+  "environment": "esp32_quinled_dig2go_tubes",
+  "contract": {
+    "path": "provenance/update-contract.json",
+    "lengthBytes": 490,
+    "sha256": "396faa52e0d7acf8e51d9b25311f2167c0010f7a8f25ef8ebcf2a6e84c219e42"
+  },
+  "partition": {
+    "path": "provenance/fixture-partition-evidence.json",
+    "csvPath": "fixture-partition-evidence.json",
+    "lengthBytes": 215,
+    "sha256": "2eefb5ab4fdcf269d07d36286299fd671c52506200f1cdefad861c62005f2b81"
+  },
+  "artifacts": {
+    "usb": {
+      "path": "firmware/merged.bin",
+      "lengthBytes": 1324928,
+      "sha256": "4608ebbe3fbaa8406214e85c5e116f35d06c46ad9e703d38a797e13dc0214b91",
+      "kind": "complete-merged-image",
+      "transport": "usb",
+      "writeOffset": 0,
+      "components": [
+        {
+          "id": "bootloader",
+          "offset": 4096,
+          "lengthBytes": 15936,
+          "sha256": "5b6c865321f53124d9ec9467b72daa0572b4387f725051f785771447d3dab095"
+        },
+        {
+          "id": "partitions",
+          "offset": 32768,
+          "lengthBytes": 3072,
+          "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+        },
+        {
+          "id": "boot-app0",
+          "offset": 57344,
+          "lengthBytes": 8192,
+          "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+        },
+        {
+          "id": "application",
+          "offset": 65536,
+          "lengthBytes": 1259392,
+          "sha256": "bf6dc2feedb1669361471e9cc2224b1b2b1ba0e15602e58258dfde4e41569f2d"
+        }
+      ]
+    },
+    "ota": {
+      "lengthBytes": 1259392,
+      "sha256": "bf6dc2feedb1669361471e9cc2224b1b2b1ba0e15602e58258dfde4e41569f2d",
+      "kind": "application-image",
+      "transport": "ota",
+      "buildOffset": 65536,
+      "published": false
+    }
+  },
+  "receiptDigestSha256": "438b4bed1337bc13bb8c09a93eff2ee5ce3c047e1f38f60cd33fffb90f73e215"
+}

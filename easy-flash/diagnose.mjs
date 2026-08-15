@@ -1,12 +1,18 @@
 const RESCUE_PATTERNS = [
-  /rescue|safe[- ]mode|recovery|waiting for firmware|no network|ap mode/i,
+  /WLED rescue mode: startup button held/i,
+  /WLED rescue mode: serial command received/i,
+  /WLED rescue mode active\. Flash over serial, or send 'format'\/'reboot'\./i,
+  /WLED rescue mode: (?:skipping config|LED output skipped|usermods skipped|WiFi scan skipped|network interfaces skipped)/i,
 ];
+const BUTTON_DIAGNOSTIC = /WLED button diagnostics:\s*(STUCK_BUTTON|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
+const DEFAULT_BAUD_RATE = 115200;
+const READ_WINDOW_MS = 1200;
+const MAX_BYTES = 8192;
 
 export function parseDiagnosticText(text = "") {
   const raw = String(text);
-  const lower = raw.toLowerCase();
   const rescue = RESCUE_PATTERNS.some((pattern) => pattern.test(raw));
-  const button = raw.match(/(?:button|key|input)\s*[:=]?\s*([a-z0-9 _-]+?)(?:\s+(?:stuck|held|unexpected)|[\r\n]|$)/i);
+  const buttonDiagnostic = raw.match(BUTTON_DIAGNOSTIC)?.[1] ?? null;
   const target = raw.match(/(?:target|board|model)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim();
   const chip = raw.match(/(?:chip|chip family|platform)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim();
   return {
@@ -17,8 +23,9 @@ export function parseDiagnosticText(text = "") {
     networkAbsent: rescue,
     target: target || null,
     chip: chip || null,
-    button: button ? button[1].trim() : null,
-    buttonProblem: /stuck|held|unexpected button|button error/i.test(raw),
+    button: buttonDiagnostic,
+    buttonProblem: buttonDiagnostic?.toUpperCase() === "STUCK_BUTTON",
+    buttonDiagnostics: buttonDiagnostic?.toLowerCase() === "healthy" ? "healthy" : buttonDiagnostic?.toLowerCase().startsWith("disabled") ? "disabled" : buttonDiagnostic ? "problem" : null,
   };
 }
 
@@ -28,29 +35,47 @@ export function diagnoseSummary(diagnostic) {
   return "No supported diagnostic telemetry was found. This does not prove the device is healthy or faulty.";
 }
 
-export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial } = {}) {
+export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, baudRate = DEFAULT_BAUD_RATE, timeoutMs = READ_WINDOW_MS, maxBytes = MAX_BYTES } = {}) {
   async function inspect({ onText = () => {}, onStatus = () => {} } = {}) {
     if (!serial?.requestPort) throw new Error("Open Easy Flash in desktop Chrome or Edge over HTTPS to use serial diagnostics.");
     const port = await serial.requestPort();
     const info = port.getInfo?.() || {};
-    const diagnostic = parseDiagnosticText("");
-    onStatus("Connected read-only. Waiting for a diagnostic banner…");
-    // Do not open, reset, write, or invoke a bootloader. A port that is already
-    // open may expose boot/runtime text; otherwise report telemetry as unknown.
-    if (port.readable) {
-      const reader = port.readable.getReader();
-      try {
-        const decoder = new TextDecoder();
-        const result = await Promise.race([
-          reader.read().then(({ value }) => decoder.decode(value || new Uint8Array())),
-          new Promise((resolve) => setTimeout(() => resolve(""), 1200)),
-        ]);
-        const parsed = parseDiagnosticText(result);
-        onText(parsed.raw);
-        return { ...parsed, portInfo: info };
-      } finally { reader.releaseLock(); }
+    let opened = false;
+    let reader;
+    let text = "";
+    try {
+      if (!port.readable) {
+        await port.open({ baudRate });
+        opened = true;
+      }
+      onStatus("Connected read-only. Waiting for a diagnostic banner…");
+      reader = port.readable?.getReader();
+      if (!reader) return { ...parseDiagnosticText(""), portInfo: info };
+      const decoder = new TextDecoder();
+      const deadline = Date.now() + timeoutMs;
+      while (text.length < maxBytes && Date.now() < deadline) {
+        const remaining = Math.max(1, deadline - Date.now());
+        let result;
+        try {
+          result = await Promise.race([
+            reader.read(),
+            new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), remaining)),
+          ]);
+        } catch {
+          break;
+        }
+        if (result.timeout) { await reader.cancel?.(); break; }
+        if (result.done) break;
+        if (result.value) text += decoder.decode(result.value, { stream: true });
+      }
+      text += decoder.decode();
+      const parsed = parseDiagnosticText(text.slice(0, maxBytes));
+      onText(parsed.raw);
+      return { ...parsed, portInfo: info };
+    } finally {
+      if (reader) reader.releaseLock();
+      if (opened) await port.close();
     }
-    return { ...diagnostic, portInfo: info };
   }
   return { inspect };
 }
