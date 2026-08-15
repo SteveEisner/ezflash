@@ -39,9 +39,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/v0/firmware/merged.bin",
+          "path": "releases/candidate-84801e8e/firmware/merged.bin",
           "sizeBytes": 1325408,
-          "sha256": "14df7ed6e662058860e17ee7099a39d7fab919daf5f1fa141389b8a4ef9c6ba5",
+          "sha256": "82406247eafeeeaa1ab38c2aa6ba008ed1414145268161541c7dc5dcc1b40d3c",
           "offset": 0,
           "components": [
             {
@@ -66,7 +66,7 @@
               "name": "application",
               "offset": 65536,
               "sizeBytes": 1259872,
-              "sha256": "aa943e25d2e915c832a37b1b906198b72649aa46a26c81bbdd6f3114f95b3eee"
+              "sha256": "7b68f0a4f0552443a7be79a9da1a2bef3c8d2b6672b5207f9d2858c762b58b03"
             }
           ]
         }
@@ -78,7 +78,7 @@
     }
   ],
   "provenance": {
-    "receiptSha256": "79621a4296d4a48acb95cf5c45c2e53ae8005a254869ae3805a10655abba84bd",
+    "receiptSha256": "3a4180be3d628f43f11c230bbb96fbc05c89ee97383b1a0bcc79ccb430bbebf9",
     "contractSha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0",
     "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
     "mode": "production"
