@@ -1,12 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp, readFile, rm} from 'node:fs/promises';
+import {cp, mkdtemp, readFile, rm, unlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 
 const root = new URL('..', import.meta.url);
 const run = (script, args=[]) => spawnSync(process.execPath, [new URL(script, root).pathname, ...args], {encoding:'utf8'});
+const runAt = (cwd,script,args=[]) => spawnSync(process.execPath, [new URL(script,root).pathname,...args], {cwd,encoding:'utf8'});
+const verifyAt = (cwd,args=[]) => runAt(cwd,'scripts/verify-release.mjs',args);
 
 test('dependency lock is an immutable Steve upstream commit', async () => {
   const lock=JSON.parse(await readFile(new URL('../dependency-lock.json', import.meta.url)));
@@ -34,6 +36,63 @@ test('explicit fixture mode produces a provenance-bound receipt which verifies',
     assert.match(receipt.contract.sha256,/^[0-9a-f]{64}$/);
     assert.match(receipt.partition.sha256,/^[0-9a-f]{64}$/);
   } finally { await rm(out,{recursive:true,force:true}); }
+});
+
+test('fixture static release carries equivalent provenance and remains production-rejected', async () => {
+  const temp=await mkdtemp(join(tmpdir(),'easy-flash-fixture-release-')), receiptDir=join(temp,'receipt');
+  try {
+    await cp(new URL('../easy-flash',import.meta.url),join(temp,'easy-flash'),{recursive:true});
+    await cp(new URL('../_headers',import.meta.url),join(temp,'_headers'));
+    let result=run('scripts/build-firmware.mjs',['--fixture','--output',receiptDir]);
+    assert.equal(result.status,0,result.stderr);
+    result=runAt(temp,'scripts/build-static.mjs',['--fixture','--release','fixture-test','--receipt',join(receiptDir,'build-receipt.json')]);
+    assert.equal(result.status,0,result.stderr);
+    const manifest=JSON.parse(await readFile(join(temp,'dist/releases/fixture-test/manifest.json')));
+    assert.equal(manifest.provenance.mode,'fixture');
+    for(const kind of ['receipt','contract','partition']) {
+      assert.match(manifest.provenance.evidence[kind].sha256,/^[0-9a-f]{64}$/);
+      await readFile(join(temp,'dist',manifest.provenance.evidence[kind].path));
+    }
+    result=verifyAt(temp,['--fixture']);
+    assert.equal(result.status,0,result.stderr);
+    result=verifyAt(temp);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/non-production release provenance rejected/i);
+  } finally { await rm(temp,{recursive:true,force:true}); }
+});
+
+test('release verifier rejects mutated and missing public provenance evidence', async () => {
+  const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-evidence-'));
+  try {
+    await cp(new URL('../dist',import.meta.url),join(temp,'dist'),{recursive:true});
+    const current=JSON.parse(await readFile(join(temp,'dist/current.json')));
+    const manifestPath=join(temp,'dist',current.manifest), manifest=JSON.parse(await readFile(manifestPath));
+    const receiptPath=join(temp,'dist',manifest.provenance.evidence.receipt.path);
+    await writeFile(receiptPath,Buffer.concat([await readFile(receiptPath),Buffer.from('\n')]));
+    let result=verifyAt(temp);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/receipt provenance evidence mismatch/i);
+    await cp(new URL('../dist',import.meta.url),join(temp,'dist'),{recursive:true,force:true});
+    const freshManifest=JSON.parse(await readFile(manifestPath));
+    await unlink(join(temp,'dist',freshManifest.provenance.evidence.contract.path));
+    result=verifyAt(temp);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/ENOENT|contract/i);
+  } finally { await rm(temp,{recursive:true,force:true}); }
+});
+
+test('release verifier rejects provenance path traversal before reading evidence', async () => {
+  const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-traversal-'));
+  try {
+    await cp(new URL('../dist',import.meta.url),join(temp,'dist'),{recursive:true});
+    const current=JSON.parse(await readFile(join(temp,'dist/current.json'))), manifestPath=join(temp,'dist',current.manifest);
+    const manifest=JSON.parse(await readFile(manifestPath));
+    manifest.provenance.evidence.partition.path=`releases/${current.releaseId}/provenance/../../manifest.json`;
+    await writeFile(manifestPath,JSON.stringify(manifest));
+    const result=verifyAt(temp);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/safe immutable relative path|outside immutable release/i);
+  } finally { await rm(temp,{recursive:true,force:true}); }
 });
 
 test('workflow is least privilege, immutable, builds dependency, and never deploys', async () => {

@@ -78,9 +78,24 @@
     }
   ],
   "provenance": {
-    "receiptSha256": "3a4180be3d628f43f11c230bbb96fbc05c89ee97383b1a0bcc79ccb430bbebf9",
+    "receiptDigestSha256": "944a13ae178a9c7db0b79d06d958487411d0295670c08374f41815584b4e9e23",
+    "sourceReceiptDigestSha256": "3a4180be3d628f43f11c230bbb96fbc05c89ee97383b1a0bcc79ccb430bbebf9",
     "contractSha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0",
     "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
-    "mode": "production"
+    "mode": "production",
+    "evidence": {
+      "receipt": {
+        "path": "releases/candidate-84801e8e/provenance/build-receipt.json",
+        "sha256": "6f4cf1cf563f789f917f3e0db6fb9a273e9e8126b492c71653e4d1470c8050c4"
+      },
+      "contract": {
+        "path": "releases/candidate-84801e8e/provenance/update-contract.json",
+        "sha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0"
+      },
+      "partition": {
+        "path": "releases/candidate-84801e8e/provenance/WLED_ESP32_4MB_1MB_FS.csv",
+        "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44"
+      }
+    }
   }
 }

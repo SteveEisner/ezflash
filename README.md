@@ -36,6 +36,8 @@ npm test
 
 The GitHub build workflow has read-only repository permission, uses immutable action revisions, performs the dependency build and standalone verification, and uploads `dist` for human review. It does not deploy. Steve owns Vercel; [`vercel.json`](vercel.json) and [`_headers`](_headers) are handoff configuration only.
 
+Each immutable release also carries public provenance under `releases/<release-id>/provenance/`: a normalized build receipt, the canonical update contract, and the exact partition CSV. The manifest binds their release-relative paths and byte hashes. Verification resolves those paths inside the immutable release directory, recomputes every hash, and cross-checks the receipt's separately defined deterministic digest, source commit and cleanliness, build environment, contract and partition geometry, and merged-image component slices. Fixture provenance has the same shape but remains rejected unless verification explicitly opts into fixture mode.
+
 ## Tracked `dist` policy
 
 `dist/` remains tracked as a generated, verified **pilot snapshot** so the complete static hosting graph can be reviewed without running a device or deployment. It is not evidence of a current dependency build merely because it is present in Git. Any production candidate must regenerate it from the fresh machine receipt, run release verification and tests, and review the resulting diff. Generated firmware binaries are never auto-committed or auto-deployed.
