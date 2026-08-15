@@ -10,6 +10,7 @@ const receiptPath=resolve(value('--receipt')||process.env.EASY_FLASH_BUILD_RECEI
 const receipt=await verifyBuildReceipt(receiptPath,{allowFixture:args.includes('--fixture')});
 const receiptRoot=dirname(receiptPath), out=resolve(root,'dist'), releaseRoot=resolve(out,'releases',release), provenanceRoot=resolve(releaseRoot,'provenance'); await rm(out,{recursive:true,force:true}); await mkdir(resolve(releaseRoot,'firmware'),{recursive:true}); await mkdir(provenanceRoot,{recursive:true});
 for(const f of ['index.html','styles.css','firmware-bench.css','app.mjs','hosted-release.mjs','local-flash.mjs','profiles.mjs','firmware-ui.mjs','device-identity.mjs','safety-contract.mjs','operation-receipts.mjs']) await cp(resolve(root,'easy-flash',f),resolve(out,f));
+await cp(resolve(root,'easy-flash/maintainer'),resolve(out,'maintainer'),{recursive:true}); await cp(resolve(root,'easy-flash/maintainer/status.mjs'),resolve(out,'maintainer/status.mjs'));
 await cp(resolve(root,'easy-flash/vendor'),resolve(out,'vendor'),{recursive:true});
 const source=JSON.parse(await readFile(resolve(root,'easy-flash/firmware-manifest.json'),'utf8')), variant=source.variants[0], artifact=receipt.artifacts.usb, name=basename(artifact.path), publicPath=`releases/${release}/firmware/${name}`;
 await cp(resolve(receiptRoot,artifact.path),resolve(out,publicPath)); variant.source={repository:receipt.source.repository,commit:receipt.source.commit,clean:receipt.source.clean}; variant.target.environment=receipt.environment; variant.partition.tableSha256=receipt.partition.sha256;
@@ -26,4 +27,4 @@ source.provenance={receiptDigestSha256:publicReceipt.receiptDigestSha256,sourceR
   receipt:{path:`releases/${release}/provenance/build-receipt.json`,sha256:sha256(receiptBytes)},
   contract:{path:`releases/${release}/provenance/${contractName}`,sha256:receipt.contract.sha256},
   partition:{path:`releases/${release}/provenance/${partitionName}`,sha256:receipt.partition.sha256}}};
-await writeFile(resolve(out,'releases',release,'manifest.json'),JSON.stringify(source,null,2)+'\n'); await writeFile(resolve(out,'current.json'),JSON.stringify({releaseId:release,manifest:`releases/${release}/manifest.json`},null,2)+'\n'); await cp(resolve(root,'_headers'),resolve(out,'_headers')); console.log(`built ${out} from verified ${receipt.mode} receipt`);
+await writeFile(resolve(out,'releases',release,'manifest.json'),JSON.stringify(source,null,2)+'\n'); await writeFile(resolve(out,'current.json'),JSON.stringify({releaseId:release,manifest:`releases/${release}/manifest.json`,generatedAt:new Date().toISOString()},null,2)+'\n'); await cp(resolve(root,'_headers'),resolve(out,'_headers')); console.log(`built ${out} from verified ${receipt.mode} receipt`);

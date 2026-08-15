@@ -10,7 +10,8 @@
 </head>
 <body>
 	<header><div class="brand"><span class="mark">WT</span><div><strong>WLEDTubes</strong><small>Easy Flash</small></div></div></header>
-	<main>
+	<nav id="maintainer-nav" role="tablist" aria-label="Easy Flash sections"><button id="flashTab" role="tab" aria-selected="true" aria-controls="flashView">Flash</button><button id="statusTab" role="tab" aria-selected="false" aria-controls="statusView">Status</button></nav>
+	<main id="flashView" role="tabpanel" aria-labelledby="flashTab">
 		<section class="hero"><p class="eyebrow">WLEDTUBES · EASY FLASH</p><h1>Buy. Build. <em>Rave.</em></h1></section>
 		<section class="install-card" aria-labelledby="installTitle">
 			<p class="kicker">INSTALL YOUR CONTROLLER</p>
@@ -27,7 +28,9 @@
 		</section>
 		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p></section>
 	</main>
+	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><p class="eyebrow">WLEDTUBES · MAINTAINER</p><h1>Release status</h1><p class="lede">Read-only provenance snapshot. This tab cannot install, flash, or contact a device.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release evidence.</p></div></section>
 	<footer>Tubes v14 / WLED 16 · Local and integrity-checked · Supported browsers: Chrome or Edge over HTTPS; Safari and Firefox can download but cannot use Web Serial.</footer>
 	<script type="module" src="app.mjs"></script>
+	<script type="module" src="maintainer/status.mjs"></script>
 </body>
 </html>
