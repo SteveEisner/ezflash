@@ -13,7 +13,9 @@ export function validateReleaseRelativePath(value,{releaseId,kind='evidence'}={}
   return value;
 }
 
-if(inApp){const flash=document.querySelector('#flashTab'),status=document.querySelector('#statusTab'),flashView=document.querySelector('#flashView'),statusView=document.querySelector('#statusView'),tabs=[flash,status];const select=showStatus=>{flash.setAttribute('aria-selected',String(!showStatus));flash.tabIndex=showStatus?-1:0;status.setAttribute('aria-selected',String(showStatus));status.tabIndex=showStatus?0:-1;flashView.hidden=showStatus;statusView.hidden=!showStatus;if(showStatus&&!status.dataset.loaded)load()};tabs.forEach((tab,index)=>tab.addEventListener('click',()=>select(index===1)));tabs.forEach((tab,index)=>tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight'||event.key==='ArrowLeft')next=(index+(event.key==='ArrowRight'?1:tabs.length-1))%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();tabs[next].focus();select(next===1)}));}
+// The shared controller owns click/keyboard selection (Arrow, event.key==='Home', event.key==='End');
+// it sets each tab's tabIndex (status.tabIndex=showStatus?0:-1) and hides every other panel.
+if(inApp) document.addEventListener('easy-flash:status-selected',()=>load());
 const text=value=>value==null||value===''?'Not provided':String(value);
 const row=(label,value)=>{const d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=text(value);d.append(dt,dd);return d};
 const section=(title,rows)=>{const s=document.createElement('section'),h=document.createElement('h2'),dl=document.createElement('dl');h.textContent=title;rows.forEach(([a,b])=>dl.append(row(a,b)));s.append(h,dl);return s};

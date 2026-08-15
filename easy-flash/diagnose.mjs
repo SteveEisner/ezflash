@@ -52,7 +52,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
       onStatus("Connected read-only. Waiting for a diagnostic banner…");
       reader = port.readable?.getReader();
       if (!reader) return { ...parseDiagnosticText(""), portInfo: info };
-      const decoder = new TextDecoder();
+      const rawBytes = new Uint8Array(maxBytes);
       const deadline = Date.now() + timeoutMs;
       while (bytesRead < maxBytes && Date.now() < deadline) {
         const remaining = Math.max(1, deadline - Date.now());
@@ -69,11 +69,17 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
         if (result.done) break;
         if (result.value) {
           const chunk = result.value.subarray(0, maxBytes - bytesRead);
+          rawBytes.set(chunk, bytesRead);
           bytesRead += chunk.byteLength;
-          text += decoder.decode(chunk, { stream: bytesRead < maxBytes });
         }
       }
-      text += decoder.decode();
+      // Decode only complete UTF-8 code points. TextDecoder's replacement for
+      // an incomplete suffix can be three bytes, exceeding the raw byte cap.
+      let decodedBytes = rawBytes.subarray(0, bytesRead);
+      while (decodedBytes.byteLength) {
+        try { text = new TextDecoder("utf-8", { fatal: true }).decode(decodedBytes); break; }
+        catch { decodedBytes = decodedBytes.subarray(0, -1); }
+      }
       const parsed = parseDiagnosticText(text);
       onText(parsed.raw);
       return { ...parsed, portInfo: info };

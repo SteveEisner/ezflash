@@ -63,6 +63,18 @@ test("caps diagnostics at raw bytes before decoding non-ASCII chunks", async () 
   assert.equal(result.raw, "éé");
 });
 
+test("drops incomplete UTF-8 at a one-byte boundary without replacement inflation", async () => {
+  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => mockPort({ chunks: ["é"] }) }, maxBytes: 1 }).inspect();
+  assert.equal(result.raw, "");
+  assert.equal(new TextEncoder().encode(result.raw).byteLength, 0);
+});
+
+test("caps oversized chunks while retaining only complete multibyte characters", async () => {
+  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => mockPort({ chunks: ["éXYZ"] }) }, maxBytes: 3 }).inspect();
+  assert.equal(result.raw, "éX");
+  assert.ok(new TextEncoder().encode(result.raw).byteLength <= 3);
+});
+
 
 function mockPort({ chunks = [], rejectRead = false, hang = false } = {}) {
   let released = false;
