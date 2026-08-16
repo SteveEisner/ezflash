@@ -110,7 +110,7 @@ test('workflow is least privilege, immutable, builds dependency, and never deplo
   assert.match(workflow,/permissions:\s*\n\s+contents: read/);
   assert.doesNotMatch(workflow,/uses:\s*[^\s]+@(?![0-9a-f]{40}\b)/);
   assert.match(workflow,/build-firmware\.mjs/);
-  assert.match(workflow,/EASY_FLASH_RELEASE:\s*candidate-84801e8e/);
+  assert.match(workflow,/EASY_FLASH_RELEASE:\s*candidate-8e4e035b/);
   assert.match(workflow,/git diff --exit-code -- \. '\:\(exclude\)dist'/);
   assert.match(workflow,/upload-artifact/);
   assert.doesNotMatch(workflow,/vercel|deploy/i);

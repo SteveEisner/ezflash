@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: SteveEisner/WLEDtubes
-          ref: 84801e8e2c61458dc0d79c9ba646a4cec3a44f39
+          ref: 8e4e035b640429167f306d22d60e756174166b2f
           path: vendor/WLEDtubes
           persist-credentials: false
       # actions/setup-node v4.4.0
@@ -25,7 +25,7 @@ jobs:
       - run: npm run build
         env:
           EASY_FLASH_BUILD_RECEIPT: build/easy-flash-firmware/build-receipt.json
-          EASY_FLASH_RELEASE: candidate-84801e8e
+          EASY_FLASH_RELEASE: candidate-8e4e035b
       - run: npm run verify && npm test && npm run test:easy-flash
       # Firmware bytes may include toolchain build metadata across runner platforms.
       # The fresh dist is receipt-verified above; source files must remain untouched.

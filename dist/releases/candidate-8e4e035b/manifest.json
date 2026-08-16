@@ -7,7 +7,7 @@
       "description": "Current canonical Dig2Go Tubes firmware: Tubes release 14 rebased on WLED 16.0.1.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "84801e8e2c61458dc0d79c9ba646a4cec3a44f39",
+        "commit": "8e4e035b640429167f306d22d60e756174166b2f",
         "clean": true
       },
       "target": {
@@ -39,9 +39,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/candidate-84801e8e/firmware/merged.bin",
-          "sizeBytes": 1325248,
-          "sha256": "b11923d2808c1fd1949ec05250ff469e3780f7e420337c4591f9eb3bf2649665",
+          "path": "releases/candidate-8e4e035b/firmware/merged.bin",
+          "sizeBytes": 1324928,
+          "sha256": "91ae7252cbff56c9343863e29ba21498d86501ffaeb8a7f3581a44f841c117ab",
           "offset": 0,
           "components": [
             {
@@ -65,8 +65,8 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1259712,
-              "sha256": "9552096e248cd097e25f19fafa7e1205bcef3523edcc6dff3d4ec74e172823e9"
+              "sizeBytes": 1259392,
+              "sha256": "80ed201c55ac8e80ff1cce6c4fdcc0324ae8a23b369c80d5b54b77f062823f99"
             }
           ]
         }
@@ -78,22 +78,22 @@
     }
   ],
   "provenance": {
-    "receiptDigestSha256": "056fd6401df0c7f38844adef801bb87e5ed916bf90d55a09332e41ea745a250c",
-    "sourceReceiptDigestSha256": "3e149dfb322b36f6eae246a826b45792a04078af2f5bedd72031596b2265096d",
+    "receiptDigestSha256": "b589739f7a890681566e319a5fc9347e340ea712ecfed3d6fb0fa4805a81a079",
+    "sourceReceiptDigestSha256": "9c0e35f368758a4fcc4bc20b0f7879c081b0378d401491049a8cbb9a873ed9f4",
     "contractSha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0",
     "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
     "mode": "production",
     "evidence": {
       "receipt": {
-        "path": "releases/candidate-84801e8e/provenance/build-receipt.json",
-        "sha256": "128f460ec562eb3eafc92bc333a048d113939a5ce6b71470471ce1beb95228a5"
+        "path": "releases/candidate-8e4e035b/provenance/build-receipt.json",
+        "sha256": "0e635442cb2976820d3639c3765d6f4e3b17127003f1c06647303a25b178ec88"
       },
       "contract": {
-        "path": "releases/candidate-84801e8e/provenance/update-contract.json",
+        "path": "releases/candidate-8e4e035b/provenance/update-contract.json",
         "sha256": "dd57094e5f7edceb1e2526abd98ad6bc5b89cc81753e411f31287c3621f06fd0"
       },
       "partition": {
-        "path": "releases/candidate-84801e8e/provenance/WLED_ESP32_4MB_1MB_FS.csv",
+        "path": "releases/candidate-8e4e035b/provenance/WLED_ESP32_4MB_1MB_FS.csv",
         "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44"
       }
     }

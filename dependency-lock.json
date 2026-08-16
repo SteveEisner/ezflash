@@ -1,8 +1,8 @@
 {
   "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-  "ref": "84801e8e2c61458dc0d79c9ba646a4cec3a44f39",
-  "commit": "84801e8e2c61458dc0d79c9ba646a4cec3a44f39",
+  "ref": "8e4e035b640429167f306d22d60e756174166b2f",
+  "commit": "8e4e035b640429167f306d22d60e756174166b2f",
   "environment": "esp32_quinled_dig2go_tubes",
-  "status": "temporary-reviewed-ref",
-  "promotion": "Promote to main only after PR67 canonical contract and generator land; update ref and review receipt before release."
+  "status": "local-production-candidate",
+  "promotion": "Unpublished local candidate pinned to corrected WLEDTubes #67; do not push or deploy without independent review."
 }
