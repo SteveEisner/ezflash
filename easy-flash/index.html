@@ -34,6 +34,15 @@
 			<p class="action-note" id="actionNote" hidden>Install replaces the controller firmware. It never starts automatically.</p>
 			<details id="advancedDetails"><summary>Advanced details</summary><dl id="technicalDetails"><div><dt>Firmware</dt><dd>Loading verified Dig2Go firmware…</dd></div></dl></details>
 		</section>
+		<section class="migration-card" aria-labelledby="migrationTitle">
+			<p class="kicker">MOVE THE LEGACY FLOCK</p>
+			<h2 id="migrationTitle">Keep every Tube powered and nearby</h2>
+			<p><strong>Make sure your devices remain plugged in and in range.</strong></p>
+			<p>Easy Flash installs the USB-connected bridge. Hundreds of untouched legacy Tubes still use the established broadcast offer and laptop Wi-Fi/HTTP updater. This static site cannot switch Wi-Fi networks or run the legacy OTA service.</p>
+			<p>Run the local laptop adapter from this repository after the bridge install. It reuses WLEDTubes’ existing <code>upgrade_batch.sh</code> engine; it does not replace it with a browser updater.</p>
+			<pre><code>npm run migrate:fleet -- --serial /dev/cu.usbserial-… --wledtubes ../WLEDTubes</code></pre>
+			<p>The receipt reports devices actually updated, skipped, or failed when the legacy engine emits evidence. A completed scan does not mean every Tube you own is current; powered-off and out-of-range devices remain unknown.</p>
+		</section>
 		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p></section>
 	</main>
 	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><p class="eyebrow">WLEDTUBES · MAINTAINER</p><h1>Release status</h1><p class="lede">Read-only provenance snapshot. This tab cannot install, flash, or contact a device.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release evidence.</p></div></section>

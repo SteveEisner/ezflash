@@ -20,6 +20,28 @@ A successful `esptool-js` write return means the writer accepted the requested b
 
 Repository builds and previews do not contact or flash a controller. Device access begins only after a person opens the hosted page and explicitly chooses **Connect**; a firmware write still requires the separate **Install** action.
 
+## Legacy fleet migration adapter
+
+The hosted page cannot run the established legacy fleet updater. That workflow
+depends on a local serial bridge, macOS Wi-Fi switching, the shared
+`WLED-UPDATE` access point, HTTP uploads, and nonce-bound post-reboot reports.
+After installing the USB bridge, run the local adapter from this checkout:
+
+```sh
+npm run migrate:fleet -- \
+  --serial /dev/cu.usbserial-… \
+  --wledtubes ../WLEDTubes
+```
+
+The adapter delegates to WLEDTubes' `usermods/Tubes/upgrade_batch.sh` in its
+Dig2Go-only profile; it is an orchestration and receipt layer, not a second OTA engine. The underlying tool
+preserves the deployed mesh-wide upgrade offer and fail-closed hardware/image
+checks. Its mode-`600` JSON receipt reports observed updated, skipped, and
+failed devices. The adapter first requires the exact clean checkout and
+contract-bound OTA bytes. Powered-off, out-of-range, or otherwise absent
+devices remain unknown, so batch completion never claims the whole fleet is
+current.
+
 ## Reproducible release input
 
 `dependency-lock.json` pins Steve Eisner's WLEDTubes repository, a full immutable source commit, and `esp32_quinled_dig2go_tubes`. The production build path must consume a fresh machine receipt/output directory from that exact dependency checkout after its prerequisite web build, canonical contract generation/validation, PlatformIO build, and authoritative merged-image construction. It fails closed when required provenance or artifacts are missing; it does not silently package the checked-in pilot binaries.
