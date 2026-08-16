@@ -1,6 +1,52 @@
 # WLEDTubes Easy Flash
 
-WLEDTubes Easy Flash is a standalone HTTPS site for installing the approved QuinLED Dig2Go Tubes firmware from Chrome or Edge with Web Serial. The hosted runtime is static: it has no application server, `/api` dependency, account, telemetry, service worker, automatic port selection, or automatic write.
+WLEDTubes has hundreds of controllers in the wild. We want to update them without plugging every one into a laptop, but we also do not want a new update system to put the whole flock at risk.
+
+The plan has three parts.
+
+## 1. Tubes will eventually update each other
+
+Once the fleet is running the new firmware, one updated Tube will be able to pass an approved update to another compatible Tube nearby.
+
+The update moves one Tube at a time. The receiving Tube installs it, restarts, and proves that it is healthy before continuing. If no suitable Tube appears for 60 seconds, propagation stops.
+
+This is for future updates. It is not how we will force hundreds of old Tubes through their first migration.
+
+## 2. Easy Flash moves the old fleet onto the new firmware
+
+Old Tubes do not understand the new targeting and handoff rules yet. For this first migration, we use the update system they already have:
+
+1. Easy Flash installs the approved bridge firmware on one Tube over USB.
+2. A local laptop tool runs the existing Tubes OTA workflow for the nearby legacy devices.
+3. Tubes that are powered off, out of range, or fail to return stay unknown instead of being called updated.
+4. The S3 updater provides the same practical recovery option at an event for devices that were missed at home.
+
+The operator instruction is deliberately simple:
+
+> Keep the Tubes you want to update plugged in and in range until the update finishes.
+
+The hosted Easy Flash page handles the USB installation. The legacy fleet updater runs locally on the laptop because a static browser page cannot host the Wi-Fi, DNS, and HTTP services used by the old OTA system.
+
+## 3. We roll it out in growing groups
+
+We do not start with the whole fleet.
+
+1. Test the bridge firmware and interrupted-update recovery on Greg's four Tubes.
+2. Update a small group and confirm that every observed Tube restarts and rejoins.
+3. Increase the group size only after the previous group is reliable.
+4. Use Easy Flash for the main migration before the event.
+5. Use the S3 updater for stragglers at the rave.
+6. Turn on peer-to-peer propagation for later releases after the new targeting protocol is established across the fleet.
+
+A build, successful upload, or reboot is not enough to call a rollout complete. We need to see the Tube return healthy. Devices we cannot see remain unknown and can be handled in a later pass.
+
+## What Easy Flash does today
+
+Easy Flash is a standalone HTTPS site for installing the approved QuinLED Dig2Go Tubes firmware from Chrome or Edge. It uses Web Serial and requires a separate Connect and Install action. Opening the page never writes to a device.
+
+## Developer and safety details
+
+The hosted runtime is static. It has no application server, `/api` dependency, account, telemetry, service worker, automatic port selection, or automatic write.
 
 The browser resolves one release through same-origin static files:
 
@@ -20,12 +66,9 @@ A successful `esptool-js` write return means the writer accepted the requested b
 
 Repository builds and previews do not contact or flash a controller. Device access begins only after a person opens the hosted page and explicitly chooses **Connect**; a firmware write still requires the separate **Install** action.
 
-## Legacy fleet migration adapter
+## Running the legacy fleet migration
 
-The hosted page cannot run the established legacy fleet updater. That workflow
-depends on a local serial bridge, macOS Wi-Fi switching, the shared
-`WLED-UPDATE` access point, HTTP uploads, and nonce-bound post-reboot reports.
-After installing the USB bridge, run the local adapter from this checkout:
+After Easy Flash installs the USB bridge firmware, run the local adapter from this checkout:
 
 ```sh
 npm run migrate:fleet -- \
@@ -33,14 +76,7 @@ npm run migrate:fleet -- \
   --wledtubes ../WLEDTubes
 ```
 
-The adapter delegates to WLEDTubes' `usermods/Tubes/upgrade_batch.sh` in its
-Dig2Go-only profile; it is an orchestration and receipt layer, not a second OTA engine. The underlying tool
-preserves the deployed mesh-wide upgrade offer and fail-closed hardware/image
-checks. Its mode-`600` JSON receipt reports observed updated, skipped, and
-failed devices. The adapter first requires the exact clean checkout and
-contract-bound OTA bytes. Powered-off, out-of-range, or otherwise absent
-devices remain unknown, so batch completion never claims the whole fleet is
-current.
+The adapter delegates to WLEDTubes' `usermods/Tubes/upgrade_batch.sh` in its Dig2Go-only profile. It records the devices the updater actually observes as updated, skipped, or failed. Powered-off, out-of-range, and otherwise absent devices remain unknown, so finishing a batch does not claim that the whole fleet is current.
 
 ## Reproducible release input
 
