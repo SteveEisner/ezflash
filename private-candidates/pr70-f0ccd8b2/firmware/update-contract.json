@@ -31,6 +31,10 @@
       "board": "QuinLED Dig2Go",
       "flashMode": "dio",
       "flashSizeBytes": 4194304,
+      "compiledProfile": {
+        "environment": "esp32_quinled_dig2go_tubes",
+        "releaseIdentity": "DIG2GO_TUBES"
+      },
       "partition": {
         "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv",
         "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",

@@ -14,6 +14,8 @@ const targets = [
 function manifest() {
 	return {schemaVersion: 2, provisional: true, variants: targets.map(([id, board, chip]) => ({
 		id, label: board, hardwareTested: false,
+		source: {repository: "repo", commit: "a".repeat(40)},
+		bootIdentity: {version: 1, target: id, source: "a".repeat(40), release: "16.0.1", tubes: 14},
 		target: {hardwareFamily: id, board, chip, flashSizeBytes: chip === "ESP32-S3" ? 16777216 : 4194304},
 		artifacts: [{kind: "complete-merged-image", transport: "usb", path: `releases/pr70/firmware/${id}-merged.bin`, offset: 0, sizeBytes: 3, sha256: "a".repeat(64), components: []}]
 	}))};

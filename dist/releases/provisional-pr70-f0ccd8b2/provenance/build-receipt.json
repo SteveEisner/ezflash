@@ -1,25 +1,32 @@
 {
   "schemaVersion": 2,
   "mode": "provisional",
-  "sourceReceiptDigestSha256": "65654a7f91d0b9ebfccfead6fc04ead19db073716e957cb4dc488bff7cac374b",
+  "sourceReceiptDigestSha256": "69677c7af0425866ba83648055064e6b20e3eac0b4cf7ccca5ff83806058edc9",
   "sourceReceipt": {
     "schemaVersion": 2,
     "mode": "provisional",
     "source": {
       "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-      "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+      "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
       "clean": true
     },
     "contract": {
       "path": "update-contract.json",
-      "lengthBytes": 10776,
-      "sha256": "b4b0900474f1dbc578a2462ad5b754bf51910c816393d7362bb1bc0d55de42c6"
+      "lengthBytes": 10907,
+      "sha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83"
     },
     "targets": [
       {
         "targetId": "quinled-dig2go",
         "environment": "esp32_quinled_dig2go_tubes",
         "printedModel": "QuinLED Dig2Go",
+        "bootIdentity": {
+          "version": 1,
+          "target": "quinled-dig2go",
+          "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+          "release": "16.0.1",
+          "tubes": 14
+        },
         "contractTarget": {
           "id": "quinled-dig2go",
           "cppValue": 1,
@@ -28,6 +35,10 @@
           "board": "QuinLED Dig2Go",
           "flashMode": "dio",
           "flashSizeBytes": 4194304,
+          "compiledProfile": {
+            "environment": "esp32_quinled_dig2go_tubes",
+            "releaseIdentity": "DIG2GO_TUBES"
+          },
           "partition": {
             "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv",
             "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
@@ -54,8 +65,8 @@
         "artifacts": {
           "usb": {
             "path": "targets/quinled-dig2go/merged.bin",
-            "lengthBytes": 1325408,
-            "sha256": "b6380a87403489b1e0f602753b5660e96ee236ed104abf75dd3ae07be0804b8d",
+            "lengthBytes": 1325744,
+            "sha256": "c960f7f877f2c9d434a1089e5790bb56d1d1133f0e99af0f60558ad61b1f34da",
             "kind": "complete-merged-image",
             "transport": "usb",
             "writeOffset": 0,
@@ -81,15 +92,15 @@
               {
                 "id": "application",
                 "offset": 65536,
-                "lengthBytes": 1259872,
-                "sha256": "397949be8f361a65d856214d12ab51cc98418ee56d2601e7f19a638c358ffc54"
+                "lengthBytes": 1260208,
+                "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35"
               }
             ]
           },
           "ota": {
             "path": "targets/quinled-dig2go/firmware.bin",
-            "lengthBytes": 1259872,
-            "sha256": "397949be8f361a65d856214d12ab51cc98418ee56d2601e7f19a638c358ffc54",
+            "lengthBytes": 1260208,
+            "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35",
             "kind": "application-image",
             "transport": "ota",
             "buildOffset": 65536
@@ -100,6 +111,13 @@
         "targetId": "athom-c3-tubes",
         "environment": "esp32-c3-athom_tubes",
         "printedModel": "Athom ESP32-C3 controller",
+        "bootIdentity": {
+          "version": 1,
+          "target": "athom-c3-tubes",
+          "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+          "release": "16.0.1",
+          "tubes": 14
+        },
         "contractTarget": {
           "id": "athom-c3-tubes",
           "cppValue": 3,
@@ -141,8 +159,8 @@
         "artifacts": {
           "usb": {
             "path": "targets/athom-c3-tubes/merged.bin",
-            "lengthBytes": 1263664,
-            "sha256": "d8940deace1b666ce173a81d654f096f83752ac4459e3a05b90136bba6d626fe",
+            "lengthBytes": 1263968,
+            "sha256": "3ab6599684566925568f8665f69bc1e030f68861a69b2e0702498ba02572ee24",
             "kind": "complete-merged-image",
             "transport": "usb",
             "writeOffset": 0,
@@ -168,15 +186,15 @@
               {
                 "id": "application",
                 "offset": 65536,
-                "lengthBytes": 1198128,
-                "sha256": "9885231e4b78795d13ec097203db12c20642949dbeb25dcf0669f49aee5a575b"
+                "lengthBytes": 1198432,
+                "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24"
               }
             ]
           },
           "ota": {
             "path": "targets/athom-c3-tubes/firmware.bin",
-            "lengthBytes": 1198128,
-            "sha256": "9885231e4b78795d13ec097203db12c20642949dbeb25dcf0669f49aee5a575b",
+            "lengthBytes": 1198432,
+            "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24",
             "kind": "application-image",
             "transport": "ota",
             "buildOffset": 65536
@@ -187,6 +205,13 @@
         "targetId": "waveshare-s3-tubes-remote",
         "environment": "waveshare_s3_tubes_target",
         "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16",
+        "bootIdentity": {
+          "version": 1,
+          "target": "waveshare-s3-tubes-remote",
+          "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+          "release": "16.0.1",
+          "tubes": 14
+        },
         "contractTarget": {
           "id": "waveshare-s3-tubes-remote",
           "cppValue": 2,
@@ -226,8 +251,8 @@
         "artifacts": {
           "usb": {
             "path": "targets/waveshare-s3-tubes-remote/merged.bin",
-            "lengthBytes": 1285264,
-            "sha256": "8399df1d7f6bc145f4911e6a53085ccd2913f34b027f324659028e600b5a6d3d",
+            "lengthBytes": 1285568,
+            "sha256": "4f2b6a06a74ec05f1045848f1a26ffa7e81ded91312a0fa7acbae75c484cc3f5",
             "kind": "complete-merged-image",
             "transport": "usb",
             "writeOffset": 0,
@@ -253,15 +278,15 @@
               {
                 "id": "application",
                 "offset": 65536,
-                "lengthBytes": 1219728,
-                "sha256": "346363cb52479d0734348f4509a793cbba61d50a937abd0b4d729370d6ccec0e"
+                "lengthBytes": 1220032,
+                "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698"
               }
             ]
           },
           "ota": {
             "path": "targets/waveshare-s3-tubes-remote/firmware.bin",
-            "lengthBytes": 1219728,
-            "sha256": "346363cb52479d0734348f4509a793cbba61d50a937abd0b4d729370d6ccec0e",
+            "lengthBytes": 1220032,
+            "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698",
             "kind": "application-image",
             "transport": "ota",
             "buildOffset": 65536
@@ -272,5 +297,5 @@
   },
   "receiptDigestAlgorithm": "sha256-stable-json-v1",
   "pathBase": "release-directory",
-  "receiptDigestSha256": "43ae3d77ce9bce2dfa34c9d33d317a3eb2616c55179ea92164c3551c16e0a5ae"
+  "receiptDigestSha256": "6decffca01ec0aa0a39244e06b8e1c32efe1cf2cc805ac73a0d93590849e5892"
 }

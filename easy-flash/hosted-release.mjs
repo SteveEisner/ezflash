@@ -11,6 +11,7 @@ export function validateHostedCatalog(manifest,releaseId,baseUrl) {
 	const ids=new Set();
 	const catalog=manifest.variants.map(variant=>{
 		if(!TARGETS.has(variant?.id)||ids.has(variant.id)||variant.hardwareTested!==false)throw Error("The target catalog is invalid");ids.add(variant.id);
+		const identity=variant.bootIdentity;if(identity?.version!==1||identity.target!==variant.id||identity.source!==variant.source?.commit||!/^[0-9a-f]{40}$/.test(identity.source)||!/^[A-Za-z0-9._-]+$/.test(identity.release)||!Number.isSafeInteger(identity.tubes)||identity.tubes<1)throw Error("The boot identity contract is invalid");
 		const candidates=variant.artifacts?.filter(a=>a.transport==="usb"&&a.kind==="complete-merged-image")||[];if(candidates.length!==1)throw Error("Each target must select exactly one merged USB image");
 		const artifact={...candidates[0]},prefix=`releases/${releaseId}/firmware/`,file=artifact.path?.slice(prefix.length);
 		if(!artifact.path?.startsWith(prefix)||!FILE_NAME.test(file||"")||artifact.path!==`${prefix}${file}`)throw Error("The artifact path is invalid, mutable, or outside this release");

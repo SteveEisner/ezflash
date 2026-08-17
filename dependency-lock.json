@@ -1,7 +1,7 @@
 {
   "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-  "ref": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
-  "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+  "ref": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+  "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
   "targets": [
     {"targetId": "quinled-dig2go", "environment": "esp32_quinled_dig2go_tubes", "printedModel": "QuinLED Dig2Go"},
     {"targetId": "athom-c3-tubes", "environment": "esp32-c3-athom_tubes", "printedModel": "Athom ESP32-C3 controller"},

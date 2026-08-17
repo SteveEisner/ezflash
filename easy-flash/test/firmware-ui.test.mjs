@@ -36,6 +36,6 @@ test("connect inspects once and install reuses the prepared session", async () =
 	assert.match(app,/connectToController/); assert.match(app,/installConnectedController/); assert.doesNotMatch(app,/window\.confirm/);
 	assert.equal((flash.match(/serial\.requestPort\(\)/g)||[]).length,1);
 	assert.ok(flash.indexOf("loader.main()") < flash.indexOf("active={token"));
-	assert.match(flash,/session\.token !== sessionToken/); assert.match(flash,/eraseAll:false/); assert.match(flash,/health:"unverified"/);
+	assert.match(flash,/session\.token !== sessionToken/); assert.match(flash,/eraseAll:false/); assert.match(flash,/boot-identity-verified/); assert.match(flash,/health:verification\.status===/);
 	assert.doesNotMatch(flash,/Flash complete|result:\s*"complete"/i);
 });

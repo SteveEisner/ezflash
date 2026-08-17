@@ -9,8 +9,15 @@
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+        "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
         "clean": true
+      },
+      "bootIdentity": {
+        "version": 1,
+        "target": "quinled-dig2go",
+        "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "release": "16.0.1",
+        "tubes": 14
       },
       "target": {
         "environment": "esp32_quinled_dig2go_tubes",
@@ -36,9 +43,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/provisional-pr70-a17370b8/firmware/quinled-dig2go-merged.bin",
-          "sizeBytes": 1325408,
-          "sha256": "b6380a87403489b1e0f602753b5660e96ee236ed104abf75dd3ae07be0804b8d",
+          "path": "releases/provisional-pr70-f0ccd8b2/firmware/quinled-dig2go-merged.bin",
+          "sizeBytes": 1325744,
+          "sha256": "c960f7f877f2c9d434a1089e5790bb56d1d1133f0e99af0f60558ad61b1f34da",
           "offset": 0,
           "components": [
             {
@@ -62,18 +69,18 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1259872,
-              "sha256": "397949be8f361a65d856214d12ab51cc98418ee56d2601e7f19a638c358ffc54"
+              "sizeBytes": 1260208,
+              "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35"
             }
           ]
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-a17370b8/provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
-          "sizeBytes": 1259872,
-          "sha256": "397949be8f361a65d856214d12ab51cc98418ee56d2601e7f19a638c358ffc54"
+          "sizeBytes": 1260208,
+          "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35"
         }
       }
     },
@@ -83,8 +90,15 @@
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+        "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
         "clean": true
+      },
+      "bootIdentity": {
+        "version": 1,
+        "target": "athom-c3-tubes",
+        "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "release": "16.0.1",
+        "tubes": 14
       },
       "target": {
         "environment": "esp32-c3-athom_tubes",
@@ -110,9 +124,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/provisional-pr70-a17370b8/firmware/athom-c3-tubes-merged.bin",
-          "sizeBytes": 1263664,
-          "sha256": "d8940deace1b666ce173a81d654f096f83752ac4459e3a05b90136bba6d626fe",
+          "path": "releases/provisional-pr70-f0ccd8b2/firmware/athom-c3-tubes-merged.bin",
+          "sizeBytes": 1263968,
+          "sha256": "3ab6599684566925568f8665f69bc1e030f68861a69b2e0702498ba02572ee24",
           "offset": 0,
           "components": [
             {
@@ -136,18 +150,18 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1198128,
-              "sha256": "9885231e4b78795d13ec097203db12c20642949dbeb25dcf0669f49aee5a575b"
+              "sizeBytes": 1198432,
+              "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24"
             }
           ]
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-a17370b8/provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
-          "sizeBytes": 1198128,
-          "sha256": "9885231e4b78795d13ec097203db12c20642949dbeb25dcf0669f49aee5a575b"
+          "sizeBytes": 1198432,
+          "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24"
         }
       }
     },
@@ -157,8 +171,15 @@
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+        "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
         "clean": true
+      },
+      "bootIdentity": {
+        "version": 1,
+        "target": "waveshare-s3-tubes-remote",
+        "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "release": "16.0.1",
+        "tubes": 14
       },
       "target": {
         "environment": "waveshare_s3_tubes_target",
@@ -184,9 +205,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/provisional-pr70-a17370b8/firmware/waveshare-s3-tubes-remote-merged.bin",
-          "sizeBytes": 1285264,
-          "sha256": "8399df1d7f6bc145f4911e6a53085ccd2913f34b027f324659028e600b5a6d3d",
+          "path": "releases/provisional-pr70-f0ccd8b2/firmware/waveshare-s3-tubes-remote-merged.bin",
+          "sizeBytes": 1285568,
+          "sha256": "4f2b6a06a74ec05f1045848f1a26ffa7e81ded91312a0fa7acbae75c484cc3f5",
           "offset": 0,
           "components": [
             {
@@ -210,35 +231,35 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1219728,
-              "sha256": "346363cb52479d0734348f4509a793cbba61d50a937abd0b4d729370d6ccec0e"
+              "sizeBytes": 1220032,
+              "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698"
             }
           ]
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-a17370b8/provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
         "partitionSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
         "ota": {
-          "sizeBytes": 1219728,
-          "sha256": "346363cb52479d0734348f4509a793cbba61d50a937abd0b4d729370d6ccec0e"
+          "sizeBytes": 1220032,
+          "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698"
         }
       }
     }
   ],
   "provenance": {
     "mode": "provisional",
-    "receiptDigestSha256": "43ae3d77ce9bce2dfa34c9d33d317a3eb2616c55179ea92164c3551c16e0a5ae",
-    "sourceReceiptDigestSha256": "65654a7f91d0b9ebfccfead6fc04ead19db073716e957cb4dc488bff7cac374b",
-    "contractSha256": "b4b0900474f1dbc578a2462ad5b754bf51910c816393d7362bb1bc0d55de42c6",
+    "receiptDigestSha256": "6decffca01ec0aa0a39244e06b8e1c32efe1cf2cc805ac73a0d93590849e5892",
+    "sourceReceiptDigestSha256": "69677c7af0425866ba83648055064e6b20e3eac0b4cf7ccca5ff83806058edc9",
+    "contractSha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83",
     "evidence": {
       "receipt": {
-        "path": "releases/provisional-pr70-a17370b8/provenance/build-receipt.json",
-        "sha256": "f068e6bf71594a2bb3f9068022337b524e91eacd2b95299803c4e243a57360c5"
+        "path": "releases/provisional-pr70-f0ccd8b2/provenance/build-receipt.json",
+        "sha256": "1b29c14e745244d1e082e8388e2afe677d8ec330e9bbd9367518a883e21ff9f0"
       },
       "contract": {
-        "path": "releases/provisional-pr70-a17370b8/provenance/update-contract.json",
-        "sha256": "b4b0900474f1dbc578a2462ad5b754bf51910c816393d7362bb1bc0d55de42c6"
+        "path": "releases/provisional-pr70-f0ccd8b2/provenance/update-contract.json",
+        "sha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83"
       }
     }
   }

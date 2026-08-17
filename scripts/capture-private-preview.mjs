@@ -2,7 +2,7 @@
 import {writeFile} from "node:fs/promises";
 
 const endpoint=process.env.CHROME_DEBUG_URL||"http://127.0.0.1:9224";
-const output=process.env.EASY_FLASH_CAPTURE_OUTPUT||"private-candidates/pr70-a17370b8";
+const output=process.env.EASY_FLASH_CAPTURE_OUTPUT||"private-candidates/pr70-f0ccd8b2";
 const pageUrl=process.env.EASY_FLASH_CAPTURE_URL||"http://127.0.0.1:4173/";
 const target=await fetch(`${endpoint}/json/new?${encodeURIComponent(pageUrl)}`,{method:"PUT"}).then(response=>response.json());
 const socket=new WebSocket(target.webSocketDebuggerUrl);await new Promise((resolve,reject)=>{socket.onopen=resolve;socket.onerror=reject;});

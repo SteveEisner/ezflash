@@ -7,7 +7,7 @@ test('narrow flex and card content can shrink and wrap',async()=>{const css=awai
 test('Tubes identity uses EZ rainbow mark and restrained spectrum tokens',async()=>{const [html,css]=await Promise.all([readFile('easy-flash/index.html','utf8'),readFile('easy-flash/styles.css','utf8')]);assert.match(html,/<span class="mark"[^>]*>EZ<\/span>/);assert.doesNotMatch(html,/>WT<\/span>/);assert.match(css,/--spectrum:/);assert.match(css,/conic-gradient\([^)]*violet/i);assert.match(css,/radial-gradient\([^)]*cyan/i);assert.match(css,/--content-shell:900px/)});
 test('shared rails and overflow guard remain explicit',async()=>{const [html,css]=await Promise.all([readFile('easy-flash/index.html','utf8'),readFile('easy-flash/styles.css','utf8')]);assert.match(css,/html,body\s*\{[^}]*overflow-x\s*:\s*hidden/i);assert.match(css,/main,#diagnoseView,#statusView\s*\{[^}]*max-width\s*:\s*900px/i);assert.match(html,/id="flashView"/);assert.match(html,/id="diagnoseView"/);assert.match(html,/id="statusView"/)});
 test('public Flash UI exposes no multi-device action, OTA guidance, or teaser',async()=>{
- const paths=['easy-flash','dist','private-candidates/pr70-a17370b8/site'];
+ const paths=['easy-flash','dist','private-candidates/pr70-f0ccd8b2/site'];
  const files=await Promise.all(paths.flatMap(path=>['index.html','app.mjs','styles.css'].map(file=>readFile(`${path}/${file}`,'utf8'))));
  for(const source of files)assert.doesNotMatch(source,/migrationCard|migrationSummary|otaStateMessage|setOtaState|bridge-ready|STEP 2 · OTA GUIDANCE|Flash multiple devices|supported laptop workflow|ota-guidance|migration-card/i);
 });
