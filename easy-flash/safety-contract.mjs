@@ -8,11 +8,6 @@ const REQUIRED = new Set(["bootloader", "partitions", "boot-app0", "application"
 function positiveInteger(value, label) {
 	if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${label} must be a positive safe integer`);
 }
-// Component OFFSETS may legitimately be 0 (e.g. an ESP32-S3 bootloader image starts at 0x0);
-// only byte SIZES must be strictly positive. Non-overlap is enforced separately below.
-function nonNegativeInteger(value, label) {
-	if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${label} must be a non-negative safe integer`);
-}
 
 export function validateMergedImageStructure(target, artifact) {
 	positiveInteger(target?.flashSizeBytes, "Target flash size");
@@ -24,7 +19,7 @@ export function validateMergedImageStructure(target, artifact) {
 	const ids = new Set(); const ranges = [];
 	for (const component of artifact.components) {
 		if (!REQUIRED.has(component.name) || ids.has(component.name)) throw new Error("Component ID is unknown or duplicated");
-		ids.add(component.name); nonNegativeInteger(component.offset, `Component ${component.name} offset`); positiveInteger(component.sizeBytes, `Component ${component.name} size`);
+		ids.add(component.name); positiveInteger(component.offset, `Component ${component.name} offset`); positiveInteger(component.sizeBytes, `Component ${component.name} size`);
 		if (!SHA256.test(component.sha256 || "")) throw new Error(`Component ${component.name} SHA-256 is invalid`);
 		const end = component.offset + component.sizeBytes;
 		if (!Number.isSafeInteger(end) || end > artifact.sizeBytes) throw new Error(`Component ${component.name} exceeds merged image bounds`);
@@ -48,8 +43,11 @@ export async function validateMergedImageBytes(target, artifact, bytes, sha256He
 	return components;
 }
 
-export function evaluatePhysicalConfirmation(variant, chipName, physicalConfirmation) {
-	const admitted=physicalConfirmation?.asserted === true && physicalConfirmation.targetId === variant.id && physicalConfirmation.printedModel === variant.target.board;
-	return { admitted,status:admitted ? "operator-confirmed" : "unknown",method:admitted ? "operator-checkbox" : "chip-only",targetId:variant.id,observedChip:chipName,assertedPrintedModel:admitted ? physicalConfirmation.printedModel : null };
+const INSTALL_ACTIONS={"quinled-dig2go":"Install Dig2Go firmware","athom-c3-tubes":"Install Athom C3 firmware","waveshare-s3-tubes-remote":"Install Waveshare S3 firmware"};
+
+export function evaluateCandidateAction(variant, artifact, session, candidateAction) {
+	const expectedLabel=INSTALL_ACTIONS[variant?.id];
+	const admitted=Boolean(expectedLabel) && candidateAction?.label === expectedLabel && candidateAction.targetId === variant.id && candidateAction.artifactSha256 === artifact?.sha256 && candidateAction.sessionToken === session?.token && candidateAction.port === session?.port;
+	return { admitted,status:admitted ? "operator-confirmed" : "unknown",method:admitted ? "target-named-install-action" : "chip-only",targetId:variant?.id,observedChip:session?.chipName,actionLabel:admitted ? expectedLabel : null,artifactSha256:admitted ? artifact.sha256 : null };
 }
 // AI: end

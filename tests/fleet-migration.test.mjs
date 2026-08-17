@@ -45,10 +45,10 @@ test("legacy force migration is explicitly broadcast and delegates to the establ
 	assert.doesNotMatch(source,/target(?:ed)?[_ -]?mac/i);
 });
 
-test("operator copy keeps devices powered and distinguishes browser USB from laptop OTA", async () => {
-	const html=await import("node:fs/promises").then(({readFile})=>readFile("easy-flash/index.html","utf8"));
-	assert.match(html,/Make sure your devices remain plugged in and in range\./);
-	assert.match(html,/local laptop adapter/i);
-	assert.match(html,/does not mean every Tube you own is current/i);
-	assert.match(html,/static site cannot switch Wi-Fi networks or run the legacy OTA service/i);
+test("internal fleet adapter and operator documentation remain available outside the public UI", async () => {
+	const {readFile}=await import("node:fs/promises"),[html,readme,adapter,pkg]=await Promise.all([readFile("easy-flash/index.html","utf8"),readFile("README.md","utf8"),readFile("scripts/run-fleet-migration.mjs","utf8"),readFile("package.json","utf8")]);
+	assert.doesNotMatch(html,/\bOTA\b|multiple devices|migrate:fleet|bridge-ready/i);
+	assert.match(readme,/Keep the Tubes you want to update plugged in and in range/);
+	assert.match(adapter,/upgrade_batch\.sh/);
+	assert.equal(JSON.parse(pkg).scripts["migrate:fleet"],"node scripts/run-fleet-migration.mjs");
 });

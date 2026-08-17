@@ -4,6 +4,8 @@ import {cp, mkdtemp, readFile, rm, unlink, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {jsonHash} from '../scripts/release-provenance.mjs';
 
 const root = new URL('..', import.meta.url);
 const run = (script, args=[]) => spawnSync(process.execPath, [new URL(script, root).pathname, ...args], {encoding:'utf8'});
@@ -44,48 +46,49 @@ test('explicit fixture mode produces a provenance-bound receipt which verifies',
     assert.equal(receipt.mode,'fixture');
     assert.match(receipt.source.commit,/^[0-9a-f]{40}$/);
     assert.match(receipt.contract.sha256,/^[0-9a-f]{64}$/);
-    assert.match(receipt.partition.sha256,/^[0-9a-f]{64}$/);
+    assert.equal(receipt.targets.length,3);
+    for(const target of receipt.targets) assert.match(target.partition.sha256,/^[0-9a-f]{64}$/);
   } finally { await rm(out,{recursive:true,force:true}); }
 });
 
 test('fixture static release carries equivalent provenance and remains production-rejected', async () => {
   const temp=await mkdtemp(join(tmpdir(),'easy-flash-fixture-release-')), receiptDir=join(temp,'receipt');
   try {
-    for (const path of ['dependency-lock.json','easy-flash','scripts']) await cp(new URL(`../${path}`,import.meta.url),join(temp,path),{recursive:true});
+    for(const path of ['dependency-lock.json','easy-flash','scripts']) await cp(new URL(`../${path}`,import.meta.url),join(temp,path),{recursive:true});
     await cp(new URL('../_headers',import.meta.url),join(temp,'_headers'));
-    let result=runAt(temp,'scripts/build-firmware.mjs',['--fixture','--output',receiptDir]);
+    let result=run('scripts/build-firmware.mjs',['--fixture','--output',receiptDir]);
     assert.equal(result.status,0,result.stderr);
     result=runAt(temp,'scripts/build-static.mjs',['--fixture','--release','fixture-test','--receipt',join(receiptDir,'build-receipt.json')]);
     assert.equal(result.status,0,result.stderr);
     const manifest=JSON.parse(await readFile(join(temp,'dist/releases/fixture-test/manifest.json')));
     assert.equal(manifest.provenance.mode,'fixture');
-    for(const kind of ['receipt','contract','partition']) {
+    for(const kind of ['receipt','contract']) {
       assert.match(manifest.provenance.evidence[kind].sha256,/^[0-9a-f]{64}$/);
       await readFile(join(temp,'dist',manifest.provenance.evidence[kind].path));
     }
-    result=verifyAt(temp,['--fixture']);
+    result=verifyAt(temp,['--fixture','--dist',join(temp,'dist')]);
     assert.equal(result.status,0,result.stderr);
-    result=verifyAt(temp);
+    result=verifyAt(temp,['--dist',join(temp,'dist')]);
     assert.notEqual(result.status,0);
-    assert.match(result.stderr,/non-production release provenance rejected/i);
+    assert.match(result.stderr,/wrong provisional evidence mode/i);
   } finally { await rm(temp,{recursive:true,force:true}); }
 });
 
 test('release verifier rejects mutated and missing public provenance evidence', async () => {
   const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-evidence-'));
   try {
-    await cp(new URL('../dist',import.meta.url),join(temp,'dist'),{recursive:true});
+    await cp(new URL('../private-candidates/pr70-a17370b8/site',import.meta.url),join(temp,'dist'),{recursive:true});
     const current=JSON.parse(await readFile(join(temp,'dist/current.json')));
     const manifestPath=join(temp,'dist',current.manifest), manifest=JSON.parse(await readFile(manifestPath));
     const receiptPath=join(temp,'dist',manifest.provenance.evidence.receipt.path);
     await writeFile(receiptPath,Buffer.concat([await readFile(receiptPath),Buffer.from('\n')]));
-    let result=verifyAt(temp);
+    let result=verifyAt(temp,['--dist',join(temp,'dist')]);
     assert.notEqual(result.status,0);
     assert.match(result.stderr,/receipt provenance evidence mismatch/i);
-    await cp(new URL('../dist',import.meta.url),join(temp,'dist'),{recursive:true,force:true});
+    await rm(join(temp,'dist'),{recursive:true,force:true});await cp(new URL('../private-candidates/pr70-a17370b8/site',import.meta.url),join(temp,'dist'),{recursive:true});
     const freshManifest=JSON.parse(await readFile(manifestPath));
     await unlink(join(temp,'dist',freshManifest.provenance.evidence.contract.path));
-    result=verifyAt(temp);
+    result=verifyAt(temp,['--dist',join(temp,'dist')]);
     assert.notEqual(result.status,0);
     assert.match(result.stderr,/ENOENT|contract/i);
   } finally { await rm(temp,{recursive:true,force:true}); }
@@ -94,14 +97,72 @@ test('release verifier rejects mutated and missing public provenance evidence', 
 test('release verifier rejects provenance path traversal before reading evidence', async () => {
   const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-traversal-'));
   try {
-    await cp(new URL('../dist',import.meta.url),join(temp,'dist'),{recursive:true});
+    await cp(new URL('../private-candidates/pr70-a17370b8/site',import.meta.url),join(temp,'dist'),{recursive:true});
     const current=JSON.parse(await readFile(join(temp,'dist/current.json'))), manifestPath=join(temp,'dist',current.manifest);
     const manifest=JSON.parse(await readFile(manifestPath));
-    manifest.provenance.evidence.partition.path=`releases/${current.releaseId}/provenance/../../manifest.json`;
+    manifest.provenance.evidence.receipt.path=`releases/${current.releaseId}/provenance/../../manifest.json`;
     await writeFile(manifestPath,JSON.stringify(manifest));
-    const result=verifyAt(temp);
+    const result=verifyAt(temp,['--dist',join(temp,'dist')]);
     assert.notEqual(result.status,0);
     assert.match(result.stderr,/safe immutable relative path|outside immutable release/i);
+  } finally { await rm(temp,{recursive:true,force:true}); }
+});
+
+test('release verifier rejects self-consistent but unbound public receipt claims', async () => {
+  const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-binding-'));
+  try {
+    await cp(new URL('../private-candidates/pr70-a17370b8/site',import.meta.url),join(temp,'dist'),{recursive:true});
+    const current=JSON.parse(await readFile(join(temp,'dist/current.json'))),manifestPath=join(temp,'dist',current.manifest);
+    const manifest=JSON.parse(await readFile(manifestPath)),receiptPath=join(temp,'dist',manifest.provenance.evidence.receipt.path);
+    const publicReceipt=JSON.parse(await readFile(receiptPath));
+    publicReceipt.sourceReceipt.targets[0].environment='unrelated_environment';
+    publicReceipt.sourceReceipt.receiptSha256='0'.repeat(64);
+    const bytes=Buffer.from(JSON.stringify(publicReceipt,null,2)+'\n');
+    await writeFile(receiptPath,bytes);
+    manifest.provenance.evidence.receipt.sha256=createHash('sha256').update(bytes).digest('hex');
+    await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
+    const result=verifyAt(temp,['--dist',join(temp,'dist')]);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/receipt.*digest|target.*binding|environment/i);
+  } finally { await rm(temp,{recursive:true,force:true}); }
+});
+
+test('release verifier rejects a rehashed receipt from dirty or unrelated source authority', async () => {
+  const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-authority-'));
+  try {
+    await cp(new URL('../private-candidates/pr70-a17370b8/site',import.meta.url),join(temp,'dist'),{recursive:true});
+    const current=JSON.parse(await readFile(join(temp,'dist/current.json'))),manifestPath=join(temp,'dist',current.manifest);
+    const manifest=JSON.parse(await readFile(manifestPath)),receiptPath=join(temp,'dist',manifest.provenance.evidence.receipt.path);
+    const publicReceipt=JSON.parse(await readFile(receiptPath));
+    publicReceipt.sourceReceipt.source.repository='https://example.invalid/unrelated.git';
+    publicReceipt.sourceReceipt.source.clean=false;
+    publicReceipt.sourceReceipt.mode='fixture';
+    publicReceipt.sourceReceiptDigestSha256=jsonHash(publicReceipt.sourceReceipt);
+    const {receiptDigestSha256:discarded,...unsigned}=publicReceipt;
+    publicReceipt.receiptDigestSha256=jsonHash(unsigned);
+    const bytes=Buffer.from(JSON.stringify(publicReceipt,null,2)+'\n');
+    await writeFile(receiptPath,bytes);
+    manifest.provenance.sourceReceiptDigestSha256=publicReceipt.sourceReceiptDigestSha256;
+    manifest.provenance.receiptDigestSha256=publicReceipt.receiptDigestSha256;
+    manifest.provenance.evidence.receipt.sha256=createHash('sha256').update(bytes).digest('hex');
+    await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
+    const result=verifyAt(temp,['--dist',join(temp,'dist')]);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/mode|repository|clean|source authority/i);
+  } finally { await rm(temp,{recursive:true,force:true}); }
+});
+
+test('release verifier rejects artifact paths outside the exact immutable release firmware prefix', async () => {
+  const temp=await mkdtemp(join(tmpdir(),'easy-flash-release-artifact-path-'));
+  try {
+    await cp(new URL('../private-candidates/pr70-a17370b8/site',import.meta.url),join(temp,'dist'),{recursive:true});
+    const current=JSON.parse(await readFile(join(temp,'dist/current.json'))),manifestPath=join(temp,'dist',current.manifest);
+    const manifest=JSON.parse(await readFile(manifestPath)),prefix=`releases/${current.releaseId}/`;
+    manifest.variants[0].artifacts[0].path=`${'x'.repeat(prefix.length)}firmware/quinled-dig2go-merged.bin`;
+    await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
+    const result=verifyAt(temp,['--dist',join(temp,'dist')]);
+    assert.notEqual(result.status,0);
+    assert.match(result.stderr,/artifact.*immutable release|artifact.*path/i);
   } finally { await rm(temp,{recursive:true,force:true}); }
 });
 

@@ -1,5 +1,6 @@
 {
-  "releaseId": "candidate-8e4e035b",
-  "manifest": "releases/candidate-8e4e035b/manifest.json",
-  "generatedAt": "2026-08-16T22:30:21.252Z"
+  "releaseId": "provisional-pr70-a17370b8",
+  "manifest": "releases/provisional-pr70-a17370b8/manifest.json",
+  "generatedAt": "2026-08-17T21:28:59.343Z",
+  "provisional": true
 }

@@ -1,101 +1,24 @@
 #!/usr/bin/env node
-import {createHash} from 'node:crypto';
-import {readFile} from 'node:fs/promises';
-import {resolve} from 'node:path';
-import {containedFile, fileEvidence, jsonHash, requireHash, safeRelative} from './release-provenance.mjs';
+import {createHash} from "node:crypto";
+import {readFile} from "node:fs/promises";
+import {resolve} from "node:path";
+import {containedFile,fileEvidence,jsonHash,requireHash,safeRelative} from "./release-provenance.mjs";
 
-const dist=resolve('dist');
-const current=JSON.parse(await readFile(resolve(dist,'current.json'),'utf8'));
-if(!/^[a-z0-9][a-z0-9._-]*$/i.test(current.releaseId||'')) throw Error('mutable/invalid release id');
-const releasePrefix=`releases/${current.releaseId}/`;
-const expected=`${releasePrefix}manifest.json`;
-if(current.manifest!==expected) throw Error('current manifest pointer is not immutable');
-safeRelative(current.manifest,'manifest pointer');
-const releaseDir=resolve(dist,'releases',current.releaseId);
-const releaseFile=async(path,label,prefix=releasePrefix)=>{
-  safeRelative(path,label);
-  if(!path.startsWith(prefix)) throw Error(`${label} is mutable or outside immutable release`);
-  return containedFile(releaseDir,path.slice(releasePrefix.length),label);
-};
-
-const manifest=JSON.parse(await readFile(await releaseFile(current.manifest,'manifest pointer'),'utf8'));
-if(manifest.provenance?.mode!=='production'&&!process.argv.includes('--fixture')) throw Error('non-production release provenance rejected');
-for(const key of ['receiptDigestSha256','sourceReceiptDigestSha256','contractSha256','partitionSha256']) requireHash(manifest.provenance?.[key],key);
-
-const evidence={};
-for(const kind of ['receipt','contract','partition']) {
-  const claimed=manifest.provenance?.evidence?.[kind];
-  if(!claimed) throw Error(`missing ${kind} provenance evidence`);
-  requireHash(claimed.sha256,`${kind} evidence hash`);
-  const path=await releaseFile(claimed.path,`${kind} evidence path`,`${releasePrefix}provenance/`);
-  const actual=await fileEvidence(path);
-  if(actual.sha256!==claimed.sha256) throw Error(`${kind} provenance evidence mismatch`);
-  evidence[kind]={...claimed,path,bytes:await readFile(path)};
-}
-
-let receipt, contract;
-try { receipt=JSON.parse(evidence.receipt.bytes); } catch { throw Error('build receipt evidence is not valid JSON'); }
-try { contract=JSON.parse(evidence.contract.bytes); } catch { throw Error('update contract evidence is not valid JSON'); }
-const partitionText=evidence.partition.bytes.toString('utf8');
-if(receipt.mode==='fixture') { try { JSON.parse(partitionText); } catch { throw Error('fixture partition evidence is not valid JSON'); } }
-else if(!/^\s*#\s*Name\s*,\s*Type\s*,\s*SubType\s*,\s*Offset\s*,\s*Size\s*,\s*Flags\s*$/im.test(partitionText)||!/^\s*[^#\s][^,]*,[^,]*,[^,]*,[^,]*,[^,]*/m.test(partitionText)) throw Error('partition evidence is not a canonical partition CSV');
-const digestReceipt=structuredClone(receipt); delete digestReceipt.receiptDigestSha256; delete digestReceipt.receiptSha256;
-if(jsonHash(digestReceipt)!==manifest.provenance.receiptDigestSha256) throw Error('receipt deterministic digest mismatch');
-if(receipt.receiptDigestSha256!==manifest.provenance.receiptDigestSha256||receipt.receiptDigestAlgorithm!=='sha256-stable-json-v1'||receipt.pathBase!=='release-directory') throw Error('receipt digest or path contract mismatch');
-if(receipt.sourceReceiptDigestAlgorithm!=='sha256-stable-json-v1'||jsonHash(receipt.sourceReceipt)!==manifest.provenance.sourceReceiptDigestSha256||receipt.sourceReceiptDigestSha256!==manifest.provenance.sourceReceiptDigestSha256) throw Error('source receipt deterministic digest mismatch');
-if(receipt.schemaVersion!==1||receipt.mode!==manifest.provenance.mode) throw Error('receipt schema or mode mismatch');
-if(receipt.source?.repository!=='https://github.com/SteveEisner/WLEDtubes.git'||receipt.source?.clean!==true) throw Error('wrong or mutable receipt source provenance');
-requireHash(receipt.source?.commit,'receipt source commit','commit');
-if(receipt.environment!=='esp32_quinled_dig2go_tubes') throw Error('wrong receipt build environment');
-const sourceReceipt=receipt.sourceReceipt;
-if(sourceReceipt?.schemaVersion!==1||sourceReceipt.mode!==receipt.mode||JSON.stringify(sourceReceipt.source)!==JSON.stringify(receipt.source)||sourceReceipt.environment!==receipt.environment) throw Error('normalized receipt does not match source receipt identity');
-if(sourceReceipt.contract?.sha256!==receipt.contract?.sha256||sourceReceipt.contract?.lengthBytes!==receipt.contract?.lengthBytes||sourceReceipt.partition?.sha256!==receipt.partition?.sha256||sourceReceipt.partition?.lengthBytes!==receipt.partition?.lengthBytes||sourceReceipt.partition?.csvPath!==receipt.partition?.csvPath) throw Error('normalized receipt evidence does not match source receipt');
-for(const kind of ['usb','ota']) {
-  const original=sourceReceipt.artifacts?.[kind], normalized=receipt.artifacts?.[kind];
-  if(!original||!normalized||original.sha256!==normalized.sha256||original.lengthBytes!==normalized.lengthBytes) throw Error(`${kind} normalized artifact does not match source receipt`);
-}
-if(receipt.contract?.sha256!==manifest.provenance.contractSha256||receipt.contract.sha256!==evidence.contract.sha256) throw Error('contract hash mismatch across provenance evidence');
-if(receipt.partition?.sha256!==manifest.provenance.partitionSha256||receipt.partition.sha256!==evidence.partition.sha256) throw Error('partition hash mismatch across provenance evidence');
-for(const [kind,item] of [['contract',receipt.contract],['partition',receipt.partition]]) {
-  if(`${releasePrefix}${item.path}`!==manifest.provenance.evidence[kind].path) throw Error(`${kind} receipt evidence path mismatch`);
-  if(item.lengthBytes!=null&&item.lengthBytes!==evidence[kind].bytes.length) throw Error(`${kind} receipt evidence length mismatch`);
-}
-
-if(contract.schemaVersion!==1) throw Error('unsupported update contract schema');
-const contractTarget=contract.targets?.find(target=>target.id==='quinled-dig2go');
-const contractUsb=contract.artifacts?.find(artifact=>artifact.targetId==='quinled-dig2go'&&artifact.kind==='complete-merged-image'&&artifact.transport==='usb');
-if(!contractTarget||!contractUsb) throw Error('canonical Dig2Go USB contract missing');
-if(receipt.mode==='production'&&contractTarget.partition?.sha256!==manifest.provenance.partitionSha256) throw Error('contract partition hash mismatch');
-
-let count=0;
-for(const variant of manifest.variants||[]) {
-  if(variant.source?.repository!==receipt.source.repository||variant.source?.commit!==receipt.source.commit||variant.source?.clean!==receipt.source.clean) throw Error('manifest source does not match receipt');
-  requireHash(variant.source?.commit,'source commit','commit'); requireHash(variant.partition?.tableSha256,'partition hash');
-  if(variant.partition.tableSha256!==manifest.provenance.partitionSha256) throw Error('manifest partition hash mismatch');
-  if(variant.target?.environment!==receipt.environment||(receipt.mode==='production'&&(variant.target?.hardwareFamily!==contractTarget.hardwareFamily||variant.target?.chip!==contractTarget.chipFamily||variant.target?.flashSizeBytes!==contractTarget.flashSizeBytes))) throw Error('wrong firmware environment or target');
-  if(variant.partition?.otaSlot?.offset!==contractTarget.partition.otaSlots?.[0]?.offset||variant.partition?.otaSlot?.sizeBytes!==contractTarget.partition.otaSlots?.[0]?.sizeBytes) throw Error('partition geometry does not match contract');
-  for(const artifact of variant.artifacts||[]) {
-    const contractWriteOffset=contractUsb.writeOffset??(receipt.mode==='fixture'?0:undefined);
-    if(artifact.kind!==contractUsb.kind||artifact.transport!==contractUsb.transport||artifact.offset!==contractWriteOffset) throw Error('wrong release artifact contract');
-    const artifactPath=await releaseFile(artifact.path,'artifact path',`${releasePrefix}firmware/`);
-    const actual=await fileEvidence(artifactPath);
-    if(actual.lengthBytes!==artifact.sizeBytes||actual.sha256!==artifact.sha256) throw Error(`${artifact.path}: mismatch`);
-    const receiptUsb=receipt.artifacts?.usb;
-    if(!receiptUsb||`${releasePrefix}${receiptUsb.path}`!==artifact.path||receiptUsb.kind!==artifact.kind||receiptUsb.transport!==artifact.transport||receiptUsb.writeOffset!==artifact.offset||receiptUsb.lengthBytes!==artifact.sizeBytes||receiptUsb.sha256!==artifact.sha256) throw Error('USB artifact does not match build receipt');
-    const bytes=await readFile(artifactPath), receiptComponents=new Map((receiptUsb.components||[]).map(component=>[component.id,component])), sourceComponents=new Map((sourceReceipt.artifacts?.usb?.components||[]).map(component=>[component.id,component]));
-    let end=0;
-    for(const component of [...(artifact.components||[])].sort((a,b)=>a.offset-b.offset)) {
-      const receiptComponent=receiptComponents.get(component.name), contractComponent=contractUsb.components?.find(item=>item.id===component.name);
-      const sourceComponent=sourceComponents.get(component.name);
-      if(!receiptComponent||!sourceComponent||!contractComponent||contractComponent.offset!==component.offset||sourceComponent.offset!==component.offset||sourceComponent.lengthBytes!==component.sizeBytes||sourceComponent.sha256!==component.sha256||receiptComponent.offset!==component.offset||receiptComponent.lengthBytes!==component.sizeBytes||receiptComponent.sha256!==component.sha256) throw Error(`${component.name}: component provenance mismatch`);
-      if(component.offset<end||component.offset+component.sizeBytes>bytes.length) throw Error('component bounds mismatch');
-      const hash=createHash('sha256').update(bytes.subarray(component.offset,component.offset+component.sizeBytes)).digest('hex');
-      if(hash!==component.sha256) throw Error(`${component.name}: mismatch`);
-      end=component.offset+component.sizeBytes;
-    }
-    if(receiptComponents.size!==artifact.components?.length||sourceComponents.size!==artifact.components?.length) throw Error('receipt component set mismatch');
-    count++;
-  }
-}
-if(count!==1) throw Error('release must contain exactly one Dig2Go USB merged image');
-console.log(`verified ${count} immutable release artifact with public provenance`);
+const args=process.argv.slice(2),value=name=>{const index=args.indexOf(name);return index<0?undefined:args[index+1];},dist=resolve(value("--dist")||process.env.EASY_FLASH_OUTPUT||"dist");
+const current=JSON.parse(await readFile(resolve(dist,"current.json")));if(current.provisional!==true)throw Error("candidate is not explicitly provisional");
+const prefix=`releases/${current.releaseId}/`;if(current.manifest!==`${prefix}manifest.json`)throw Error("manifest pointer mismatch");safeRelative(current.manifest,"manifest");
+const releaseDir=resolve(dist,"releases",current.releaseId),manifest=JSON.parse(await readFile(await containedFile(releaseDir,"manifest.json","manifest"))),expectedMode=args.includes("--fixture")?"fixture":"provisional";
+if(manifest.provisional!==true||manifest.provenance?.mode!==expectedMode)throw Error("release has wrong provisional evidence mode");
+const evidenceFiles={};
+for(const kind of ["receipt","contract"]){const evidence=manifest.provenance?.evidence?.[kind];safeRelative(evidence?.path,`${kind} evidence`);if(!evidence.path.startsWith(`${prefix}provenance/`))throw Error(`${kind} evidence outside immutable release`);const path=await containedFile(dist,evidence.path,`${kind} evidence`),actual=await fileEvidence(path);if(actual.sha256!==evidence.sha256)throw Error(`${kind} provenance evidence mismatch`);evidenceFiles[kind]=path;}
+const publicReceipt=JSON.parse(await readFile(evidenceFiles.receipt)),publicDigest=publicReceipt.receiptDigestSha256;
+delete publicReceipt.receiptDigestSha256;
+if(publicReceipt.schemaVersion!==2||publicReceipt.mode!==expectedMode||jsonHash(publicReceipt)!==publicDigest||publicDigest!==manifest.provenance.receiptDigestSha256)throw Error("public receipt mode or digest mismatch");
+publicReceipt.receiptDigestSha256=publicDigest;
+const sourceReceipt=publicReceipt.sourceReceipt,sourceDigest=publicReceipt.sourceReceiptDigestSha256;
+if(sourceReceipt?.schemaVersion!==2||sourceReceipt.mode!==expectedMode||sourceReceipt.source?.repository!=="https://github.com/SteveEisner/WLEDtubes.git"||sourceReceipt.source.clean!==true||jsonHash(sourceReceipt)!==sourceDigest||sourceDigest!==manifest.provenance.sourceReceiptDigestSha256)throw Error("source receipt mode, authority, or digest mismatch");
+const contractEvidence=await fileEvidence(evidenceFiles.contract);
+if(contractEvidence.sha256!==sourceReceipt.contract?.sha256||contractEvidence.sha256!==manifest.provenance.contractSha256)throw Error("contract receipt binding mismatch");
+const ids=["quinled-dig2go","athom-c3-tubes","waveshare-s3-tubes-remote"];if(manifest.variants?.length!==3||JSON.stringify(manifest.variants.map(item=>item.id))!==JSON.stringify(ids))throw Error("wrong target set");
+for(const variant of manifest.variants){requireHash(variant.source?.commit,"commit","commit");if(variant.source.commit!=="a17370b841cfaef2541dad5b4d7dafc49bbea800"||variant.source.repository!==sourceReceipt.source.repository||variant.source.clean!==sourceReceipt.source.clean||variant.hardwareTested!==false)throw Error("wrong source authority or hardware claim");const target=sourceReceipt.targets?.find(item=>item.targetId===variant.id);if(!target||target.environment!==variant.target.environment||target.contractTarget?.id!==variant.id||target.contractTarget.chipFamily!==variant.target.chip||target.contractTarget.board!==variant.target.board||sourceReceipt.source.commit!==variant.source.commit)throw Error("target receipt binding mismatch");if(target.partition.sha256!==variant.partition.tableSha256||target.partition.csvPath!==variant.partition.csv)throw Error("partition receipt binding mismatch");const artifact=variant.artifacts?.[0];if(artifact?.transport!=="usb"||artifact.kind!=="complete-merged-image"||artifact.offset!==0)throw Error("wrong USB artifact");safeRelative(artifact.path,"artifact path");if(artifact.path!==`${prefix}firmware/${variant.id}-merged.bin`)throw Error("artifact path outside immutable release firmware directory");if(target.artifacts.usb.sha256!==artifact.sha256||target.artifacts.usb.lengthBytes!==artifact.sizeBytes||JSON.stringify(target.artifacts.usb.components.map(item=>({name:item.id,offset:item.offset,sizeBytes:item.lengthBytes,sha256:item.sha256})))!==JSON.stringify(artifact.components))throw Error("artifact receipt binding mismatch");const file=await containedFile(releaseDir,artifact.path.slice(prefix.length),"artifact"),actual=await fileEvidence(file);if(actual.lengthBytes!==artifact.sizeBytes||actual.sha256!==artifact.sha256)throw Error("artifact mismatch");const bytes=await readFile(file);let end=0;for(const component of [...artifact.components].sort((left,right)=>left.offset-right.offset)){if(component.offset<end||component.offset+component.sizeBytes>bytes.length)throw Error("component bounds mismatch");if(createHash("sha256").update(bytes.subarray(component.offset,component.offset+component.sizeBytes)).digest("hex")!==component.sha256)throw Error("component mismatch");end=component.offset+component.sizeBytes;}if(target.artifacts.ota.lengthBytes!==variant.provenance.ota.sizeBytes||target.artifacts.ota.sha256!==variant.provenance.ota.sha256||variant.provenance.ota.sizeBytes>variant.partition.otaSlot.sizeBytes)throw Error("OTA receipt binding mismatch");}
+console.log("verified 3 immutable provisional target artifacts with bounds and provenance");

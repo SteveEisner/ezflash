@@ -1,161 +1,55 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { initEasyFlash } from "../app.mjs";
-import { createDiagnoseRuntime, parseDiagnosticText, diagnoseSummary } from "../diagnose.mjs";
+import {initEasyFlash} from "../app.mjs";
+import {createDiagnoseRuntime,parseDiagnosticText} from "../diagnose.mjs";
 
 class Element {
-	constructor(doc){this.doc=doc;this.hidden=false;this.disabled=false;this.checked=false;this.textContent="";this.className="";this.listeners={};this.dataset={};this.value="";}
-	addEventListener(type,handler){this.listeners[type]=handler;}
-	dispatch(type){return this.listeners[type]?.({target:this});}
+	constructor(doc,id=""){this.doc=doc;this.id=id;this.hidden=false;this.disabled=false;this.checked=false;this.value="";this.textContent="";this.className="";this.listeners={};this.dataset={};this.attrs={};}
+	addEventListener(type,handler){(this.listeners[type]??=[]).push(handler);}
+	dispatch(type,event={}){for(const handler of this.listeners[type]||[])handler({target:this,preventDefault(){},...event});}
 	focus(){this.doc.activeElement=this;}
-	append(){} replaceChildren(){}
-}
-function tick(){return new Promise((resolve)=>setTimeout(resolve,0));}
-function fixture({exactBoard=false}={}) {
-	const doc={activeElement:null,documentElement:{dataset:{}},nodes:{},querySelector(selector){return this.nodes[selector];},createElement(){const el=new Element(this);el.addEventListener=Element.prototype.addEventListener.bind(el);return el;}};
-	for(const id of ["connect","install","deviceSelect","deviceToggle","selectedDeviceNote","deviceOptions","physicalConfirmation","confirmedPrintedModel","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
-	doc.nodes["#install"].hidden=true;doc.nodes["#physicalConfirmation"].hidden=true;doc.nodes["#actionNote"].hidden=true;doc.nodes["#resultPanel"].hidden=true;
-	const variant={id:"previous-stable-control",label:"Dig2Go",target:{board:"QuinLED Dig2Go",chip:"ESP32"},artifacts:[]},artifact={transport:"usb",kind:"complete-merged-image"};variant.artifacts=[artifact];
-	let installs=0,invalidator=null,lastArgs=null,connects=0;
-	const flash={
-		setInvalidationHandler(handler){invalidator=handler;},
-		async connectToController(){connects++;return {token:Object.freeze({id:"token"}),port:{id:"port"},chipName:"ESP32",chipFamily:"ESP32",portInfo:{usbVendorId:1,usbProductId:2},proof:"chip-only",exactBoard};},
-		async installConnectedController(args){installs++;lastArgs=args;return {chipName:"ESP32",sha256:"a".repeat(64),backup:"unavailable",writeEvidence:"Write call returned; no readback performed",readbackVerified:false,health:"unverified"};}
-	};
-	const releaseLoader=async()=>({releaseId:"test",variant,artifact:{...artifact,url:"https://flash.test/releases/test/firmware/merged.bin"}});
-	const app=initEasyFlash({document:doc,releaseLoader,flash,navigator:{serial:{requestPort(){}}},isSecureContext:true});
-	return {doc,app,flash,counts:()=>installs,connects:()=>connects,args:()=>lastArgs,disconnect:()=>invalidator?.()};
+	append(...children){this.children=[...(this.children||[]),...children];} replaceChildren(...children){this.children=children;}
+	setAttribute(name,value){this.attrs[name]=String(value);}
+	getAttribute(name){return this.attrs[name]??null;}
 }
 
-test("connect identifies the chip in one step; install stays gated on confirmation",async()=>{
-	const f=fixture();await tick();
-	// device auto-selected during load, so connect is enabled
-	assert.equal(f.doc.nodes["#connect"].disabled,false);
-	await f.app.connect();assert.equal(f.connects(),1);assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,false);assert.match(f.doc.nodes["#controllerStatus"].textContent,/ESP32.*match.*QuinLED Dig2Go/i);
-	// unchecked confirmation blocks install
-	await f.app.install();assert.equal(f.counts(),0);
-	f.doc.nodes["#confirmedPrintedModel"].checked=true;f.doc.nodes["#confirmedPrintedModel"].dispatch("change");await f.app.install();assert.equal(f.counts(),1);
-	assert.deepEqual(f.args().physicalConfirmation,{asserted:true,targetId:"previous-stable-control",printedModel:"QuinLED Dig2Go"});assert.equal(f.args().sessionToken.id,"token");assert.equal(f.args().port.id,"port");
-});
-
-test("connect rejects a mismatched chip before install is offered",async()=>{
-	const f=fixture();await tick();f.flash.connectToController=async()=>{const error=new Error("This is a ESP32-S3, not the supported ESP32 controller");throw error;};
-	await f.app.connect();assert.match(f.doc.nodes["#controllerStatus"].textContent,/ESP32-S3.*not the supported ESP32/i);assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,true);assert.equal(f.doc.nodes["#install"].hidden,true);await f.app.install();assert.equal(f.counts(),0);
-});
-
-test("unsupported Web Serial fails before opening a chooser",async()=>{
-	const f=fixture();await tick();f.flash.connectToController=async()=>{throw new Error("should not open");};
-	const doc=f.doc;const app=initEasyFlash({document:doc,navigator:{},isSecureContext:true,releaseLoader:async()=>({variant:{id:"x",target:{board:"QuinLED Dig2Go",chip:"ESP32"}},artifact:{}}),flash:f.flash});await tick();
-	await app.connect();assert.equal(f.connects(),0);assert.match(doc.nodes["#controllerStatus"].textContent,/Chrome or Edge.*HTTPS/i);
-});
-
-test("insecure context fails before opening a chooser",async()=>{
-	const f=fixture();await tick();f.flash.connectToController=async()=>{throw new Error("should not open");};
-	const doc=f.doc;const app=initEasyFlash({document:doc,navigator:{serial:{requestPort(){}}},isSecureContext:false,releaseLoader:async()=>({variant:{id:"x",target:{board:"QuinLED Dig2Go",chip:"ESP32"}},artifact:{}}),flash:f.flash});await tick();
-	await app.connect();assert.equal(f.connects(),0);assert.match(doc.nodes["#controllerStatus"].textContent,/HTTPS/i);
-});
-
-test("one chooser cancellation leaves the idle reconnect state without a write",async()=>{
-	const f=fixture();await tick();let chooser=0;f.flash.connectToController=async()=>{chooser++;const error=new Error("cancelled");error.name="NotFoundError";throw error;};
-	await f.app.connect();assert.equal(chooser,1);assert.equal(f.counts(),0);assert.equal(f.app.getSelection(),null);assert.equal(f.doc.nodes["#install"].hidden,true);assert.match(f.doc.nodes["#controllerStatus"].textContent,/No controller was selected/i);
-});
-
-test("disconnect resets confirmation and prevents stale install",async()=>{
-	const f=fixture({exactBoard:true});await tick();await f.app.connect();
-	f.doc.nodes["#confirmedPrintedModel"].checked=true;f.disconnect();assert.equal(f.doc.nodes["#confirmedPrintedModel"].checked,false);assert.equal(f.doc.nodes["#install"].hidden,true);assert.equal(f.doc.nodes["#install"].disabled,true);assert.equal(f.doc.activeElement,f.doc.nodes["#connect"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/disconnected.*reconnect/i);await f.app.install();assert.equal(f.counts(),0);
-});
-
-test("install failure returns to focused reconnect and success states the no-readback health limitation",async()=>{
-	const failed=fixture({exactBoard:true});await tick();failed.flash.installConnectedController=async()=>{throw new Error("write failed");};await failed.app.connect();failed.doc.nodes["#confirmedPrintedModel"].checked=true;failed.doc.nodes["#confirmedPrintedModel"].dispatch("change");await failed.app.install();assert.equal(failed.app.getSelection(),null);assert.equal(failed.doc.activeElement,failed.doc.nodes["#connect"]);assert.match(failed.doc.nodes["#controllerStatus"].textContent,/Install stopped: write failed.*Reconnect/i);
-	const ok=fixture({exactBoard:true});await tick();await ok.app.connect();ok.doc.nodes["#confirmedPrintedModel"].checked=true;ok.doc.nodes["#confirmedPrintedModel"].dispatch("change");await ok.app.install();assert.equal(ok.counts(),1);assert.match(ok.doc.nodes["#controllerStatus"].textContent,/health proof is unavailable/i);assert.match(ok.doc.nodes["#resultMessage"].textContent,/did not read the flash back.*(?:or automatically|and did not).*prove/i);
-});
-
-test("caps diagnostics at raw bytes before decoding non-ASCII chunks", async () => {
-  const port = mockPort({ chunks: ["é".repeat(5000)] });
-  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => port }, maxBytes: 4 }).inspect();
-  assert.equal(new TextEncoder().encode(result.raw).byteLength, 4);
-  assert.equal(result.raw, "éé");
-});
-
-test("drops incomplete UTF-8 at a one-byte boundary without replacement inflation", async () => {
-  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => mockPort({ chunks: ["é"] }) }, maxBytes: 1 }).inspect();
-  assert.equal(result.raw, "");
-  assert.equal(new TextEncoder().encode(result.raw).byteLength, 0);
-});
-
-test("caps oversized chunks while retaining only complete multibyte characters", async () => {
-  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => mockPort({ chunks: ["éXYZ"] }) }, maxBytes: 3 }).inspect();
-  assert.equal(result.raw, "éX");
-  assert.ok(new TextEncoder().encode(result.raw).byteLength <= 3);
-});
-
-
-function mockPort({ chunks = [], rejectRead = false, hang = false } = {}) {
-  let released = false;
-  let closed = false;
-  let cancelled = false;
-  const reader = {
-    async read() {
-      if (rejectRead) throw new Error("device disconnected");
-      if (hang) return await new Promise(() => {});
-      const chunk = chunks.shift();
-      return chunk === undefined ? { done: true } : { value: new TextEncoder().encode(chunk), done: false };
-    },
-    releaseLock() { released = true; },
-    async cancel() { cancelled = true; },
-  };
-  let isOpen = false;
-  return {
-    get readable() { return isOpen ? { getReader: () => reader } : null; },
-    async open(options) { this.openOptions = options; isOpen = true; },
-    async close() { closed = true; },
-    getInfo: () => ({ usbVendorId: 1234 }),
-    state: () => ({ released, closed, cancelled }),
-  };
+function fixture() {
+	const doc={activeElement:null,documentElement:{dataset:{}},nodes:{},listeners:{},baseURI:"https://flash.test/",querySelector(selector){return this.nodes[selector];},createElement(){return new Element(this);},addEventListener(type,handler){(this.listeners[type]??=[]).push(handler);},dispatchEvent(event){for(const handler of this.listeners[event.type]||[])handler(event);}};
+	for(const id of ["connect","install","controllerState","controllerStateTitle","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage","flashTab","diagnoseTab","statusTab","flashView","diagnoseView","statusView","diagnoseInspect","diagnoseState","diagnoseTitle","diagnoseMessage","diagnoseFacts"])doc.nodes[`#${id}`]=new Element(doc,id);
+	for(const id of ["flashView","diagnoseView","statusView"])doc.nodes[`#${id}`].attrs["aria-labelledby"]=`${id.replace("View","Tab")}`;
+	for(const id of ["install","actionNote","resultPanel","diagnoseView","statusView","diagnoseFacts"])doc.nodes[`#${id}`].hidden=true;
+	const targets=[["quinled-dig2go","QuinLED Dig2Go","ESP32"],["athom-c3-tubes","Athom ESP32-C3 controller","ESP32-C3"],["waveshare-s3-tubes-remote","Waveshare ESP32-S3-Touch-AMOLED-2.16","ESP32-S3"]];
+	const catalog=targets.map(([id,printedModel,chip])=>({variant:{id,label:printedModel,target:{printedModel,chip}},artifact:{url:`https://flash.test/${id}.bin`,sha256:id.padEnd(64,"a")}}));
+	let installs=0,disconnects=0,invalidator,lastArgs,inspects=0,connectError=null;
+	let chipName="ESP32";const flash={setInvalidationHandler(handler){invalidator=handler;},async connectToController(){if(connectError)throw connectError;return {token:Object.freeze({id:"token"}),port:{id:"port"},chipName,chipFamily:chipName,portInfo:{}};},bindConnectedController({evidence,variant}){return {...evidence,variantId:variant.id};},async installConnectedController(args){installs++;lastArgs=args;args.onReceipt({stage:"awaiting-health",targetId:args.variant.id,artifactSha256:args.artifact.sha256});return {sha256:args.artifact.sha256,writeEvidence:"Write call returned",health:"unverified"};},async disconnectController(){disconnects++;}};
+	const diagnoseRuntime={async inspect(){inspects++;return {state:"telemetry",target:null,observedTarget:null,chip:"ESP32-C3",button:"AVAILABLE",bytesCaptured:24};}};
+	const app=initEasyFlash({document:doc,navigator:{serial:{requestPort(){}}},isSecureContext:true,releaseLoader:async()=>({releaseId:"test",catalog}),flash,diagnoseRuntime});
+	return {doc,app,flash,counts:()=>({installs,disconnects,inspects}),args:()=>lastArgs,disconnect:()=>invalidator?.(),setChip:value=>chipName=value,setConnectError:value=>connectError=value};
 }
 
-test("parses exact rescue and button banners without broad rescue matches", () => {
-  assert.equal(parseDiagnosticText("WLED rescue mode active. Flash over serial, or send 'format'/'reboot'.").rescue, true);
-  assert.equal(parseDiagnosticText("AP mode active; no network yet").rescue, false);
-  assert.equal(parseDiagnosticText("WLED button diagnostics: STUCK_BUTTON").buttonProblem, true);
-  assert.equal(parseDiagnosticText("WLED button diagnostics: healthy").buttonDiagnostics, "healthy");
-  assert.equal(parseDiagnosticText("WLED button diagnostics: AVAILABLE").buttonDiagnostics, "available");
-  assert.equal(parseDiagnosticText("WLED button diagnostics: INACTIVE").buttonDiagnostics, "inactive");
-  assert.equal(parseDiagnosticText("WLED button diagnostics: AVAILABLE").buttonProblem, false);
-  assert.equal(parseDiagnosticText("WLED button diagnostics: disabled (WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS)").buttonDiagnostics, "disabled");
-  // A connected-but-quiet controller is online (healthy-looking), not "unsupported".
-  assert.equal(parseDiagnosticText("").state, "online");
-  assert.match(diagnoseSummary(parseDiagnosticText("")), /online and looks healthy/i);
-  // Known target recognition: Waveshare ESP32-S3 and QuinLED Dig2Go both resolve as known.
-  const s3 = parseDiagnosticText("board: esp32-s3-devkitc-1");
-  assert.equal(s3.hardwareFamily, "waveshare-s3-touch-amoled-2.16");
-  assert.equal(s3.targetKnown, true);
-  const dig2go = parseDiagnosticText("model: QuinLED Dig2Go");
-  assert.equal(dig2go.hardwareFamily, "quinled-dig2go");
-  assert.equal(dig2go.targetKnown, true);
-});
 
-test("opens a closed port, reads telemetry, and closes only what it opened", async () => {
-  const port = mockPort({ chunks: ["WLED button diagnostics: healthy\n"] });
-  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => port } }).inspect();
-  assert.equal(port.openOptions.baudRate, 115200);
-  assert.equal(result.buttonDiagnostics, "healthy");
-  assert.deepEqual(port.state(), { released: true, closed: true, cancelled: false });
-});
+test("single-device install succeeds without public fleet migration state",async()=>{const f=fixture();await Promise.resolve();await f.app.connect();await f.app.install();assert.equal(f.doc.nodes["#resultPanel"].hidden,false);assert.equal(f.doc.nodes["#resultTitle"].textContent,"Installed — check the lights");assert.equal(f.app.getSelection(),null);for(const selector of ["#migrationCard","#migrationSummary","#otaStateMessage"])assert.equal(f.doc.nodes[selector],undefined);});
 
-test("timeout on a silent controller means online (healthy) and cleans up the bounded read", async () => {
-  const port = mockPort({ hang: true });
-  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => port }, timeoutMs: 5 }).inspect();
-  assert.equal(result.state, "online");
-  assert.ok(!result.unreadable);
-  assert.deepEqual(port.state(), { released: true, closed: true, cancelled: true });
-});
+test("Connect is the sole initial primary and each exact candidate gets a target-named Install",async()=>{for(const [chip,id,label] of [["ESP32","quinled-dig2go","Install Dig2Go firmware"],["ESP32-C3","athom-c3-tubes","Install Athom C3 firmware"],["ESP32-S3","waveshare-s3-tubes-remote","Install Waveshare S3 firmware"]]){const f=fixture();f.setChip(chip);await Promise.resolve();assert.equal(f.app.getSelection(),null);assert.notEqual(f.doc.nodes["#connect"].className,"secondary");assert.equal(f.doc.nodes["#install"].hidden,true);await f.app.connect();assert.equal(f.app.getSelection().variant.id,id);assert.match(f.app.getSelection().artifact.url,new RegExp(id));assert.equal(f.doc.nodes["#install"].textContent,label);assert.equal(f.doc.nodes["#install"].hidden,false);assert.equal(f.doc.nodes["#install"].disabled,false);assert.equal(f.doc.nodes["#connect"].textContent,"Connect another controller");assert.match(f.doc.nodes["#connect"].className,/secondary/);assert.match(f.doc.nodes["#instruction"].textContent,/cannot prove.*carrier board/i);}});
 
-test("a read failure is genuinely unreadable, not healthy", async () => {
-  const port = mockPort({ rejectRead: true });
-  const result = await createDiagnoseRuntime({ serial: { requestPort: async () => port } }).inspect();
-  assert.equal(result.state, "online");
-  assert.equal(result.unreadable, true);
-  assert.match(diagnoseSummary(result), /could not read/i);
-  assert.deepEqual(port.state(), { released: true, closed: true, cancelled: false });
-});
+test("unsupported detection fails closed without Install",async()=>{const f=fixture();f.setChip("ESP32-C6");await Promise.resolve();await f.app.connect();assert.equal(f.app.getSelection(),null);assert.equal(f.doc.nodes["#install"].hidden,true);assert.match(f.doc.nodes["#controllerStatus"].textContent,/unsupported/i);});
+test("Connect never writes and only the exact target-named action click admits Install",async()=>{const f=fixture();await Promise.resolve();await f.app.connect();assert.equal(f.counts().installs,0);await f.app.install();assert.equal(f.counts().installs,1);assert.equal(f.args().candidateAction.label,"Install Dig2Go firmware");assert.equal(f.args().candidateAction.targetId,"quinled-dig2go");assert.equal(f.args().candidateAction.artifactSha256,f.app.getSelection()?.artifact.sha256 ?? f.args().artifact.sha256);assert.equal(f.args().candidateAction.sessionToken,f.args().sessionToken);assert.equal(f.args().candidateAction.port,f.args().port);});
+
+test("tab selection never touches serial and leaving Flash invalidates prepared install state",async()=>{const f=fixture();await Promise.resolve();await f.app.connect();const diagnose=f.doc.nodes["#diagnoseTab"];f.app.selectTab(diagnose);assert.equal(f.app.getSelection(),null);assert.deepEqual(f.counts(),{installs:0,disconnects:0,inspects:0});await f.app.install();assert.equal(f.counts().installs,0);assert.equal(f.doc.nodes["#diagnoseView"].hidden,false);});
+
+test("Status selection remains serial-free and explicit Inspect uses its own lifecycle",async()=>{const f=fixture();await Promise.resolve();f.app.selectTab(f.doc.nodes["#statusTab"]);assert.deepEqual(f.counts(),{installs:0,disconnects:0,inspects:0});await f.app.inspect();assert.deepEqual(f.counts(),{installs:0,disconnects:1,inspects:1});assert.match(f.doc.nodes["#diagnoseFacts"].children[1].textContent,/Exact controller: Unknown/);});
+
+test("keyboard tabs wrap, support Home/End, and keep one tab in order",async()=>{const f=fixture(),tabs=[f.doc.nodes["#flashTab"],f.doc.nodes["#diagnoseTab"],f.doc.nodes["#statusTab"]];tabs[0].dispatch("keydown",{key:"ArrowLeft"});assert.equal(f.doc.activeElement,tabs[2]);assert.equal(tabs[2].tabIndex,0);tabs[2].dispatch("keydown",{key:"Home"});assert.equal(f.doc.activeElement,tabs[0]);tabs[0].dispatch("keydown",{key:"End"});assert.equal(f.doc.activeElement,tabs[2]);});
+
+test("disconnect and reconnect clear stale candidate action state",async()=>{const f=fixture();await Promise.resolve();await f.app.connect();const stale=f.app.getSelection();f.disconnect();assert.equal(f.app.getSelection(),null);await f.app.install();assert.equal(f.counts().installs,0);await f.app.connect();assert.notEqual(f.app.getSelection(),stale);assert.equal(f.doc.nodes["#install"].textContent,"Install Dig2Go firmware");});
+test("cancelled reconnect clears stale candidate presentation and leaves no Install",async()=>{const f=fixture();await Promise.resolve();await f.app.connect();assert.match(f.doc.nodes["#instruction"].textContent,/cannot prove/i);const error=Object.assign(Error("cancelled"),{name:"NotFoundError"});f.setConnectError(error);await f.app.connect();assert.equal(f.app.getSelection(),null);assert.equal(f.doc.nodes["#install"].hidden,true);assert.equal(f.doc.nodes["#installTitle"].textContent,"Plug in your controller");assert.doesNotMatch(f.doc.nodes["#instruction"].textContent,/cannot prove|ESP32/i);const details=f.doc.nodes["#technicalDetails"].children.flatMap(row=>row.children||[]).map(node=>node.textContent).join(" ");assert.doesNotMatch(details,/artifact|sha-256/i);});
+
+function mockPort({chunks=[],rejectRead=false,hang=false}={}){let released=false,closed=false,cancelled=false,isOpen=false;const reader={async read(){if(rejectRead)throw Error("device disconnected");if(hang)return new Promise(()=>{});const chunk=chunks.shift();return chunk===undefined?{done:true}:{value:new TextEncoder().encode(chunk),done:false};},releaseLock(){released=true;},async cancel(){cancelled=true;}};return {get readable(){return isOpen?{getReader:()=>reader}:null;},async open(options){this.openOptions=options;isOpen=true;},async close(){closed=true;},getInfo:()=>({usbVendorId:1234}),state:()=>({released,closed,cancelled})};}
+
+test("diagnose caps raw bytes before decoding complete UTF-8",async()=>{const result=await createDiagnoseRuntime({serial:{requestPort:async()=>mockPort({chunks:["éXYZ"]})},maxBytes:3}).inspect();assert.equal(result.raw,"éX");assert.equal(result.bytesCaptured,3);});
+
+test("exact rescue/button parsing uses the latest banner and healthy clears STUCK_BUTTON",()=>{assert.equal(parseDiagnosticText("WLED rescue mode active. Flash over serial, or send 'format'/'reboot'.").rescue,true);assert.equal(parseDiagnosticText("AP mode active; no network yet").rescue,false);const result=parseDiagnosticText("WLED button diagnostics: STUCK_BUTTON\nWLED button diagnostics: healthy");assert.equal(result.buttonProblem,false);assert.equal(result.buttonDiagnostics,"healthy");for(const healthy of ["AVAILABLE","INACTIVE","healthy"])assert.equal(parseDiagnosticText(`WLED button diagnostics: ${healthy}`).buttonProblem,false);});
+
+test("exact target reports classify three carriers but generic C3/S3 chips remain Unknown",()=>{for(const name of ["QuinLED Dig2Go","Athom ESP32-C3 controller","Waveshare ESP32-S3-Touch-AMOLED-2.16"])assert.equal(parseDiagnosticText(`model: ${name}`).target,name);for(const chip of ["ESP32-C3","ESP32-S3"])assert.deepEqual([parseDiagnosticText(`chip: ${chip}`).target,parseDiagnosticText(`chip: ${chip}`).targetIdentity],[null,"unknown"]);});
+
+test("timeout, disconnect, and chooser cancellation cleanly stop without writes",async()=>{const timed=mockPort({hang:true}),result=await createDiagnoseRuntime({serial:{requestPort:async()=>timed},timeoutMs:5}).inspect();assert.equal(result.state,"unsupported");assert.deepEqual(timed.state(),{released:true,closed:true,cancelled:true});const disconnected=mockPort({rejectRead:true}),lost=await createDiagnoseRuntime({serial:{requestPort:async()=>disconnected}}).inspect();assert.equal(lost.readError,"device disconnected");assert.deepEqual(disconnected.state(),{released:true,closed:true,cancelled:false});const error=Object.assign(Error("cancelled"),{name:"NotFoundError"});await assert.rejects(createDiagnoseRuntime({serial:{requestPort:async()=>{throw error;}}}).inspect(),{name:"NotFoundError"});});

@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 2,
+  "mode": "provisional",
+  "sourceReceiptDigestSha256": "65654a7f91d0b9ebfccfead6fc04ead19db073716e957cb4dc488bff7cac374b",
+  "sourceReceipt": {
+    "schemaVersion": 2,
+    "mode": "provisional",
+    "source": {
+      "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+      "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+      "clean": true
+    },
+    "contract": {
+      "path": "update-contract.json",
+      "lengthBytes": 10776,
+      "sha256": "b4b0900474f1dbc578a2462ad5b754bf51910c816393d7362bb1bc0d55de42c6"
+    },
+    "targets": [
+      {
+        "targetId": "quinled-dig2go",
+        "environment": "esp32_quinled_dig2go_tubes",
+        "printedModel": "QuinLED Dig2Go",
+        "contractTarget": {
+          "id": "quinled-dig2go",
+          "cppValue": 1,
+          "hardwareFamily": "quinled-dig2go",
+          "chipFamily": "ESP32",
+          "board": "QuinLED Dig2Go",
+          "flashMode": "dio",
+          "flashSizeBytes": 4194304,
+          "partition": {
+            "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv",
+            "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+            "otaSlots": [
+              {
+                "id": "ota_0",
+                "offset": 65536,
+                "sizeBytes": 1572864
+              },
+              {
+                "id": "ota_1",
+                "offset": 1638400,
+                "sizeBytes": 1572864
+              }
+            ]
+          }
+        },
+        "partition": {
+          "path": "targets/quinled-dig2go/WLED_ESP32_4MB_1MB_FS.csv",
+          "lengthBytes": 260,
+          "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+          "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv"
+        },
+        "artifacts": {
+          "usb": {
+            "path": "targets/quinled-dig2go/merged.bin",
+            "lengthBytes": 1325408,
+            "sha256": "b6380a87403489b1e0f602753b5660e96ee236ed104abf75dd3ae07be0804b8d",
+            "kind": "complete-merged-image",
+            "transport": "usb",
+            "writeOffset": 0,
+            "components": [
+              {
+                "id": "bootloader",
+                "offset": 4096,
+                "lengthBytes": 17376,
+                "sha256": "3b827cbff49bcd26eb3a37d8d2801c15317e8007cb251c8b546c5bfa33dba416"
+              },
+              {
+                "id": "partitions",
+                "offset": 32768,
+                "lengthBytes": 3072,
+                "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+              },
+              {
+                "id": "boot-app0",
+                "offset": 57344,
+                "lengthBytes": 8192,
+                "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+              },
+              {
+                "id": "application",
+                "offset": 65536,
+                "lengthBytes": 1259872,
+                "sha256": "397949be8f361a65d856214d12ab51cc98418ee56d2601e7f19a638c358ffc54"
+              }
+            ]
+          },
+          "ota": {
+            "path": "targets/quinled-dig2go/firmware.bin",
+            "lengthBytes": 1259872,
+            "sha256": "397949be8f361a65d856214d12ab51cc98418ee56d2601e7f19a638c358ffc54",
+            "kind": "application-image",
+            "transport": "ota",
+            "buildOffset": 65536
+          }
+        }
+      },
+      {
+        "targetId": "athom-c3-tubes",
+        "environment": "esp32-c3-athom_tubes",
+        "printedModel": "Athom ESP32-C3 controller",
+        "contractTarget": {
+          "id": "athom-c3-tubes",
+          "cppValue": 3,
+          "hardwareFamily": "athom-esp32-c3",
+          "chipFamily": "ESP32-C3",
+          "board": "esp32-c3-devkitm-1",
+          "flashMode": "dio",
+          "flashSizeBytes": 4194304,
+          "compiledProfile": {
+            "environment": "esp32-c3-athom_tubes",
+            "releaseIdentity": "ESP32-C3_ATHOM_TUBES",
+            "ledPin": 10,
+            "buttonPin": 9,
+            "ledCount": 150
+          },
+          "partition": {
+            "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv",
+            "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+            "otaSlots": [
+              {
+                "id": "ota_0",
+                "offset": 65536,
+                "sizeBytes": 1572864
+              },
+              {
+                "id": "ota_1",
+                "offset": 1638400,
+                "sizeBytes": 1572864
+              }
+            ]
+          }
+        },
+        "partition": {
+          "path": "targets/athom-c3-tubes/WLED_ESP32_4MB_1MB_FS.csv",
+          "lengthBytes": 260,
+          "sha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+          "csvPath": "tools/WLED_ESP32_4MB_1MB_FS.csv"
+        },
+        "artifacts": {
+          "usb": {
+            "path": "targets/athom-c3-tubes/merged.bin",
+            "lengthBytes": 1263664,
+            "sha256": "d8940deace1b666ce173a81d654f096f83752ac4459e3a05b90136bba6d626fe",
+            "kind": "complete-merged-image",
+            "transport": "usb",
+            "writeOffset": 0,
+            "components": [
+              {
+                "id": "bootloader",
+                "offset": 0,
+                "lengthBytes": 10608,
+                "sha256": "3ad906095ba135b40d0bda12e113e630cc6d3c0abef3c6347e94dcaaa6670791"
+              },
+              {
+                "id": "partitions",
+                "offset": 32768,
+                "lengthBytes": 3072,
+                "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+              },
+              {
+                "id": "boot-app0",
+                "offset": 57344,
+                "lengthBytes": 8192,
+                "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+              },
+              {
+                "id": "application",
+                "offset": 65536,
+                "lengthBytes": 1198128,
+                "sha256": "9885231e4b78795d13ec097203db12c20642949dbeb25dcf0669f49aee5a575b"
+              }
+            ]
+          },
+          "ota": {
+            "path": "targets/athom-c3-tubes/firmware.bin",
+            "lengthBytes": 1198128,
+            "sha256": "9885231e4b78795d13ec097203db12c20642949dbeb25dcf0669f49aee5a575b",
+            "kind": "application-image",
+            "transport": "ota",
+            "buildOffset": 65536
+          }
+        }
+      },
+      {
+        "targetId": "waveshare-s3-tubes-remote",
+        "environment": "waveshare_s3_tubes_target",
+        "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16",
+        "contractTarget": {
+          "id": "waveshare-s3-tubes-remote",
+          "cppValue": 2,
+          "hardwareFamily": "waveshare-s3-touch-amoled-2.16",
+          "chipFamily": "ESP32-S3",
+          "board": "esp32-s3-devkitc-1",
+          "flashMode": "qio",
+          "flashSizeBytes": 16777216,
+          "compiledProfile": {
+            "environment": "waveshare_s3_tubes_target",
+            "releaseIdentity": "WAVESHARE_S3_TUBES_TARGET"
+          },
+          "partition": {
+            "csvPath": "contracts/update/partitions/WLED_ESP32S3_WAVESHARE_16MB.csv",
+            "sha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
+            "otaSlots": [
+              {
+                "id": "ota_0",
+                "offset": 65536,
+                "sizeBytes": 6291456
+              },
+              {
+                "id": "ota_1",
+                "offset": 6356992,
+                "sizeBytes": 6291456
+              }
+            ]
+          },
+          "hardwareAcceptance": "unproven"
+        },
+        "partition": {
+          "path": "targets/waveshare-s3-tubes-remote/WLED_ESP32S3_WAVESHARE_16MB.csv",
+          "lengthBytes": 399,
+          "sha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
+          "csvPath": "contracts/update/partitions/WLED_ESP32S3_WAVESHARE_16MB.csv"
+        },
+        "artifacts": {
+          "usb": {
+            "path": "targets/waveshare-s3-tubes-remote/merged.bin",
+            "lengthBytes": 1285264,
+            "sha256": "8399df1d7f6bc145f4911e6a53085ccd2913f34b027f324659028e600b5a6d3d",
+            "kind": "complete-merged-image",
+            "transport": "usb",
+            "writeOffset": 0,
+            "components": [
+              {
+                "id": "bootloader",
+                "offset": 0,
+                "lengthBytes": 13792,
+                "sha256": "acbb1da736a723d59cb1baa1f6f8e6c5b88d58a31f8a34388484d4791eaf00f7"
+              },
+              {
+                "id": "partitions",
+                "offset": 32768,
+                "lengthBytes": 3072,
+                "sha256": "bd52d72f689f42be90a1c1a229f35071684b92453ee9a5c9640daf39087b07d0"
+              },
+              {
+                "id": "boot-app0",
+                "offset": 57344,
+                "lengthBytes": 8192,
+                "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+              },
+              {
+                "id": "application",
+                "offset": 65536,
+                "lengthBytes": 1219728,
+                "sha256": "346363cb52479d0734348f4509a793cbba61d50a937abd0b4d729370d6ccec0e"
+              }
+            ]
+          },
+          "ota": {
+            "path": "targets/waveshare-s3-tubes-remote/firmware.bin",
+            "lengthBytes": 1219728,
+            "sha256": "346363cb52479d0734348f4509a793cbba61d50a937abd0b4d729370d6ccec0e",
+            "kind": "application-image",
+            "transport": "ota",
+            "buildOffset": 65536
+          }
+        }
+      }
+    ]
+  },
+  "receiptDigestAlgorithm": "sha256-stable-json-v1",
+  "pathBase": "release-directory",
+  "receiptDigestSha256": "43ae3d77ce9bce2dfa34c9d33d317a3eb2616c55179ea92164c3551c16e0a5ae"
+}

@@ -1,8 +1,12 @@
 {
   "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-  "ref": "8e4e035b640429167f306d22d60e756174166b2f",
-  "commit": "8e4e035b640429167f306d22d60e756174166b2f",
-  "environment": "esp32_quinled_dig2go_tubes",
-  "status": "local-production-candidate",
-  "promotion": "Unpublished local candidate pinned to corrected WLEDTubes #67; do not push or deploy without independent review."
+  "ref": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+  "commit": "a17370b841cfaef2541dad5b4d7dafc49bbea800",
+  "targets": [
+    {"targetId": "quinled-dig2go", "environment": "esp32_quinled_dig2go_tubes", "printedModel": "QuinLED Dig2Go"},
+    {"targetId": "athom-c3-tubes", "environment": "esp32-c3-athom_tubes", "printedModel": "Athom ESP32-C3 controller"},
+    {"targetId": "waveshare-s3-tubes-remote", "environment": "waveshare_s3_tubes_target", "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16"}
+  ],
+  "status": "private-provisional-candidate",
+  "promotion": "Unpublished candidate pinned to unmerged WLEDTubes PR #70; re-pin only after the exact commit is reachable from merged upstream main."
 }
