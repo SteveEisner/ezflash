@@ -55,9 +55,12 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 		flashInProgress=true; let intendedBytes=0; let failureStage="validation"; const startedAt=new Date();
 		try {
 			onStatus("Checking the bundled firmware…"); const image=await fetchVerifiedImage(variant,artifact); const components=await validateMergedImageBytes(variant.target,artifact,image,sha256Hex);
-			const currentInfo=port.getInfo(); if (!samePortInfo(session.portInfo,currentInfo)) throw new Error("The connected USB controller changed; reconnect before installing");
-			failureStage="pre-write"; const observedChip=await session.loader.main();
-			if (chipFamily(observedChip)!==session.chipFamily || chipFamily(observedChip)!==chipFamily(variant.target.chip)) throw new Error("The connected controller identity changed; reconnect before installing");
+			failureStage="pre-write"; const currentInfo=port.getInfo(); if (!samePortInfo(session.portInfo,currentInfo)) throw new Error("The connected USB controller changed; reconnect before installing");
+			// Chip identity was identified and stored at connect (single loader.main above). Do NOT re-run
+			// loader.main() here: it calls transport.connect() -> port.open() again, which throws "The port is
+			// already open" on the already-open Web Serial port. The session/port liveness and the stored chip
+			// family (verified against variant.target.chip at connect) already gate the write fail-closed.
+			if (session.chipFamily!==chipFamily(variant.target.chip)) throw new Error("The connected controller identity does not match the selected target; reconnect before installing");
 			if (active !== session || session.token !== sessionToken || session.port !== port) throw new Error("The prepared controller session is no longer active");
 			const fileArray=components.map((component)=>({data:image.slice(component.imageStart,component.imageStart+component.sizeBytes),address:component.offset})); intendedBytes=fileArray.reduce((sum,item)=>sum+item.data.byteLength,0);
 			onReceipt(transferReceipt(variant,artifact,evidence,intendedBytes,startedAt)); beforeWrite({fileArray,sessionToken,port,evidence});
