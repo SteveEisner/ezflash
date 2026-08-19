@@ -15,9 +15,15 @@ export function parseDiagnosticText(text = "") {
   const buttonDiagnostic = raw.match(BUTTON_DIAGNOSTIC)?.[1] ?? null;
   const target = raw.match(/(?:target|board|model)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim();
   const chip = raw.match(/(?:chip|chip family|platform)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim();
+  // A connected controller that is quiet is ONLINE (healthy-looking), not unsupported:
+  // healthy WLED only prints a banner at boot, then goes silent. Empty output therefore
+  // means "online, no fault signature" — NOT "unsupported". "Unsupported" is reserved for
+  // not being able to talk to the device at all, which the caller decides (no reader /
+  // read failure), not by silence.
+  const state = rescue ? "rescue" : (raw.trim() ? "telemetry" : "online");
   return {
     raw,
-    state: rescue ? "rescue" : raw.trim() ? "telemetry" : "unsupported",
+    state,
     rescue,
     ledsAbsent: rescue,
     networkAbsent: rescue,
@@ -31,8 +37,10 @@ export function parseDiagnosticText(text = "") {
 
 export function diagnoseSummary(diagnostic) {
   if (diagnostic.state === "rescue") return "Rescue mode is active. LEDs and network are intentionally absent; the device may be recoverable.";
+  if (diagnostic.unreadable) return "Diagnose could not read the controller. It may be unsupported, disconnected, or on an unrecognized port.";
   if (diagnostic.state === "telemetry") return diagnostic.buttonProblem ? "The device reported a button or target diagnostic. Review it before choosing recovery." : "The device responded with diagnostic telemetry.";
-  return "No supported diagnostic telemetry was found. This does not prove the device is healthy or faulty.";
+  if (diagnostic.state === "online") return "Controller is online and looks healthy. No rescue, stuck-button, or error signature was observed. (A healthy controller is quiet after boot; lights on confirms it is running.)";
+  return "Diagnose could not reach the controller.";
 }
 
 export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, baudRate = DEFAULT_BAUD_RATE, timeoutMs = READ_WINDOW_MS, maxBytes = MAX_BYTES } = {}) {
@@ -44,6 +52,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
     let reader;
     let text = "";
     let bytesRead = 0;
+    let readFailed = false;
     try {
       if (!port.readable) {
         await port.open({ baudRate });
@@ -51,7 +60,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
       }
       onStatus("Connected read-only. Waiting for a diagnostic banner…");
       reader = port.readable?.getReader();
-      if (!reader) return { ...parseDiagnosticText(""), portInfo: info };
+      if (!reader) return { ...parseDiagnosticText(""), unreadable: true, portInfo: info };
       const rawBytes = new Uint8Array(maxBytes);
       const deadline = Date.now() + timeoutMs;
       while (bytesRead < maxBytes && Date.now() < deadline) {
@@ -63,6 +72,7 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
             new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), remaining)),
           ]);
         } catch {
+          readFailed = true;
           break;
         }
         if (result.timeout) { await reader.cancel?.(); break; }
@@ -73,8 +83,11 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
           bytesRead += chunk.byteLength;
         }
       }
-      // Decode only complete UTF-8 code points. TextDecoder's replacement for
-      // an incomplete suffix can be three bytes, exceeding the raw byte cap.
+      // A read that errored (disconnect, invalid state) is genuinely unreadable and must NOT
+      // be labeled healthy-online. Only a clean silent read (a healthy quiet board) is "online".
+      if (readFailed && bytesRead === 0) return { ...parseDiagnosticText(""), unreadable: true, portInfo: info };
+      // Decode only complete UTF-8 code points. TextDecoder's replacement for an incomplete
+      // suffix can be three bytes, exceeding the raw byte cap.
       let decodedBytes = rawBytes.subarray(0, bytesRead);
       while (decodedBytes.byteLength) {
         try { text = new TextDecoder("utf-8", { fatal: true }).decode(decodedBytes); break; }

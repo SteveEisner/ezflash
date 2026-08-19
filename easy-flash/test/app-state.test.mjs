@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { initEasyFlash } from "../app.mjs";
-import { createDiagnoseRuntime, parseDiagnosticText } from "../diagnose.mjs";
+import { createDiagnoseRuntime, parseDiagnosticText, diagnoseSummary } from "../diagnose.mjs";
 
 class Element {
 	constructor(doc){this.doc=doc;this.hidden=false;this.disabled=false;this.checked=false;this.textContent="";this.className="";this.listeners={};this.dataset={};this.value="";}
@@ -123,6 +123,9 @@ test("parses exact rescue and button banners without broad rescue matches", () =
   assert.equal(parseDiagnosticText("WLED button diagnostics: INACTIVE").buttonDiagnostics, "inactive");
   assert.equal(parseDiagnosticText("WLED button diagnostics: AVAILABLE").buttonProblem, false);
   assert.equal(parseDiagnosticText("WLED button diagnostics: disabled (WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS)").buttonDiagnostics, "disabled");
+  // A connected-but-quiet controller is online (healthy-looking), not "unsupported".
+  assert.equal(parseDiagnosticText("").state, "online");
+  assert.match(diagnoseSummary(parseDiagnosticText("")), /online and looks healthy/i);
 });
 
 test("opens a closed port, reads telemetry, and closes only what it opened", async () => {
@@ -133,16 +136,19 @@ test("opens a closed port, reads telemetry, and closes only what it opened", asy
   assert.deepEqual(port.state(), { released: true, closed: true, cancelled: false });
 });
 
-test("timeout cancels and cleans up the bounded read", async () => {
+test("timeout on a silent controller means online (healthy) and cleans up the bounded read", async () => {
   const port = mockPort({ hang: true });
   const result = await createDiagnoseRuntime({ serial: { requestPort: async () => port }, timeoutMs: 5 }).inspect();
-  assert.equal(result.state, "unsupported");
+  assert.equal(result.state, "online");
+  assert.ok(!result.unreadable);
   assert.deepEqual(port.state(), { released: true, closed: true, cancelled: true });
 });
 
-test("missing telemetry is not healthy and disconnect still releases and closes", async () => {
+test("a read failure is genuinely unreadable, not healthy", async () => {
   const port = mockPort({ rejectRead: true });
   const result = await createDiagnoseRuntime({ serial: { requestPort: async () => port } }).inspect();
-  assert.equal(result.state, "unsupported");
+  assert.equal(result.state, "online");
+  assert.equal(result.unreadable, true);
+  assert.match(diagnoseSummary(result), /could not read/i);
   assert.deepEqual(port.state(), { released: true, closed: true, cancelled: false });
 });
