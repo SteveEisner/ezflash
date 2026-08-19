@@ -13,7 +13,7 @@ class Element {
 function tick(){return new Promise((resolve)=>setTimeout(resolve,0));}
 function fixture({exactBoard=false}={}) {
 	const doc={activeElement:null,documentElement:{dataset:{}},nodes:{},querySelector(selector){return this.nodes[selector];},createElement(){const el=new Element(this);el.addEventListener=Element.prototype.addEventListener.bind(el);return el;}};
-	for(const id of ["connect","install","deviceSelect","deviceOptions","physicalConfirmation","confirmedDig2Go","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
+	for(const id of ["connect","install","deviceSelect","deviceToggle","selectedDeviceNote","deviceOptions","physicalConfirmation","confirmedDig2Go","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
 	doc.nodes["#install"].hidden=true;doc.nodes["#physicalConfirmation"].hidden=true;doc.nodes["#actionNote"].hidden=true;doc.nodes["#resultPanel"].hidden=true;
 	const variant={id:"previous-stable-control",label:"Dig2Go",target:{board:"QuinLED Dig2Go",chip:"ESP32"},artifacts:[]},artifact={transport:"usb",kind:"complete-merged-image"};variant.artifacts=[artifact];
 	let installs=0,invalidator=null,lastArgs=null,connects=0;
