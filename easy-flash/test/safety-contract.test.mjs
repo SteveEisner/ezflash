@@ -58,3 +58,20 @@ test("wrong target/model, swapped USB device, unsupported chip, and serial disco
 	const swapped=runtimeFixture(),e1=await swapped.runtime.connectToController({variant,onStatus(){}});swapped.port.getInfo=()=>({usbVendorId:9,usbProductId:2});await assert.rejects(swapped.runtime.installConnectedController({variant,artifact,sessionToken:e1.token,port:e1.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}}),/USB controller changed/i);assert.equal(swapped.counts().writes,0);
 	const gone=runtimeFixture(),e2=await gone.runtime.connectToController({variant,onStatus(){}});let reason=null;gone.runtime.setInvalidationHandler((event)=>reason=event.reason);gone.serial.disconnect(gone.port);await new Promise(setImmediate);assert.equal(reason,"disconnect");await assert.rejects(gone.runtime.installConnectedController({variant,artifact,sessionToken:e2.token,port:e2.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}}),/connect.*again/i);
 });
+
+test("quad flash modes never reach the write; pass-through modes do",async()=>{
+	const manifest=await loadFirmwareManifest(),variant=manifest.variants[0],artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"};
+	// qio/qout rewrite the bootloader header at write time and can brick boards whose flash wiring
+	// cannot fast-boot quad mode (FD2 Waveshare S3, 2026-08-19). They must be refused before any write.
+	for(const mode of ["qio","qout"]) {
+		const f=runtimeFixture(),e=await f.runtime.connectToController({variant:{...variant,target:{...variant.target,flashMode:mode}},onStatus(){}});
+		await assert.rejects(f.runtime.installConnectedController({variant:{...variant,target:{...variant.target,flashMode:mode}},artifact,sessionToken:e.token,port:e.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}}),/refusing to patch the bootloader flash mode/i);
+		assert.equal(f.counts().writes,0);
+	}
+	// "keep" (and an absent flashMode) still install normally.
+	for(const mode of ["keep",undefined]) {
+		const f=runtimeFixture(),v={...variant,target:{...variant.target,flashMode:mode}},e=await f.runtime.connectToController({variant:v,onStatus(){}});
+		await f.runtime.installConnectedController({variant:v,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}});
+		assert.equal(f.counts().writes,1);
+	}
+});

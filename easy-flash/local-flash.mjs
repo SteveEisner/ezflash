@@ -65,7 +65,12 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 			const fileArray=components.map((component)=>({data:image.slice(component.imageStart,component.imageStart+component.sizeBytes),address:component.offset})); intendedBytes=fileArray.reduce((sum,item)=>sum+item.data.byteLength,0);
 			onReceipt(transferReceipt(variant,artifact,evidence,intendedBytes,startedAt)); beforeWrite({fileArray,sessionToken,port,evidence});
 			onStatus("Backup is unavailable in this browser flow. Installing without erasing saved settings…"); failureStage="write";
-			await session.loader.writeFlash({fileArray,flashMode:variant.target.flashMode||"keep",flashFreq:"keep",flashSize:flashSize(variant.target.flashSizeBytes),eraseAll:false,compress:false,reportProgress(_index,written,total){onProgress(Math.round((written/total)*100));}});
+			// Quad flash modes (qio/qout) rewrite the bootloader header at write time; a board whose flash
+			// wiring cannot fast-boot quad mode then watchdog-loops in the stage-2 loader (FD2, 2026-08-19).
+			// The built image already carries a hardware-proven mode, so only pass-through modes may reach the write.
+			const requestedFlashMode=variant.target.flashMode||"keep";
+			if (!["keep","dio","dout"].includes(requestedFlashMode)) throw new Error(`Refusing to patch the bootloader flash mode to ${requestedFlashMode}; use "keep" unless the override is hardware-proven`);
+			await session.loader.writeFlash({fileArray,flashMode:requestedFlashMode,flashFreq:"keep",flashSize:flashSize(variant.target.flashSizeBytes),eraseAll:false,compress:false,reportProgress(_index,written,total){onProgress(Math.round((written/total)*100));}});
 			failureStage="reset"; await session.loader.after("hard_reset"); onProgress(100); onStatus("Restarting the controller…"); await delay(3000);
 			const result={chipName:session.chipName,bytesWritten:intendedBytes,sha256:artifact.sha256,boardEvidence:evidence,backup:"unavailable",writeEvidence:"Write call returned; no readback performed",readbackVerified:false,health:"unverified"}; onReceipt(installReceipt(variant,artifact,evidence,intendedBytes,startedAt)); return result;
 		} catch(error) { error.failureStage ||= failureStage; error.intendedBytes=intendedBytes; const receipt=failureReceipt(variant,artifact,evidence,error,intendedBytes,startedAt); error.receipt=receipt; onReceipt(receipt); throw error; }
