@@ -1,6 +1,6 @@
 {
   "id": "waveshare-s3-tubes-remote",
-  "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 — Tubes v14",
+  "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 \u2014 Tubes v14",
   "source": {
     "repository": "https://github.com/SteveEisner/WLEDtubes.git",
     "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
@@ -37,7 +37,7 @@
     {
       "kind": "complete-merged-image",
       "transport": "usb",
-      "path": "waveshare-s3-tubes-remote-merged.bin",
+      "path": "releases/provisional-pr70-f0ccd8b2/firmware/waveshare-s3-tubes-remote-merged.bin",
       "sizeBytes": 1285568,
       "sha256": "4f2b6a06a74ec05f1045848f1a26ffa7e81ded91312a0fa7acbae75c484cc3f5",
       "offset": 0,
