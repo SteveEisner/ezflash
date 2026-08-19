@@ -8,6 +8,11 @@ const REQUIRED = new Set(["bootloader", "partitions", "boot-app0", "application"
 function positiveInteger(value, label) {
 	if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${label} must be a positive safe integer`);
 }
+// Component OFFSETS may legitimately be 0 (e.g. an ESP32-S3 bootloader image starts at 0x0);
+// only byte SIZES must be strictly positive. Non-overlap is enforced separately below.
+function nonNegativeInteger(value, label) {
+	if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${label} must be a non-negative safe integer`);
+}
 
 export function validateMergedImageStructure(target, artifact) {
 	positiveInteger(target?.flashSizeBytes, "Target flash size");
@@ -19,7 +24,7 @@ export function validateMergedImageStructure(target, artifact) {
 	const ids = new Set(); const ranges = [];
 	for (const component of artifact.components) {
 		if (!REQUIRED.has(component.name) || ids.has(component.name)) throw new Error("Component ID is unknown or duplicated");
-		ids.add(component.name); positiveInteger(component.offset, `Component ${component.name} offset`); positiveInteger(component.sizeBytes, `Component ${component.name} size`);
+		ids.add(component.name); nonNegativeInteger(component.offset, `Component ${component.name} offset`); positiveInteger(component.sizeBytes, `Component ${component.name} size`);
 		if (!SHA256.test(component.sha256 || "")) throw new Error(`Component ${component.name} SHA-256 is invalid`);
 		const end = component.offset + component.sizeBytes;
 		if (!Number.isSafeInteger(end) || end > artifact.sizeBytes) throw new Error(`Component ${component.name} exceeds merged image bounds`);
