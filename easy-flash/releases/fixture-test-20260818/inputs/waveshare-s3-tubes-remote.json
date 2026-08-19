@@ -1,0 +1,72 @@
+{
+  "id": "waveshare-s3-tubes-remote",
+  "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 — Tubes v14",
+  "source": {
+    "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+    "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+    "clean": true
+  },
+  "bootIdentity": {
+    "version": 1,
+    "target": "waveshare-s3-tubes-remote",
+    "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+    "release": "16.0.1",
+    "tubes": 14
+  },
+  "target": {
+    "environment": "waveshare_s3_tubes_target",
+    "chip": "ESP32-S3",
+    "board": "esp32-s3-devkitc-1",
+    "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16",
+    "hardwareFamily": "waveshare-s3-touch-amoled-2.16",
+    "flashSizeBytes": 16777216,
+    "flashMode": "qio"
+  },
+  "status": "provisional",
+  "hardwareTested": false,
+  "partition": {
+    "csv": "contracts/update/partitions/WLED_ESP32S3_WAVESHARE_16MB.csv",
+    "tableSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
+    "otaSlot": {
+      "id": "ota_0",
+      "offset": 65536,
+      "sizeBytes": 6291456
+    }
+  },
+  "artifacts": [
+    {
+      "kind": "complete-merged-image",
+      "transport": "usb",
+      "path": "waveshare-s3-tubes-remote-merged.bin",
+      "sizeBytes": 1285568,
+      "sha256": "4f2b6a06a74ec05f1045848f1a26ffa7e81ded91312a0fa7acbae75c484cc3f5",
+      "offset": 0,
+      "components": [
+        {
+          "name": "bootloader",
+          "offset": 0,
+          "sizeBytes": 13792,
+          "sha256": "acbb1da736a723d59cb1baa1f6f8e6c5b88d58a31f8a34388484d4791eaf00f7"
+        },
+        {
+          "name": "partitions",
+          "offset": 32768,
+          "sizeBytes": 3072,
+          "sha256": "bd52d72f689f42be90a1c1a229f35071684b92453ee9a5c9640daf39087b07d0"
+        },
+        {
+          "name": "boot-app0",
+          "offset": 57344,
+          "sizeBytes": 8192,
+          "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+        },
+        {
+          "name": "application",
+          "offset": 65536,
+          "sizeBytes": 1220032,
+          "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698"
+        }
+      ]
+    }
+  ]
+}

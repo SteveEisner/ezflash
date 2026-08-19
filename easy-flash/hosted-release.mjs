@@ -12,7 +12,20 @@ function exactSameOriginUrl(path,baseUrl,label) {
 	if (resolved.origin!==base.origin || resolved.username || resolved.password) throw new Error(`${label} must be same-origin`);
 	return resolved;
 }
+// Validates one variant's merged USB artifact and returns the same-origin artifact URL.
+function resolveVariantArtifact(variant,releaseId,baseUrl){
+	const candidates=variant.artifacts?.filter(({transport,kind})=>transport==="usb" && kind==="complete-merged-image") || [];
+	if (candidates.length!==1) throw new Error(`The ${variant.id} manifest must select exactly one merged USB image`);
+	const artifact={...candidates[0]};
+	const prefix=`releases/${releaseId}/firmware/`,fileName=artifact.path?.slice(prefix.length);
+	if (!artifact.path?.startsWith(prefix) || !FILE_NAME.test(fileName || "") || artifact.path!==`${prefix}${fileName}`) throw new Error(`The ${variant.id} artifact path is invalid, mutable, or outside this release`);
+	const artifactUrl=exactSameOriginUrl(artifact.path,baseUrl,"The artifact path");
+	if (!Number.isSafeInteger(artifact.sizeBytes) || artifact.sizeBytes<=0 || !/^[a-f0-9]{64}$/.test(artifact.sha256) || artifact.offset!==0 || !Array.isArray(artifact.components)) throw new Error(`The ${variant.id} merged USB artifact contract is invalid`);
+	return {variant,artifact:{...artifact,url:artifactUrl.href}};
+}
 
+// Returns a catalog of exact approved targets. Each entry is {variant, artifact} and the
+// caller (UI) decides which to select/connect; no target is chosen here by chip heuristics.
 export async function loadHostedRelease({fetchImpl=globalThis.fetch,baseUrl=globalThis.document?.baseURI || import.meta.url}={}) {
 	const pointerUrl=new URL("./current.json",baseUrl);
 	const pointerResponse=await fetchImpl(pointerUrl.href,{cache:"no-store",credentials:"same-origin"});
@@ -22,15 +35,10 @@ export async function loadHostedRelease({fetchImpl=globalThis.fetch,baseUrl=glob
 	const manifestResponse=await fetchImpl(manifestUrl.href,{cache:"no-store",credentials:"same-origin"});
 	if (!manifestResponse.ok) throw responseError("release manifest");
 	const manifest=await manifestResponse.json();
-	if (manifest?.schemaVersion!==2 || !Array.isArray(manifest.variants) || manifest.variants.length!==1) throw new Error("The Dig2Go release manifest is invalid");
-	const variant=manifest.variants[0];
-	if (variant?.target?.board!=="QuinLED Dig2Go" || variant?.target?.hardwareFamily!=="quinled-dig2go") throw new Error("The release is not for a QuinLED Dig2Go");
-	const candidates=variant.artifacts?.filter(({transport,kind})=>transport==="usb" && kind==="complete-merged-image") || [];
-	if (candidates.length!==1) throw new Error("The Dig2Go manifest must select exactly one merged USB image");
-	const artifact={...candidates[0]};
-	const prefix=`releases/${releaseId}/firmware/`,fileName=artifact.path?.slice(prefix.length);
-	if (!artifact.path?.startsWith(prefix) || !FILE_NAME.test(fileName || "") || artifact.path!==`${prefix}${fileName}`) throw new Error("The artifact path is invalid, mutable, or outside this release");
-	const artifactUrl=exactSameOriginUrl(artifact.path,baseUrl,"The artifact path");
-	if (!Number.isSafeInteger(artifact.sizeBytes) || artifact.sizeBytes<=0 || !/^[a-f0-9]{64}$/.test(artifact.sha256) || artifact.offset!==0 || !Array.isArray(artifact.components)) throw new Error("The merged USB artifact contract is invalid");
-	return {releaseId,manifest,variant,artifact:{...artifact,url:artifactUrl.href}};
+	if (manifest?.schemaVersion!==2 || !Array.isArray(manifest.variants) || manifest.variants.length===0) throw new Error("The release manifest is invalid");
+	const catalog=manifest.variants.map((variant)=>resolveVariantArtifact(variant,releaseId,baseUrl));
+	// Keep the legacy single-target shape for any caller that reads release.variant / release.artifact
+	// (the first catalog entry), while exposing the full catalog for multi-target selection.
+	const primary=catalog[0];
+	return {releaseId,manifest,variant:primary.variant,artifact:primary.artifact,catalog};
 }
