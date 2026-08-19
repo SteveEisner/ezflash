@@ -4,57 +4,77 @@ import { initEasyFlash } from "../app.mjs";
 import { createDiagnoseRuntime, parseDiagnosticText } from "../diagnose.mjs";
 
 class Element {
-	constructor(doc){this.doc=doc;this.hidden=false;this.disabled=false;this.checked=false;this.textContent="";this.className="";this.listeners={};this.dataset={};}
+	constructor(doc){this.doc=doc;this.hidden=false;this.disabled=false;this.checked=false;this.textContent="";this.className="";this.listeners={};this.dataset={};this.value="";}
 	addEventListener(type,handler){this.listeners[type]=handler;}
 	dispatch(type){return this.listeners[type]?.({target:this});}
 	focus(){this.doc.activeElement=this;}
 	append(){} replaceChildren(){}
 }
+function tick(){return new Promise((resolve)=>setTimeout(resolve,0));}
 function fixture({exactBoard=false}={}) {
-	const doc={activeElement:null,documentElement:{dataset:{}},nodes:{},querySelector(selector){return this.nodes[selector];},createElement(){return new Element(this);}};
-	for(const id of ["connect","install","physicalConfirmation","confirmedDig2Go","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
-	doc.nodes["#install"].hidden=true;doc.nodes["#physicalConfirmation"].hidden=true;doc.nodes["#actionNote"].hidden=true;doc.nodes["#resultPanel"].hidden=true;
-	const variant={id:"previous-stable-control",label:"Dig2Go",target:{board:"QuinLED Dig2Go"},artifacts:[]},artifact={transport:"usb",kind:"complete-merged-image"};variant.artifacts=[artifact];
-	let installs=0,invalidator=null,lastArgs=null;
-	const flash={setInvalidationHandler(handler){invalidator=handler;},async connectToController(){return {token:Object.freeze({id:"token"}),port:{id:"port"},chipName:"ESP32",portInfo:{usbVendorId:1,usbProductId:2},exactBoard};},async installConnectedController(args){installs++;lastArgs=args;return {chipName:"ESP32",sha256:"a".repeat(64),backup:"unavailable",writeEvidence:"Write call returned; no readback performed",readbackVerified:false,health:"unverified"};}};
-	const releaseLoader=async()=>({releaseId:"test",variant,artifact:{...artifact,url:"https://flash.test/releases/test/firmware/merged.bin"}});const app=initEasyFlash({document:doc,releaseLoader,flash,navigator:{serial:{requestPort(){}}},isSecureContext:true});
-	return {doc,app,flash,counts:()=>installs,args:()=>lastArgs,disconnect:()=>invalidator?.()};
+	const doc={activeElement:null,documentElement:{dataset:{}},nodes:{},querySelector(selector){return this.nodes[selector];},createElement(){const el=new Element(this);el.addEventListener=Element.prototype.addEventListener.bind(el);return el;}};
+	for(const id of ["connect","detect","install","deviceSelect","deviceOptions","physicalConfirmation","confirmedDig2Go","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
+	doc.nodes["#install"].hidden=true;doc.nodes["#detect"].hidden=true;doc.nodes["#physicalConfirmation"].hidden=true;doc.nodes["#actionNote"].hidden=true;doc.nodes["#resultPanel"].hidden=true;
+	const variant={id:"previous-stable-control",label:"Dig2Go",target:{board:"QuinLED Dig2Go",chip:"ESP32"},artifacts:[]},artifact={transport:"usb",kind:"complete-merged-image"};variant.artifacts=[artifact];
+	let installs=0,invalidator=null,lastArgs=null,connects=0,detects=0;
+	const flash={
+		setInvalidationHandler(handler){invalidator=handler;},
+		async connectController(){connects++;return {token:Object.freeze({id:"token"}),port:{id:"port"},portInfo:{usbVendorId:1,usbProductId:2},proof:"connected",exactBoard};},
+		async detectController(){detects++;return {token:Object.freeze({id:"token"}),port:{id:"port"},chipName:"ESP32",chipFamily:"ESP32",portInfo:{usbVendorId:1,usbProductId:2},proof:"chip-only",exactBoard};},
+		async installConnectedController(args){installs++;lastArgs=args;return {chipName:"ESP32",sha256:"a".repeat(64),backup:"unavailable",writeEvidence:"Write call returned; no readback performed",readbackVerified:false,health:"unverified"};}
+	};
+	// release catalog shape: the hosted loader returns {variant,artifact} on the single-target branch
+	const releaseLoader=async()=>({releaseId:"test",variant,artifact:{...artifact,url:"https://flash.test/releases/test/firmware/merged.bin"}});
+	const app=initEasyFlash({document:doc,releaseLoader,flash,navigator:{serial:{requestPort(){}}},isSecureContext:true});
+	return {doc,app,flash,counts:()=>installs,connects:()=>connects,detects:()=>detects,args:()=>lastArgs,disconnect:()=>invalidator?.()};
 }
 
-test("UI seam blocks unchecked confirmation and passes exact target-bound assertion when checked",async()=>{
-	const f=fixture();assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,true);await f.app.connect();assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,false);assert.equal(f.doc.activeElement,f.doc.nodes["#confirmedDig2Go"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/confirm.*then choose Install/i);
+test("UI blocks install until device selected, connected, detected, and confirmed",async()=>{
+	const f=fixture();await tick();
+	// device auto-selected during load, so connect is enabled
+	assert.equal(f.doc.nodes["#connect"].disabled,false);
+	// connect without detect: no chip yet, install stays hidden
+	await f.app.connect();assert.equal(f.connects(),1);assert.equal(f.doc.nodes["#detect"].hidden,false);assert.equal(f.doc.nodes["#install"].hidden,true);
+	await f.app.install();assert.equal(f.counts(),0);
+	// detect now identifies the chip
+	await f.app.detect();assert.equal(f.detects(),1);assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,false);assert.match(f.doc.nodes["#controllerStatus"].textContent,/match.*(?:QuinLED Dig2Go|the controller)/i);
+	// unchecked confirmation blocks install
 	await f.app.install();assert.equal(f.counts(),0);
 	f.doc.nodes["#confirmedDig2Go"].checked=true;f.doc.nodes["#confirmedDig2Go"].dispatch("change");await f.app.install();assert.equal(f.counts(),1);
 	assert.deepEqual(f.args().physicalConfirmation,{asserted:true,targetId:"previous-stable-control",printedModel:"QuinLED Dig2Go"});assert.equal(f.args().sessionToken.id,"token");assert.equal(f.args().port.id,"port");
 });
 
+test("detection of a mismatched chip family fails before install is offered",async()=>{
+	const f=fixture();await tick();f.flash.detectController=async()=>({chipName:"ESP32-S3",chipFamily:"ESP32-S3",portInfo:{usbVendorId:1,usbProductId:2}});
+	await f.app.connect();await f.app.detect();assert.match(f.doc.nodes["#controllerStatus"].textContent,/ESP32-S3.*not the ESP32/i);assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,true);assert.equal(f.doc.nodes["#install"].hidden,true);await f.app.install();assert.equal(f.counts(),0);
+});
+
 test("unsupported Web Serial fails before opening a chooser",async()=>{
-	const f=fixture();let chooser=0;f.flash.connectToController=async()=>{chooser++;};
-	const doc=f.doc;const app=initEasyFlash({document:doc,navigator:{},isSecureContext:true,releaseLoader:async()=>({variant:{},artifact:{}}),flash:f.flash});
-	await app.connect();assert.equal(chooser,0);assert.match(doc.nodes["#controllerStatus"].textContent,/Chrome or Edge.*HTTPS/i);
+	const f=fixture();await tick();f.flash.connectController=async()=>{throw new Error("should not open");};
+	const doc=f.doc;const app=initEasyFlash({document:doc,navigator:{},isSecureContext:true,releaseLoader:async()=>({variant:{id:"x",target:{board:"QuinLED Dig2Go",chip:"ESP32"}},artifact:{}}),flash:f.flash});await tick();
+	await app.connect();assert.equal(f.connects(),0);assert.match(doc.nodes["#controllerStatus"].textContent,/Chrome or Edge.*HTTPS/i);
 });
 
 test("insecure context fails before opening a chooser",async()=>{
-	const f=fixture();let chooser=0;f.flash.connectToController=async()=>{chooser++;};
-	const app=initEasyFlash({document:f.doc,navigator:{serial:{requestPort(){}}},isSecureContext:false,releaseLoader:async()=>({variant:{},artifact:{}}),flash:f.flash});
-	await app.connect();assert.equal(chooser,0);assert.match(f.doc.nodes["#controllerStatus"].textContent,/HTTPS/i);
+	const f=fixture();await tick();f.flash.connectController=async()=>{throw new Error("should not open");};
+	const doc=f.doc;const app=initEasyFlash({document:doc,navigator:{serial:{requestPort(){}}},isSecureContext:false,releaseLoader:async()=>({variant:{id:"x",target:{board:"QuinLED Dig2Go",chip:"ESP32"}},artifact:{}}),flash:f.flash});await tick();
+	await app.connect();assert.equal(f.connects(),0);assert.match(doc.nodes["#controllerStatus"].textContent,/HTTPS/i);
 });
 
 test("one chooser cancellation leaves the idle reconnect state without a write",async()=>{
-	const f=fixture();let chooser=0;f.flash.connectToController=async()=>{chooser++;const error=new Error("cancelled");error.name="NotFoundError";throw error;};
+	const f=fixture();await tick();let chooser=0;f.flash.connectController=async()=>{chooser++;const error=new Error("cancelled");error.name="NotFoundError";throw error;};
 	await f.app.connect();assert.equal(chooser,1);assert.equal(f.counts(),0);assert.equal(f.app.getSelection(),null);assert.equal(f.doc.nodes["#install"].hidden,true);assert.match(f.doc.nodes["#controllerStatus"].textContent,/No controller was selected/i);
 });
 
-test("exact evidence focuses Install; disconnect resets confirmation and prevents stale reuse",async()=>{
-	const f=fixture({exactBoard:true});await f.app.connect();assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,true);assert.equal(f.doc.activeElement,f.doc.nodes["#install"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/choose Install/i);
+test("disconnect resets confirmation and prevents stale install",async()=>{
+	const f=fixture({exactBoard:true});await tick();await f.app.connect();await f.app.detect();
 	f.doc.nodes["#confirmedDig2Go"].checked=true;f.disconnect();assert.equal(f.doc.nodes["#confirmedDig2Go"].checked,false);assert.equal(f.doc.nodes["#install"].hidden,true);assert.equal(f.doc.nodes["#install"].disabled,true);assert.equal(f.doc.activeElement,f.doc.nodes["#connect"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/disconnected.*reconnect/i);await f.app.install();assert.equal(f.counts(),0);
 });
 
 test("install failure returns to focused reconnect and success states the no-readback health limitation",async()=>{
-	const failed=fixture({exactBoard:true});failed.flash.installConnectedController=async()=>{throw new Error("write failed");};await failed.app.connect();await failed.app.install();assert.equal(failed.app.getSelection(),null);assert.equal(failed.doc.activeElement,failed.doc.nodes["#connect"]);assert.match(failed.doc.nodes["#controllerStatus"].textContent,/Install stopped: write failed.*Reconnect/i);
-	const ok=fixture({exactBoard:true});await ok.app.connect();await ok.app.install();assert.equal(ok.counts(),1);assert.match(ok.doc.nodes["#controllerStatus"].textContent,/health proof is unavailable/i);assert.match(ok.doc.nodes["#resultMessage"].textContent,/did not read the flash back.*(?:or automatically|and did not).*prove/i);
+	const failed=fixture({exactBoard:true});await tick();failed.flash.installConnectedController=async()=>{throw new Error("write failed");};await failed.app.connect();await failed.app.detect();await failed.app.install();assert.equal(failed.app.getSelection(),null);assert.equal(failed.doc.activeElement,failed.doc.nodes["#connect"]);assert.match(failed.doc.nodes["#controllerStatus"].textContent,/Install stopped: write failed.*Reconnect/i);
+	const ok=fixture({exactBoard:true});await tick();await ok.app.connect();await ok.app.detect();ok.doc.nodes["#confirmedDig2Go"].checked=true;ok.doc.nodes["#confirmedDig2Go"].dispatch("change");await ok.app.install();assert.equal(ok.counts(),1);assert.match(ok.doc.nodes["#controllerStatus"].textContent,/health proof is unavailable/i);assert.match(ok.doc.nodes["#resultMessage"].textContent,/did not read the flash back.*(?:or automatically|and did not).*prove/i);
 });
-
 
 test("caps diagnostics at raw bytes before decoding non-ASCII chunks", async () => {
   const port = mockPort({ chunks: ["é".repeat(5000)] });

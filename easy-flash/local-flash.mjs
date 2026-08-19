@@ -31,23 +31,32 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 		return new Uint8Array(await response.arrayBuffer());
 	}
 
-	async function connectToController({variant,onStatus}) {
+	async function connectController({variant,onStatus}) {
 		if (!serial?.requestPort) throw new Error("Open Easy Flash in the desktop app or desktop Chrome/Edge");
 		if (active) await invalidate("replaced");
 		onStatus("Choose the USB controller…"); const port=await serial.requestPort(); const portInfo=port.getInfo(); const transport=new TransportClass(port,true);
 		try {
 			const terminal={clean(){},writeLine(message){if(/chip|detect|connect/i.test(message))onStatus(message);},write(message){if(/chip|detect|connect/i.test(message))onStatus(message);}};
-			const loader=new Loader({transport,baudrate:115200,terminal,debugLogging:false}); onStatus("Identifying the controller chip…"); const chipName=await loader.main();
-			if (chipFamily(chipName)!==chipFamily(variant.target.chip)) throw new Error(`This is a ${chipName}, not the supported ${variant.target.chip} controller`);
+			const loader=new Loader({transport,baudrate:115200,terminal,debugLogging:false});
 			const token=Object.freeze({ id:cryptoImpl.randomUUID ? cryptoImpl.randomUUID() : `${Date.now()}-${Math.random()}` });
-			active={token,port,loader,transport,portInfo:Object.freeze({...portInfo}),chipName,chipFamily:chipFamily(chipName),variantId:variant.id};
-			return {token,port,chipName,chipFamily:chipFamily(chipName),portInfo:{...portInfo},proof:"chip-only",exactBoard:false};
+			active={token,port,loader,transport,portInfo:Object.freeze({...portInfo}),variantId:variant.id};
+			return {token,port,portInfo:{...portInfo},proof:"connected",exactBoard:false,chipName:null,chipFamily:null};
 		} catch(error) { await close({transport}); throw error; }
+	}
+
+	async function detectController({sessionToken,port,variant,onStatus}) {
+		const session=active;
+		if (!session || session.token!==sessionToken || session.port!==port || session.variantId!==variant.id) throw new Error("Connect the controller again before detecting");
+		if (session.chipName) throw new Error("This controller is already detected; reconnect before detecting again");
+		onStatus("Identifying the controller chip…"); const chipName=await session.loader.main();
+		session.chipName=chipName; session.chipFamily=chipFamily(chipName); session.exactBoard=false;
+		return {token:session.token,port,chipName,chipFamily:session.chipFamily,portInfo:{...session.portInfo},proof:"chip-only",exactBoard:false};
 	}
 
 	async function installConnectedController({variant,artifact,sessionToken,port,physicalConfirmation,onStatus,onProgress,onReceipt=()=>{},beforeWrite=()=>{}}) {
 		if (flashInProgress) throw new Error("An install is already running"); const session=active;
 		if (!session || session.token !== sessionToken || session.port !== port || session.variantId !== variant.id) throw new Error("Connect the controller again before installing");
+		if (!session.chipName) throw new Error("Detect the controller chip before installing");
 		const evidence=evaluatePhysicalConfirmation(variant,session.chipName,physicalConfirmation);
 		if (!evidence.admitted) throw new Error("Check the printed Dig2Go label before installing");
 		flashInProgress=true; let intendedBytes=0; let failureStage="validation"; const startedAt=new Date();
@@ -66,11 +75,12 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 		} catch(error) { error.failureStage ||= failureStage; error.intendedBytes=intendedBytes; const receipt=failureReceipt(variant,artifact,evidence,error,intendedBytes,startedAt); error.receipt=receipt; onReceipt(receipt); throw error; }
 		finally { flashInProgress=false; if (active===session) active=null; await close(session); }
 	}
-	return { connectToController,installConnectedController,disconnectController:()=>invalidate("manual"),setInvalidationHandler(handler){invalidated=handler || (()=>{});} };
+	return { connectController,detectController,installConnectedController,disconnectController:()=>invalidate("manual"),setInvalidationHandler(handler){invalidated=handler || (()=>{});} };
 }
 
 const runtime=createFlashRuntime();
-export const connectToController=runtime.connectToController;
+export const connectController=runtime.connectController;
+export const detectController=runtime.detectController;
 export const installConnectedController=runtime.installConnectedController;
 export const disconnectController=runtime.disconnectController;
 export const setInvalidationHandler=runtime.setInvalidationHandler;

@@ -17,13 +17,19 @@
 		<section class="hero"><p class="eyebrow">WLEDTUBES · EASY FLASH</p><h1>Buy. Build. <em>Rave.</em></h1></section>
 		<section class="install-card" aria-labelledby="installTitle">
 			<p class="kicker">INSTALL YOUR CONTROLLER</p>
-			<h2 id="installTitle">Plug in your controller</h2>
-			<p class="lede" id="instruction">Connect the controller to this computer with a USB data cable, then choose Connect.</p>
+			<h2 id="installTitle">Select your controller</h2>
+			<p class="lede" id="instruction">First tell Easy Flash which controller you have, then connect and verify it.</p>
+			<fieldset class="device-select" id="deviceSelect" aria-label="Select your controller" aria-describedby="deviceSelectGuidance">
+				<legend>Which controller are you installing?</legend>
+				<div id="deviceOptions"></div>
+				<p id="deviceSelectGuidance">Choose the controller model you are installing below. Easy Flash loads the matching firmware.</p>
+			</fieldset>
 			<div class="controller-state" id="controllerState" role="status" aria-live="polite">
 				<span class="state-dot"></span><div><strong>Waiting for controller</strong><p id="controllerStatus">Nothing will be installed when you connect.</p></div>
 			</div>
-			<button type="button" class="primary" id="connect">Connect</button>
-			<label class="physical-confirmation" id="physicalConfirmation" hidden><input id="confirmedDig2Go" type="checkbox" aria-describedby="confirmationGuidance"><span><strong>Yes, this is a QuinLED Dig2Go</strong><small id="confirmationGuidance">I checked the name printed on the controller. The computer detected a compatible ESP chip, but cannot prove the board model.</small></span></label>
+			<button type="button" class="primary" id="connect" disabled>Connect</button>
+			<button type="button" class="primary" id="detect" disabled hidden>Detect controller</button>
+			<label class="physical-confirmation" id="physicalConfirmation" hidden><input id="confirmedDig2Go" type="checkbox" aria-describedby="confirmationGuidance"><span><strong>Yes, this is the controller I selected</strong><small id="confirmationGuidance">I checked the name printed on the controller. The computer detected a compatible chip, but cannot prove the board model.</small></span></label>
 			<button type="button" class="primary install" id="install" disabled hidden>Install</button>
 			<p class="action-note" id="actionNote" hidden>Install replaces the controller firmware. It never starts automatically.</p>
 			<details id="advancedDetails"><summary>Advanced details</summary><dl id="technicalDetails"><div><dt>Firmware</dt><dd>Loading verified Dig2Go firmware…</dd></div></dl></details>
