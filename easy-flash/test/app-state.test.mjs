@@ -126,6 +126,13 @@ test("parses exact rescue and button banners without broad rescue matches", () =
   // A connected-but-quiet controller is online (healthy-looking), not "unsupported".
   assert.equal(parseDiagnosticText("").state, "online");
   assert.match(diagnoseSummary(parseDiagnosticText("")), /online and looks healthy/i);
+  // Known target recognition: Waveshare ESP32-S3 and QuinLED Dig2Go both resolve as known.
+  const s3 = parseDiagnosticText("board: esp32-s3-devkitc-1");
+  assert.equal(s3.hardwareFamily, "waveshare-s3-touch-amoled-2.16");
+  assert.equal(s3.targetKnown, true);
+  const dig2go = parseDiagnosticText("model: QuinLED Dig2Go");
+  assert.equal(dig2go.hardwareFamily, "quinled-dig2go");
+  assert.equal(dig2go.targetKnown, true);
 });
 
 test("opens a closed port, reads telemetry, and closes only what it opened", async () => {

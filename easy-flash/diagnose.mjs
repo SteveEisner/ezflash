@@ -9,11 +9,26 @@ const DEFAULT_BAUD_RATE = 115200;
 const READ_WINDOW_MS = 1200;
 const MAX_BYTES = 8192;
 
+// Maps a reported board/model/target name onto a recognized Tubes controller. Keep in step
+// with the hosted catalog (easy-flash/releases/.../inputs/*server.json adds variants).
+const KNOWN_TARGETS = [
+  { family: "quinled-dig2go", names: [/quinled\s*dig2go/i, /\bdig2go\b/i, /esp32-(?:devkitc|wrover)/i] },
+  { family: "waveshare-s3-touch-amoled-2.16", names: [/waveshare.*s3.*(?:touch|amoled)/i, /esp32-s3(?:-devkitc)?-?1?/i] },
+];
+
+function normalizeTarget(rawWord) {
+  if (!rawWord) return { word: null, family: null, known: false };
+  const word = String(rawWord).trim();
+  for (const t of KNOWN_TARGETS) if (t.names.some((re) => re.test(word))) return { word, family: t.family, known: true };
+  return { word, family: null, known: false };
+}
+
 export function parseDiagnosticText(text = "") {
   const raw = String(text);
   const rescue = RESCUE_PATTERNS.some((pattern) => pattern.test(raw));
   const buttonDiagnostic = raw.match(BUTTON_DIAGNOSTIC)?.[1] ?? null;
-  const target = raw.match(/(?:target|board|model)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim();
+  const targetLine = raw.match(/(?:target|board|model)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim() || null;
+  const normalizedTarget = normalizeTarget(targetLine);
   const chip = raw.match(/(?:chip|chip family|platform)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim();
   // A connected controller that is quiet is ONLINE (healthy-looking), not unsupported:
   // healthy WLED only prints a banner at boot, then goes silent. Empty output therefore
@@ -27,7 +42,9 @@ export function parseDiagnosticText(text = "") {
     rescue,
     ledsAbsent: rescue,
     networkAbsent: rescue,
-    target: target || null,
+    target: normalizedTarget.word || null,
+    hardwareFamily: normalizedTarget.family || null,
+    targetKnown: normalizedTarget.known,
     chip: chip || null,
     button: buttonDiagnostic,
     buttonProblem: buttonDiagnostic?.toUpperCase() === "STUCK_BUTTON",
