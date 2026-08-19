@@ -4,9 +4,10 @@ import test from "node:test";
 import { getHardwareArtifacts } from "../firmware-ui.mjs";
 import { loadFirmwareManifest } from "../firmware-manifest.mjs";
 
-test("launch is connect-first with a hidden single-controller default and no dead select menu", async () => {
+test("launch is connect-first with the controller list always expanded", async () => {
 	const html=await readFile(new URL("../index.html",import.meta.url),"utf8");
-	assert.match(html,/Plug in your controller/); assert.match(html,/id="connect">Connect\b/); assert.match(html,/id="selectedDeviceNote"/); assert.match(html,/id="deviceToggle" hidden>Different controller/); assert.match(html,/id="deviceSelect" .*hidden>/); assert.match(html,/id="install" disabled hidden>Install/);
+	assert.match(html,/Plug in your controller/); assert.match(html,/id="connect">Connect\b/); assert.match(html,/id="selectedDeviceNote"/); assert.match(html,/id="deviceOptions"/); assert.match(html,/id="deviceSelect"/); assert.match(html,/id="install" disabled hidden>Install/);
+	assert.doesNotMatch(html,/deviceToggle|Different controller/);
 	assert.match(html,/this is the controller I selected/); assert.match(html,/computer detected a compatible chip, but cannot prove the board model/);
 	assert.match(html,/<details id="advancedDetails">/); assert.match(html,/Buy\. Build\. <em>Rave\.<\/em>/);
 	assert.doesNotMatch(html,/Controller<\/span>|Lights<\/span>|Power<\/span>|Review<\/span>|firmwareCards|Download complete|Run safe demo/);
