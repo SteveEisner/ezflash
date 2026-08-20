@@ -3,6 +3,7 @@
 * { box-sizing:border-box }
 [hidden] { display:none !important }
 html,body { max-width:100%; overflow-x:hidden }
+.state-rail{display:flex;gap:1rem;margin:0 0 1rem;color:var(--muted);font-size:.78rem}.state-rail span[aria-current="step"]{color:var(--orange);font-weight:700}.state-rail span+span::before{content:"→";margin-right:1rem;color:var(--muted)}
 body { margin:0; min-height:100vh; background:radial-gradient(circle at 83% -8%,#47261b 0,transparent 31rem),#12100e; color:var(--ink) }
 .masthead { min-height:82px; display:flex; align-items:center; justify-content:space-between; gap:28px; padding:14px max(32px,calc((100% - var(--shell))/2)); border-bottom:1px solid var(--line); background:#15120fcc; box-shadow:0 1px #ffffff05 }
 .brand { display:flex; gap:12px; align-items:center }.brand strong{font-size:18px;letter-spacing:-.02em}.brand small{display:block;margin-top:1px;color:var(--muted);font-size:13px}.mark{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--orange);border-radius:13px;color:var(--orange);font-size:17px;font-weight:900;letter-spacing:-.06em}.status{font-size:10px;letter-spacing:.12em;color:var(--lime)}
