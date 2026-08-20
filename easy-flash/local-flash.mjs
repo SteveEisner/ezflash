@@ -68,7 +68,7 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 			if (active !== session || session.token !== sessionToken || session.port !== port) throw new Error("The prepared controller session is no longer active");
 			const fileArray=components.map((component)=>({data:image.slice(component.imageStart,component.imageStart+component.sizeBytes),address:component.offset})); intendedBytes=fileArray.reduce((sum,item)=>sum+item.data.byteLength,0);
 			onReceipt(transferReceipt(variant,artifact,evidence,intendedBytes,startedAt)); beforeWrite({fileArray,sessionToken,port,evidence});
-			onStatus("Backup is unavailable in this browser flow. Installing without erasing saved settings…"); failureStage="write";
+			onStatus("Keeping your saved settings while the firmware installs…"); failureStage="write";
 			// Quad flash modes (qio/qout) rewrite the bootloader header at write time; a board whose flash
 			// wiring cannot fast-boot quad mode then watchdog-loops in the stage-2 loader (FD2, 2026-08-19).
 			// The built image already carries a hardware-proven mode, so only pass-through modes may reach the write.
