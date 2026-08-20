@@ -18,23 +18,23 @@
 		<section class="install-card" aria-labelledby="installTitle">
 			<nav class="state-rail" aria-label="Easy Flash progress"><span aria-current="step">1 Choose</span><span>2 Connect</span><span>3 Install</span></nav>
 			<p class="kicker">EASY FLASH</p>
-			<h2 id="installTitle">Plug in your controller</h2>
-			<p class="lede" id="instruction">Use a USB data cable, then choose Connect. Easy Flash detects the chip and loads the matching firmware.</p>
+			<h2 id="installTitle">Choose your controller</h2>
+			<p class="lede" id="instruction">Choose a controller, then connect it with a USB data cable.</p>
 			<div class="selected-device" id="selectedDeviceNote" hidden></div>
 			<fieldset class="device-select" id="deviceSelect" aria-label="Select your controller" aria-describedby="deviceSelectGuidance">
 				<legend>Which controller are you installing?</legend>
 				<div id="deviceOptions" aria-live="polite"><p>Loading verified controller catalog: QuinLED Dig2Go · Athom C3 · Waveshare S3…</p></div>
-				<p id="deviceSelectGuidance">Chrome will open a system USB window. Choose the USB device that appeared when you plugged in the controller.</p>
+				<p id="deviceSelectGuidance">Choose the controller you plugged in; Chrome will show its USB chooser after you select Connect.</p>
 			</fieldset>
 			<div class="controller-state" id="controllerState" role="status" aria-live="polite">
-				<span class="state-dot"></span><div><strong id="controllerStateTitle">Not connected</strong><p id="controllerStatus">Nothing installs yet.</p></div>
+				<span class="state-dot"></span><div><strong id="controllerStateTitle">Waiting for controller</strong><p id="controllerStatus">Nothing installs until you choose Connect.</p></div>
 			</div>
 			<button type="button" class="primary" id="connect">Connect</button>
 
 			<button type="button" class="primary" id="install" disabled hidden>Install</button>
 			<button type="button" class="secondary" id="back" hidden>← Choose a different controller</button>
 			<button type="button" class="primary install" id="verify" hidden>Verify controller</button>
-			<p class="action-note" id="actionNote" hidden>Choosing the target-named Install action confirms the displayed candidate and starts the write. It never starts automatically.</p>
+			<p class="action-note" id="actionNote" hidden>The write starts only when you choose the target-specific Install action.</p>
 			<details id="advancedDetails"><summary>Advanced details</summary><dl id="technicalDetails"><div><dt>Firmware</dt><dd>Loading verified Dig2Go firmware…</dd></div></dl></details>
 		</section>
 		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p></section>

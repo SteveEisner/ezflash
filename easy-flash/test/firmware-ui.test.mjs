@@ -7,10 +7,10 @@ import { loadFirmwareManifest } from "../firmware-manifest.mjs";
 
 test("launch is connect-first with the controller list always expanded", async () => {
 	const html=await readFile(new URL("../index.html",import.meta.url),"utf8");
-	assert.match(html,/Plug in your controller/); assert.match(html,/id="connect">Connect/); assert.match(html,/id="install" disabled hidden>Install/);
+	assert.match(html,/Choose your controller/); assert.match(html,/id="connect">Connect/); assert.match(html,/id="install" disabled hidden>Install/);
 	assert.match(html,/deviceOptions|deviceSelect|selectedDeviceNote/); assert.match(html,/QuinLED Dig2Go/); assert.match(html,/Athom C3/); assert.match(html,/Waveshare S3/);
 	assert.doesNotMatch(html,/physicalConfirmation|confirmedPrintedModel|type="checkbox"|operator-checkbox|computer detected a compatible chip, but cannot prove the board model/);
-	assert.match(html,/target-named Install|Install replaces the controller firmware/); assert.match(html,/never starts automatically/);
+	assert.match(html,/target-specific Install|Install replaces the controller firmware/); assert.match(html,/write starts only/);
 	assert.match(html,/<details id="advancedDetails">/); assert.match(html,/Buy\. Build\. <em>Rave\.<\/em>/);
 	assert.doesNotMatch(html,/Controller<\/span>|Lights<\/span>|Power<\/span>|Review<\/span>|firmwareCards|Download complete|Run safe demo/);
 });
