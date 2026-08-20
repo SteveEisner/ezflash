@@ -17,6 +17,7 @@ export function formatOtaSlot(slot) {
   if(!slot||typeof slot!=='object') return slot;
   return [['Partition name',slot.name??slot.partition??'Not provided'],['Partition index',slot.index??'Not provided'],['Offset',slot.offset??'Not provided'],['Size (bytes)',slot.sizeBytes??slot.size??'Not provided']].map(([label,value])=>`${label}: ${text(value)}`).join(' · ');
 }
+
 const text=value=>value==null||value===''?'Not provided':String(value);
 const row=(label,value)=>{const d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=text(value);d.append(dt,dd);return d};
 const section=(title,rows)=>{const s=document.createElement('section'),h=document.createElement('h2'),dl=document.createElement('dl');h.textContent=title;rows.forEach(([a,b])=>dl.append(row(a,b)));s.append(h,dl);return s};

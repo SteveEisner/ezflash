@@ -1,3 +1,13 @@
+// Chip family gate shared by the runtime and the hosted-catalog resolver.
+// Longest family first so ESP32-C61 never falls into the ESP32-C6 bucket; only
+// classic ESP32 die names collapse to plain ESP32 (unknown families fail closed).
+export function chipFamily(value) {
+	const chip=String(value).toUpperCase().replaceAll("_","-").replace(/\s+/g,"");
+	for (const family of ["ESP32-C61","ESP32-S3","ESP32-S2","ESP32-C2","ESP32-C3","ESP32-C5","ESP32-C6","ESP32-H2","ESP32-P4","ESP8266"]) if (chip.startsWith(family)) return family;
+	if (chip === "ESP32" || /^ESP32-(D|U|S0|PICO)/.test(chip)) return "ESP32";
+	return chip;
+}
+
 // Temporary source-branch adapter for the merged-image safety gates. Replace this
 // module with the canonical update-contract adapter when that dependency lands.
 // Source: https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/basic-commands.html#write-binary-data-write-flash
@@ -8,7 +18,8 @@ const REQUIRED = new Set(["bootloader", "partitions", "boot-app0", "application"
 function positiveInteger(value, label) {
 	if (!Number.isSafeInteger(value) || value <= 0) throw new Error(`${label} must be a positive safe integer`);
 }
-
+// Component OFFSETS may legitimately be 0 (e.g. an ESP32-S3 bootloader image starts at 0x0);
+// only byte SIZES must be strictly positive. Non-overlap is enforced separately below.
 function nonNegativeInteger(value, label) {
 	if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${label} must be a non-negative safe integer`);
 }
@@ -47,11 +58,8 @@ export async function validateMergedImageBytes(target, artifact, bytes, sha256He
 	return components;
 }
 
-const INSTALL_ACTIONS={"quinled-dig2go":"Install Dig2Go firmware","athom-c3-tubes":"Install Athom C3 firmware","waveshare-s3-tubes-remote":"Install Waveshare S3 firmware"};
-
-export function evaluateCandidateAction(variant, artifact, session, candidateAction) {
-	const expectedLabel=INSTALL_ACTIONS[variant?.id];
-	const admitted=Boolean(expectedLabel) && candidateAction?.label === expectedLabel && candidateAction.targetId === variant.id && candidateAction.artifactSha256 === artifact?.sha256 && candidateAction.sessionToken === session?.token && candidateAction.port === session?.port;
-	return { admitted,status:admitted ? "operator-confirmed" : "unknown",method:admitted ? "target-named-install-action" : "chip-only",targetId:variant?.id,observedChip:session?.chipName,actionLabel:admitted ? expectedLabel : null,artifactSha256:admitted ? artifact.sha256 : null };
+export function evaluatePhysicalConfirmation(variant, chipName, physicalConfirmation) {
+	const admitted=physicalConfirmation?.asserted === true && physicalConfirmation.targetId === variant.id && physicalConfirmation.printedModel === variant.target.board;
+	return { admitted,status:admitted ? "operator-confirmed" : "unknown",method:admitted ? "operator-checkbox" : "chip-only",targetId:variant.id,observedChip:chipName,assertedPrintedModel:admitted ? physicalConfirmation.printedModel : null };
 }
 // AI: end

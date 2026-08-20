@@ -1,3 +1,4 @@
+import { chipFamily } from "./safety-contract.mjs";
 const RELEASE_ID=/^[A-Za-z0-9](?:[A-Za-z0-9._-]{0,63})$/;
 const FILE_NAME=/^[A-Za-z0-9][A-Za-z0-9._-]*\.bin$/;
 const TARGETS=new Set(["quinled-dig2go","athom-c3-tubes","waveshare-s3-tubes-remote"]);
@@ -22,9 +23,11 @@ export function validateHostedCatalog(manifest,releaseId,baseUrl) {
 }
 export function selectHostedTarget(catalog,targetId) { const selected=catalog.find(({variant})=>variant.id===targetId);if(!selected)throw Error("Unknown target; no firmware was selected");return selected; }
 export function resolveDetectedTarget(catalog,observedChip) {
-	const chip=String(observedChip).toUpperCase().replaceAll("_","-").replace(/\s+/g,"");
-	const family=chip.match(/^ESP32(?:-[A-Z0-9]+)?/)?.[0];
-	const matches=family?catalog.filter(({variant})=>variant.target.chip===family):[];
+	// Reuse the runtime's family gate: a classic ESP32 die (ESP32-D0WD-V3, PICO...)
+	// must resolve to the plain-ESP32 target; an ad-hoc regex here rebirths the
+	// original "Unsupported controller chip" defect.
+	const family=chipFamily(observedChip);
+	const matches=catalog.filter(({variant})=>chipFamily(variant.target.chip)===family);
 	if(matches.length===0)throw Error(`Unsupported controller chip ${observedChip}; no firmware was selected`);
 	if(matches.length!==1)throw Error(`Ambiguous controller chip ${observedChip}; no firmware was selected`);
 	return matches[0];

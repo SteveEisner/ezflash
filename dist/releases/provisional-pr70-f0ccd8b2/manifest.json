@@ -5,7 +5,7 @@
   "variants": [
     {
       "id": "quinled-dig2go",
-      "label": "QuinLED Dig2Go \u2014 Tubes v14",
+      "label": "QuinLED Dig2Go — Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -76,7 +76,7 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/quinled-dig2go-quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
           "sizeBytes": 1260208,
@@ -86,7 +86,7 @@
     },
     {
       "id": "athom-c3-tubes",
-      "label": "Athom ESP32-C3 controller \u2014 Tubes v14",
+      "label": "Athom ESP32-C3 controller — Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -157,7 +157,7 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/athom-c3-tubes-athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
           "sizeBytes": 1198432,
@@ -167,7 +167,7 @@
     },
     {
       "id": "waveshare-s3-tubes-remote",
-      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 \u2014 Tubes v14",
+      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 — Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -188,7 +188,7 @@
         "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16",
         "hardwareFamily": "waveshare-s3-touch-amoled-2.16",
         "flashSizeBytes": 16777216,
-        "flashMode": "keep"
+        "flashMode": "qio"
       },
       "status": "provisional",
       "hardwareTested": false,
@@ -238,24 +238,24 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/waveshare-s3-tubes-remote-waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
         "partitionSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
         "ota": {
-          "sizeBytes": 1220032,
-          "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698"
+          "sizeBytes": 1209056,
+          "sha256": "3b0fb00eb191e1887bab193c60323e559e7349edae5ab60606414a8910ca443f"
         }
       }
     }
   ],
   "provenance": {
     "mode": "provisional",
-    "receiptDigestSha256": "6decffca01ec0aa0a39244e06b8e1c32efe1cf2cc805ac73a0d93590849e5892",
-    "sourceReceiptDigestSha256": "69677c7af0425866ba83648055064e6b20e3eac0b4cf7ccca5ff83806058edc9",
+    "receiptDigestSha256": "33c5ad3ef2c08cc9269e3eeb0e9813554426ec5f0c4135ce1be58283baf73be0",
+    "sourceReceiptDigestSha256": "d875504d1b25fbfd4fe52cbf74a91c996230a8b42d313a55aadb9f1cf311522b",
     "contractSha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83",
     "evidence": {
       "receipt": {
         "path": "releases/provisional-pr70-f0ccd8b2/provenance/build-receipt.json",
-        "sha256": "1b29c14e745244d1e082e8388e2afe677d8ec330e9bbd9367518a883e21ff9f0"
+        "sha256": "af999536ff1113c39fda96cfe16a1bb77bd7a1be2156a1d6bc7284a606c24892"
       },
       "contract": {
         "path": "releases/provisional-pr70-f0ccd8b2/provenance/update-contract.json",
