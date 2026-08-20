@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {initEasyFlash} from "../app.mjs";
-import {createDiagnoseRuntime,parseDiagnosticText} from "../diagnose.mjs";
+import {createDiagnoseRuntime,diagnosePresentation,parseDiagnosticText} from "../diagnose.mjs";
 
 class Element {
 	constructor(doc,id=""){this.doc=doc;this.id=id;this.hidden=false;this.disabled=false;this.checked=false;this.value="";this.textContent="";this.className="";this.listeners={};this.dataset={};this.attrs={};}
@@ -59,3 +59,11 @@ test("exact rescue/button parsing uses the latest banner and healthy clears STUC
 test("exact target reports classify three carriers but generic C3/S3 chips remain Unknown",()=>{for(const name of ["QuinLED Dig2Go","Athom ESP32-C3 controller","Waveshare ESP32-S3-Touch-AMOLED-2.16"])assert.equal(parseDiagnosticText(`model: ${name}`).target,name);for(const chip of ["ESP32-C3","ESP32-S3"])assert.deepEqual([parseDiagnosticText(`chip: ${chip}`).target,parseDiagnosticText(`chip: ${chip}`).targetIdentity],[null,"unknown"]);});
 
 test("timeout, disconnect, and chooser cancellation cleanly stop without writes",async()=>{const timed=mockPort({hang:true}),result=await createDiagnoseRuntime({serial:{requestPort:async()=>timed},timeoutMs:5}).inspect();assert.equal(result.state,"unsupported");assert.deepEqual(timed.state(),{released:true,closed:true,cancelled:true});const disconnected=mockPort({rejectRead:true}),lost=await createDiagnoseRuntime({serial:{requestPort:async()=>disconnected}}).inspect();assert.equal(lost.state,"unsupported");assert.deepEqual(disconnected.state(),{released:true,closed:true,cancelled:false});const error=Object.assign(Error("cancelled"),{name:"NotFoundError"});await assert.rejects(createDiagnoseRuntime({serial:{requestPort:async()=>{throw error;}}}).inspect(),{name:"NotFoundError"});});
+
+test("Diagnose presentation is grounded USB-only copy for every stoplight state",()=>{const cases=[
+ [{},["yellow","No diagnostic report","Easy Flash opened the USB device, but it did not send a diagnostic report. This can happen when the installed firmware does not support Diagnose.","Try again"]],
+ [{bytesCaptured:3},["yellow","Report not recognized","The USB device sent data, but Easy Flash could not read it as a diagnostic report.","Try again"]],
+ [{state:"telemetry",target:"Dig2Go",chip:"ESP32",buttonDiagnostics:"healthy"},["green","Looks healthy","The USB device sent a valid diagnostic report and did not report a problem.","Check again"]],
+ [{state:"rescue"},["red","Recovery mode reported","The USB device reported recovery mode.","Check again"]],
+ [{buttonProblem:true},["red","Stuck button reported","The USB device reported a stuck button.","Check again"]]
+ ];for(const [input,[tone,label,summary,action]] of cases){const view=diagnosePresentation(input);assert.deepEqual([view.tone,view.label,view.summary,view.action],[tone,label,summary,action]);assert.doesNotMatch(`${view.label} ${view.summary} ${view.next}`,/\b(network|lights|LED|telemetry|inspection|condition|retry)\b/i);}});
