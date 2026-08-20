@@ -14,8 +14,8 @@ export function initEasyFlash({document:doc=document,navigator:navigatorRef=glob
 	let release=null,selection=null,verificationRetry=null;
 	const browserIssue=()=>{if(!isSecureContext)return "Easy Flash must be opened over HTTPS. Reopen this exact URL over HTTPS in Chrome or Edge on a computer.";const ua=String(navigatorRef?.userAgent||"").toLowerCase();if(/safari/.test(ua)&&!/chrome|crios|edg/.test(ua)||/firefox|fxios/.test(ua)||!navigatorRef?.serial?.requestPort)return "This browser cannot connect to the controller. Reopen this exact URL in Chrome or Edge on a computer.";return null;};
 	const applyBrowserGate=()=>{const issue=browserIssue();if(!issue)return;doc.documentElement.dataset.browserUnsupported="true";ui.gate&&(ui.gate.hidden=false);if(ui.gateMessage)ui.gateMessage.textContent=issue;ui.connect&&(ui.connect.disabled=true,ui.connect.hidden=true);ui.diagnoseInspect&&(ui.diagnoseInspect.disabled=true,ui.diagnoseInspect.hidden=true);setStatus(issue,"error");};
-	const fact=(term,value)=>{const row=doc.createElement("div"),dt=doc.createElement("dt"),dd=doc.createElement("dd");dt.textContent=term;dd.textContent=String(value);row.append(dt,dd);return row;};
-	const showFacts=records=>ui.details.replaceChildren(...records.map(([a,b])=>fact(a,b)));
+	// Advanced updates is a deliberately static coming-soon anchor. Provenance remains in Status.
+	const showFacts=()=>{};
 	const setStep=index=>ui.steps.forEach((step,current)=>{step.classList.toggle("active",current===index);if(current===index)step.setAttribute("aria-current","step");else step.removeAttribute("aria-current");});
 	const syncConnectLabel=()=>{const id=ui.options?.querySelector?.("input[name=deviceChoice]:checked")?.value;ui.connect.textContent=CONNECT_ACTIONS[id]||"Connect";};
 	function renderTargetOptions(catalog){

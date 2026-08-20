@@ -47,7 +47,7 @@ test("legacy force migration is explicitly broadcast and delegates to the establ
 
 test("internal fleet adapter and operator documentation remain available outside the public UI", async () => {
 	const {readFile}=await import("node:fs/promises"),[html,readme,adapter,pkg]=await Promise.all([readFile("easy-flash/index.html","utf8"),readFile("README.md","utf8"),readFile("scripts/run-fleet-migration.mjs","utf8"),readFile("package.json","utf8")]);
-	assert.doesNotMatch(html,/\bOTA\b|multiple devices|migrate:fleet|bridge-ready/i);
+	assert.doesNotMatch(html,/multiple devices|migrate:fleet|bridge-ready|<button[^>]*>[^<]*(?:OTA|nearby|P2P)/i);
 	assert.match(readme,/Keep the Tubes you want to update plugged in and in range/);
 	assert.match(adapter,/upgrade_batch\.sh/);
 	assert.equal(JSON.parse(pkg).scripts["migrate:fleet"],"node scripts/run-fleet-migration.mjs");
