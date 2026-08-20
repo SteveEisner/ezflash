@@ -13,7 +13,7 @@ class Element {
 function tick(){return new Promise((resolve)=>setTimeout(resolve,0));}
 function fixture({exactBoard=false}={}) {
 	const doc={activeElement:null,documentElement:{dataset:{}},nodes:{},querySelector(selector){return this.nodes[selector];},createElement(){const el=new Element(this);el.addEventListener=Element.prototype.addEventListener.bind(el);return el;}};
-	for(const id of ["connect","install","deviceSelect","deviceToggle","selectedDeviceNote","deviceOptions","physicalConfirmation","confirmedDig2Go","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
+	for(const id of ["connect","install","deviceSelect","deviceToggle","selectedDeviceNote","deviceOptions","physicalConfirmation","confirmedPrintedModel","controllerState","controllerStatus","installTitle","instruction","actionNote","technicalDetails","resultPanel","resultTitle","resultMessage"]) doc.nodes[`#${id}`]=new Element(doc);
 	doc.nodes["#install"].hidden=true;doc.nodes["#physicalConfirmation"].hidden=true;doc.nodes["#actionNote"].hidden=true;doc.nodes["#resultPanel"].hidden=true;
 	const variant={id:"previous-stable-control",label:"Dig2Go",target:{board:"QuinLED Dig2Go",chip:"ESP32"},artifacts:[]},artifact={transport:"usb",kind:"complete-merged-image"};variant.artifacts=[artifact];
 	let installs=0,invalidator=null,lastArgs=null,connects=0;
@@ -34,7 +34,7 @@ test("connect identifies the chip in one step; install stays gated on confirmati
 	await f.app.connect();assert.equal(f.connects(),1);assert.equal(f.doc.nodes["#physicalConfirmation"].hidden,false);assert.match(f.doc.nodes["#controllerStatus"].textContent,/ESP32.*match.*QuinLED Dig2Go/i);
 	// unchecked confirmation blocks install
 	await f.app.install();assert.equal(f.counts(),0);
-	f.doc.nodes["#confirmedDig2Go"].checked=true;f.doc.nodes["#confirmedDig2Go"].dispatch("change");await f.app.install();assert.equal(f.counts(),1);
+	f.doc.nodes["#confirmedPrintedModel"].checked=true;f.doc.nodes["#confirmedPrintedModel"].dispatch("change");await f.app.install();assert.equal(f.counts(),1);
 	assert.deepEqual(f.args().physicalConfirmation,{asserted:true,targetId:"previous-stable-control",printedModel:"QuinLED Dig2Go"});assert.equal(f.args().sessionToken.id,"token");assert.equal(f.args().port.id,"port");
 });
 
@@ -62,12 +62,12 @@ test("one chooser cancellation leaves the idle reconnect state without a write",
 
 test("disconnect resets confirmation and prevents stale install",async()=>{
 	const f=fixture({exactBoard:true});await tick();await f.app.connect();
-	f.doc.nodes["#confirmedDig2Go"].checked=true;f.disconnect();assert.equal(f.doc.nodes["#confirmedDig2Go"].checked,false);assert.equal(f.doc.nodes["#install"].hidden,true);assert.equal(f.doc.nodes["#install"].disabled,true);assert.equal(f.doc.activeElement,f.doc.nodes["#connect"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/disconnected.*reconnect/i);await f.app.install();assert.equal(f.counts(),0);
+	f.doc.nodes["#confirmedPrintedModel"].checked=true;f.disconnect();assert.equal(f.doc.nodes["#confirmedPrintedModel"].checked,false);assert.equal(f.doc.nodes["#install"].hidden,true);assert.equal(f.doc.nodes["#install"].disabled,true);assert.equal(f.doc.activeElement,f.doc.nodes["#connect"]);assert.match(f.doc.nodes["#controllerStatus"].textContent,/disconnected.*reconnect/i);await f.app.install();assert.equal(f.counts(),0);
 });
 
 test("install failure returns to focused reconnect and success states the no-readback health limitation",async()=>{
-	const failed=fixture({exactBoard:true});await tick();failed.flash.installConnectedController=async()=>{throw new Error("write failed");};await failed.app.connect();failed.doc.nodes["#confirmedDig2Go"].checked=true;failed.doc.nodes["#confirmedDig2Go"].dispatch("change");await failed.app.install();assert.equal(failed.app.getSelection(),null);assert.equal(failed.doc.activeElement,failed.doc.nodes["#connect"]);assert.match(failed.doc.nodes["#controllerStatus"].textContent,/Install stopped: write failed.*Reconnect/i);
-	const ok=fixture({exactBoard:true});await tick();await ok.app.connect();ok.doc.nodes["#confirmedDig2Go"].checked=true;ok.doc.nodes["#confirmedDig2Go"].dispatch("change");await ok.app.install();assert.equal(ok.counts(),1);assert.match(ok.doc.nodes["#controllerStatus"].textContent,/health proof is unavailable/i);assert.match(ok.doc.nodes["#resultMessage"].textContent,/did not read the flash back.*(?:or automatically|and did not).*prove/i);
+	const failed=fixture({exactBoard:true});await tick();failed.flash.installConnectedController=async()=>{throw new Error("write failed");};await failed.app.connect();failed.doc.nodes["#confirmedPrintedModel"].checked=true;failed.doc.nodes["#confirmedPrintedModel"].dispatch("change");await failed.app.install();assert.equal(failed.app.getSelection(),null);assert.equal(failed.doc.activeElement,failed.doc.nodes["#connect"]);assert.match(failed.doc.nodes["#controllerStatus"].textContent,/Install stopped: write failed.*Reconnect/i);
+	const ok=fixture({exactBoard:true});await tick();await ok.app.connect();ok.doc.nodes["#confirmedPrintedModel"].checked=true;ok.doc.nodes["#confirmedPrintedModel"].dispatch("change");await ok.app.install();assert.equal(ok.counts(),1);assert.match(ok.doc.nodes["#controllerStatus"].textContent,/health proof is unavailable/i);assert.match(ok.doc.nodes["#resultMessage"].textContent,/did not read the flash back.*(?:or automatically|and did not).*prove/i);
 });
 
 test("caps diagnostics at raw bytes before decoding non-ASCII chunks", async () => {

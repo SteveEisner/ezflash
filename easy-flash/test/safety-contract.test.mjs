@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createHash, webcrypto } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { createFlashRuntime } from "../local-flash.mjs";
+import { chipFamily, createFlashRuntime } from "../local-flash.mjs";
 import { loadFirmwareManifest } from "../firmware-manifest.mjs";
 import { validateMergedImageBytes, validateMergedImageStructure } from "../safety-contract.mjs";
 
@@ -34,10 +34,10 @@ test("allows a component at offset 0 (ESP32-S3 bootloader) while keeping sizes p
 
 class SerialMock extends EventTarget { constructor(port){super();this.port=port;this.requests=0;} async requestPort(){this.requests++;return this.port;} disconnect(port){const event=new Event("disconnect");Object.defineProperty(event,"port",{value:port});this.dispatchEvent(event);} }
 function runtimeFixture({connectChip="ESP32",changedInfo=false}={}) {
-	const port={getInfo:()=>changedInfo?{usbVendorId:9,usbProductId:2}:{usbVendorId:1,usbProductId:2}};let calls=0,writes=0,closed=0,boundary=0;const serial=new SerialMock(port);
-	class Loader { async main(){calls++;return connectChip;} async writeFlash(){writes++;} async after(){} }
+	const port={getInfo:()=>changedInfo?{usbVendorId:9,usbProductId:2}:{usbVendorId:1,usbProductId:2}};let calls=0,writes=0,closed=0,boundary=0,lastWrite=null;const serial=new SerialMock(port);
+	class Loader { async main(){calls++;return connectChip;} async writeFlash(args){writes++;lastWrite=args;} async after(){} }
 	class Transport { async disconnect(){closed++;} }
-	return {serial,port,counts:()=>({calls,writes,closed,boundary}),runtime:createFlashRuntime({serial,Loader,TransportClass:Transport,cryptoImpl:webcrypto,delay:async()=>{},fetchImpl:async()=>{const manifest=await loadFirmwareManifest(),artifact=manifest.variants[0].artifacts[0];return new Response(await readFile(new URL(`../${artifact.path}`,import.meta.url)));}}),mark:()=>boundary++};
+	return {serial,port,counts:()=>({calls,writes,closed,boundary}),lastWrite:()=>lastWrite,runtime:createFlashRuntime({serial,Loader,TransportClass:Transport,cryptoImpl:webcrypto,delay:async()=>{},fetchImpl:async()=>{const manifest=await loadFirmwareManifest(),artifact=manifest.variants[0].artifacts[0];return new Response(await readFile(new URL(`../${artifact.path}`,import.meta.url)));}}),mark:()=>boundary++};
 }
 
 test("prepared token, exact port, physical model, and stored chip identity gate the pre-write boundary",async()=>{
@@ -77,7 +77,6 @@ test("quad flash modes never reach the write; pass-through modes do",async()=>{
 });
 
 test("chip families gate strictly: C61 is not C6, unknown families never collapse to ESP32",async()=>{
-	const { chipFamily }=await import("../local-flash.mjs");
 	assert.equal(chipFamily("ESP32-C61"),"ESP32-C61");
 	assert.equal(chipFamily("ESP32-C6 (QFN40)"),"ESP32-C6");
 	assert.equal(chipFamily("ESP32-D0WD-V3"),"ESP32");
@@ -87,14 +86,12 @@ test("chip families gate strictly: C61 is not C6, unknown families never collaps
 	assert.notEqual(chipFamily("ESP32-H4"),"ESP32");
 });
 
-test("the write never patches the bootloader flash-size header from the catalog",async()=>{
-	const f=runtimeFixture();let captured=null;
+test("the write never patches the bootloader flash-size or flash-mode headers from the catalog",async()=>{
+	const f=runtimeFixture();
 	const manifest=await loadFirmwareManifest(),variant=manifest.variants[0],artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"};
 	const e=await f.runtime.connectToController({variant,onStatus(){}});
-	f.runtime; // capture writeFlash args via a wrapped fixture is not exposed; assert source contract instead
-	const src=await readFile(new URL("../local-flash.mjs",import.meta.url),"utf8");
-	assert.match(src,/flashSize:"keep"/);
-	assert.doesNotMatch(src,/flashSize:flashSize\(/);
 	await f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}});
 	assert.equal(f.counts().writes,1);
+	assert.equal(f.lastWrite().flashSize,"keep");
+	assert.equal(f.lastWrite().flashFreq,"keep");
 });

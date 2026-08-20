@@ -6,6 +6,8 @@ import { failureReceipt, installReceipt, transferReceipt } from "./operation-rec
 export function chipFamily(value) {
 	const chip=String(value).toUpperCase().replaceAll("_","-").replace(/\s+/g,"");
 	// Longest family first so ESP32-C61 never falls into the ESP32-C6 bucket.
+	// The classic-ESP32 die prefixes below were checked exhaustively against the
+	// vendored esptool-js getChipDescription table (D0WDQ6/D0WD/D2WD/U4WDH/S0WD*/PICO-*).
 	for (const family of ["ESP32-C61","ESP32-S3","ESP32-S2","ESP32-C2","ESP32-C3","ESP32-C5","ESP32-C6","ESP32-H2","ESP32-P4","ESP8266"]) if (chip.startsWith(family)) return family;
 	// Only classic ESP32 die names collapse to the plain ESP32 family. An unknown
 	// future family (ESP32-C4, ESP32-H4, ...) must fail the gate, not pass as ESP32.
@@ -14,7 +16,6 @@ export function chipFamily(value) {
 }
 
 function samePortInfo(left,right) { return (left.usbVendorId ?? null)===(right.usbVendorId ?? null) && (left.usbProductId ?? null)===(right.usbProductId ?? null); }
-function flashSize(bytes) { const value=bytes/(1024*1024); if (!Number.isInteger(value)) throw new Error("Unsupported manifest flash size"); return `${value}MB`; }
 
 export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader=ESPLoader, TransportClass=Transport, fetchImpl=globalThis.fetch, cryptoImpl=globalThis.crypto, delay=(milliseconds)=>new Promise((resolve)=>setTimeout(resolve,milliseconds)) }={}) {
 	let active=null; let flashInProgress=false; let invalidated=()=>{};
@@ -55,7 +56,7 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 		if (!session || session.token !== sessionToken || session.port !== port || session.variantId !== variant.id) throw new Error("Connect the controller again before installing");
 		const evidence=evaluatePhysicalConfirmation(variant,session.chipName,physicalConfirmation);
 		if (!evidence.admitted) throw new Error(`Check the printed ${variant.target.board} label before installing`);
-		flashInProgress=true; let intendedBytes=0; let lastProgressPercent=0; let failureStage="validation"; const startedAt=new Date();
+		flashInProgress=true; let intendedBytes=0; let transferredBytes=0; let failureStage="validation"; const startedAt=new Date();
 		try {
 			onStatus("Checking the bundled firmware…"); const image=await fetchVerifiedImage(variant,artifact); const components=await validateMergedImageBytes(variant.target,artifact,image,sha256Hex);
 			failureStage="pre-write"; const currentInfo=port.getInfo(); if (!samePortInfo(session.portInfo,currentInfo)) throw new Error("The connected USB controller changed; reconnect before installing");
@@ -75,10 +76,15 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 			if (!["keep","dio","dout"].includes(requestedFlashMode)) throw new Error(`Refusing to patch the bootloader flash mode to ${requestedFlashMode}; use "keep" unless the override is hardware-proven`);
 			// flashSize "keep" for the same reason as flashMode: patching the bootloader header
 			// from a catalog number (with no probe of the chip's real flash) is the qio bug's sibling.
-			await session.loader.writeFlash({fileArray,flashMode:requestedFlashMode,flashFreq:"keep",flashSize:"keep",eraseAll:false,compress:false,reportProgress(_index,written,total){lastProgressPercent=Math.round((written/total)*100);onProgress(lastProgressPercent);}});
+			await session.loader.writeFlash({fileArray,flashMode:requestedFlashMode,flashFreq:"keep",flashSize:"keep",eraseAll:false,compress:false,reportProgress(index,written,_total){
+				// esptool-js reports per-component progress; accumulate completed components so
+				// receipts and the progress bar count real bytes across the whole merged image.
+				let completed=0; for (let i=0;i<index;i++) completed+=fileArray[i].data.byteLength;
+				transferredBytes=completed+written; onProgress(Math.round((transferredBytes/intendedBytes)*100));
+			}});
 			failureStage="reset"; await session.loader.after("hard_reset"); onProgress(100); onStatus("Restarting the controller…"); await delay(3000);
 			const result={chipName:session.chipName,bytesWritten:intendedBytes,sha256:artifact.sha256,boardEvidence:evidence,backup:"unavailable",writeEvidence:"Write call returned; no readback performed",readbackVerified:false,health:"unverified"}; onReceipt(installReceipt(variant,artifact,evidence,intendedBytes,startedAt)); return result;
-		} catch(error) { error.failureStage ||= failureStage; error.intendedBytes=intendedBytes; error.transferredBytes=failureStage==="write" ? Math.round(lastProgressPercent/100*intendedBytes) : 0; const receipt=failureReceipt(variant,artifact,evidence,error,intendedBytes,startedAt); error.receipt=receipt; onReceipt(receipt); throw error; }
+		} catch(error) { error.failureStage ||= failureStage; error.intendedBytes=intendedBytes; error.transferredBytes=failureStage==="reset" ? intendedBytes : (failureStage==="write" ? transferredBytes : 0); const receipt=failureReceipt(variant,artifact,evidence,error,intendedBytes,startedAt); error.receipt=receipt; onReceipt(receipt); throw error; }
 		finally { flashInProgress=false; if (active===session) active=null; await close(session); }
 	}
 	return { connectToController,installConnectedController,disconnectController:()=>invalidate("manual"),setInvalidationHandler(handler){invalidated=handler || (()=>{});} };
