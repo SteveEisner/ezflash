@@ -19,11 +19,11 @@
 			<div class="browser-gate" id="browserGate" role="alert" hidden><strong id="browserGateTitle">Easy Flash needs Chrome or Edge</strong><p id="browserGateMessage"></p></div>
 			<nav class="state-rail" aria-label="Easy Flash progress"><span aria-current="step">1 Choose</span><span>2 Connect</span><span>3 Connected</span><span>4 Install</span></nav>
 
-			<h2 id="installTitle">Choose your controller</h2>
-			<p class="lede" id="instruction">Choose a controller. Chrome will open its USB chooser next; the chooser belongs to your browser.</p>
+			<h2 id="installTitle">Install firmware</h2>
+			<p class="lede" id="instruction">Select the controller you plugged in. Chrome will ask which USB device to use.</p>
 			<div class="selected-device" id="selectedDeviceNote" hidden></div>
 			<fieldset class="device-select" id="deviceSelect" aria-label="Select your controller" aria-describedby="deviceSelectGuidance">
-				<legend>Which controller are you installing?</legend>
+				<legend class="visually-hidden">Controller model</legend>
 				<div id="deviceOptions" aria-live="polite"><p>Loading verified controller catalog: QuinLED Dig2Go · Athom C3 · Waveshare S3…</p></div>
 				<p id="deviceSelectGuidance" hidden></p>
 			</fieldset>
@@ -40,8 +40,8 @@
 		</section>
 		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><div class="result-actions"><button type="button" class="primary" id="resultDone">Done</button><button type="button" class="secondary" id="resultDiagnose" hidden>Diagnose controller</button></div></section>
 	</main>
-	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><h1>Release status</h1><p class="lede">Status never connects to a controller.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release details.</p></div></section>
-	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Read a controller’s USB diagnostic report without installing firmware.</p><p class="diagnose-caveat">Opening some USB serial devices can reset or reboot them.</p><div class="diagnose-card"><div class="controller-state neutral" id="diagnoseState" role="status" aria-live="polite" hidden><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready</strong><p id="diagnoseMessage"></p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div><div class="recovery-note" hidden><h2>Recovery guidance</h2><p>Confirm the exact target before using Flash. Diagnose never starts recovery on its own.</p></div></section>
+	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><h1>Release status</h1><p class="lede">See what Easy Flash can install right now.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release details.</p></div></section>
+	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Check whether a connected controller reports a problem.</p><p class="diagnose-caveat">Your controller may restart while it is checked.</p><div class="diagnose-card"><div class="controller-state neutral" id="diagnoseState" role="status" aria-live="polite" hidden><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready</strong><p id="diagnoseMessage"></p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div><div class="recovery-note" hidden><h2>Recovery guidance</h2><p>Confirm the exact target before using Flash. Diagnose never starts recovery on its own.</p></div></section>
 	<footer>Tubes v14 / WLED 16 · Local and integrity-checked</footer>
 	<script type="module" src="app.mjs"></script>
 	<script type="module" src="maintainer/status.mjs"></script>
