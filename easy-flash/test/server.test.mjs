@@ -1,44 +1,32 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import test, { after, before } from "node:test";
+import { PassThrough } from "node:stream";
+import test from "node:test";
 import { createEasyFlashServer } from "../server.mjs";
 
-let port;
-let server;
-
-before(async () => {
-	server = createEasyFlashServer();
-	await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-	port = server.address().port;
-});
-
-after(async () => {
-	const closed = new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
-	server.closeIdleConnections?.();
-	server.closeAllConnections?.();
-	await closed;
-});
+const server=createEasyFlashServer();
+async function request(path){const response=new PassThrough(),chunks=[];response.statusCode=200;response.headers={};response.writeHead=(status,headers={})=>{response.statusCode=status;response.headers=Object.fromEntries(Object.entries(headers).map(([key,value])=>[key.toLowerCase(),String(value)]));return response;};response.on("data",chunk=>chunks.push(chunk));const complete=new Promise((resolve,reject)=>{response.on("finish",resolve);response.on("error",reject);});server.emit("request",{url:path,headers:{}},response);await complete;const bytes=Buffer.concat(chunks);return {status:response.statusCode,headers:{get:name=>response.headers[name.toLowerCase()]??null},text:async()=>bytes.toString("utf8"),json:async()=>JSON.parse(bytes),arrayBuffer:async()=>bytes};}
 
 test("serves the laptop USB prototype without an unverified local-build artifact API", async () => {
-	const page = await fetch(`http://127.0.0.1:${port}/`);
+	const page = await request(`/`);
 	assert.equal(page.status, 200);
 	assert.doesNotMatch(await page.text(), /LOCAL USB BETA/);
-	assert.equal((await fetch(`http://127.0.0.1:${port}/api/artifact`)).status, 404);
+	assert.equal((await request(`/api/artifact`)).status, 404);
 });
 
 test("rejects path traversal", async () => {
-	const response = await fetch(`http://127.0.0.1:${port}/%2e%2e/package.json`);
+	const response = await request(`/%2e%2e/package.json`);
 	assert.notEqual(response.status, 200);
 });
 
 test("serves verified firmware manifest and transport-specific downloads", async () => {
-	const manifestResponse = await fetch(`http://127.0.0.1:${port}/api/firmware-manifest`);
+	const manifestResponse = await request(`/api/firmware-manifest`);
 	assert.equal(manifestResponse.status, 200);
 	const manifest = await manifestResponse.json();
 	assert.equal(manifest.variants.length, 1);
 	assert.equal(manifest.variants.flatMap(({ artifacts }) => artifacts).length, 2);
 	for (const transport of ["usb", "ota"]) {
-		const response = await fetch(`http://127.0.0.1:${port}/api/firmware/previous-stable-control/${transport}`);
+		const response = await request(`/api/firmware/previous-stable-control/${transport}`);
 		assert.equal(response.status, 200);
 		assert.equal(response.headers.get("content-type"), "application/octet-stream");
 		assert.match(response.headers.get("content-disposition"), transport === "usb" ? /previous-stable-control-usb-merged\.bin/ : /previous-stable-control-http-ota-app\.bin/);
@@ -49,6 +37,6 @@ test("serves verified firmware manifest and transport-specific downloads", async
 
 test("firmware API rejects misuse and traversal", async () => {
 	for (const path of ["/api/firmware/previous-stable-control/serial", "/api/firmware/not-real/usb", "/api/firmware/%2e%2e/usb"]) {
-		assert.notEqual((await fetch(`http://127.0.0.1:${port}${path}`)).status, 200);
+		assert.notEqual((await request(path)).status, 200);
 	}
 });
