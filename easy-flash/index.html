@@ -27,7 +27,7 @@
 				<div id="deviceOptions" aria-live="polite"><p>Loading verified controller catalog: QuinLED Dig2Go · Athom C3 · Waveshare S3…</p></div>
 				<p id="deviceSelectGuidance" hidden></p>
 			</fieldset>
-			<div class="controller-state" id="controllerState" role="status" aria-live="polite" hidden>
+			<div class="status-banner" id="controllerState" role="status" aria-live="polite" hidden>
 				<span class="state-dot"></span><div><strong id="controllerStateTitle"></strong><p id="controllerStatus"></p></div>
 			</div>
 			<button type="button" class="primary" id="connect">Connect</button>
@@ -37,10 +37,10 @@
 			<p class="action-note" id="actionNote" hidden>The write starts only when you choose the target-specific Install action.</p>
 			<details id="advancedDetails"><summary>Advanced updates</summary><div id="technicalDetails" class="coming-soon"><strong>Coming soon</strong><p>OTA and nearby-device updates will live here. USB installation is available above.</p></div></details>
 		</section>
-		<section id="resultPanel" class="result-panel" hidden><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><p id="resultNext" class="result-next"></p><details id="resultTrouble" class="result-trouble" hidden><summary>Having trouble?</summary><p>Easy Flash did not see the controller restart. If it does not work after you power it normally, use Diagnose.</p><button type="button" class="secondary install" id="verify" hidden>Check again</button><button type="button" class="secondary" id="resultDiagnose" hidden>Diagnose controller</button></details><div class="result-actions"><button type="button" class="primary" id="resultDone">Hooray — done!</button></div></section>
+		<section id="resultPanel" class="result-panel" hidden><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><p id="resultNext" class="result-next"></p><button type="button" class="secondary" id="resultDiagnose" hidden>Diagnose controller</button><div class="result-actions"><button type="button" class="primary" id="resultDone">Hooray — done!</button></div></section>
 	</main>
 	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><h1>Release status</h1><p class="lede">See what Easy Flash can install right now.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release details.</p></div></section>
-	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Check whether a connected controller reports a problem.</p><p class="diagnose-caveat">Your controller may restart while it is checked.</p><div class="diagnose-card"><div class="controller-state neutral" id="diagnoseState" role="status" aria-live="polite" hidden><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready</strong><p id="diagnoseMessage"></p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div><div class="recovery-note" hidden><h2>Recovery guidance</h2><p>Confirm the exact target before using Flash. Diagnose never starts recovery on its own.</p></div></section>
+	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Check whether a connected controller reports a problem.</p><p class="diagnose-caveat">Your controller may restart while it is checked.</p><div class="diagnose-card"><div class="status-banner neutral" id="diagnoseState" role="status" aria-live="polite" hidden><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready</strong><p id="diagnoseMessage"></p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div></section>
 	<footer>Tubes v14 / WLED 16 · Local and integrity-checked</footer>
 	<script type="module" src="app.mjs"></script>
 	<script type="module" src="maintainer/status.mjs"></script>
