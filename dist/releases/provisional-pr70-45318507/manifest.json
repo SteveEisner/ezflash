@@ -5,7 +5,7 @@
   "variants": [
     {
       "id": "quinled-dig2go",
-      "label": "QuinLED Dig2Go \u2014 Tubes v14",
+      "label": "QuinLED Dig2Go — Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -37,8 +37,7 @@
           "id": "ota_0",
           "offset": 65536,
           "sizeBytes": 1572864
-        },
-        "path": "provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv"
+        }
       },
       "artifacts": [
         {
@@ -77,18 +76,17 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-45318507/provenance/quinled-dig2go-quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
           "sizeBytes": 1260208,
-          "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35",
-          "path": "releases/provisional-pr70-45318507/firmware/quinled-dig2go.bin"
+          "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35"
         }
       }
     },
     {
       "id": "athom-c3-tubes",
-      "label": "Athom ESP32-C3 controller \u2014 Tubes v14",
+      "label": "Athom ESP32-C3 controller — Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -120,8 +118,7 @@
           "id": "ota_0",
           "offset": 65536,
           "sizeBytes": 1572864
-        },
-        "path": "provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv"
+        }
       },
       "artifacts": [
         {
@@ -160,18 +157,17 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-45318507/provenance/athom-c3-tubes-athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
           "sizeBytes": 1198432,
-          "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24",
-          "path": "releases/provisional-pr70-45318507/firmware/athom-c3-tubes.bin"
+          "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24"
         }
       }
     },
     {
       "id": "waveshare-s3-tubes-remote",
-      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 \u2014 Tubes v14",
+      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 — Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -203,8 +199,7 @@
           "id": "ota_0",
           "offset": 65536,
           "sizeBytes": 6291456
-        },
-        "path": "provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv"
+        }
       },
       "artifacts": [
         {
@@ -243,25 +238,24 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
+        "partitionPath": "releases/provisional-pr70-45318507/provenance/waveshare-s3-tubes-remote-waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
         "partitionSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
         "ota": {
           "sizeBytes": 1209056,
-          "sha256": "3b0fb00eb191e1887bab193c60323e559e7349edae5ab60606414a8910ca443f",
-          "path": "releases/provisional-pr70-45318507/firmware/waveshare-s3-tubes-remote.bin"
+          "sha256": "3b0fb00eb191e1887bab193c60323e559e7349edae5ab60606414a8910ca443f"
         }
       }
     }
   ],
   "provenance": {
     "mode": "provisional",
-    "receiptDigestSha256": "e97794ac72ab06af0866f51a4cb67def86f8954976fcc9c8d41002b40ae47194",
-    "sourceReceiptDigestSha256": "0dcaf6f350909e94611c228470124a9954e354831579df8234ecc35ffb372a67",
+    "receiptDigestSha256": "33c5ad3ef2c08cc9269e3eeb0e9813554426ec5f0c4135ce1be58283baf73be0",
+    "sourceReceiptDigestSha256": "d875504d1b25fbfd4fe52cbf74a91c996230a8b42d313a55aadb9f1cf311522b",
     "contractSha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83",
     "evidence": {
       "receipt": {
         "path": "releases/provisional-pr70-45318507/provenance/build-receipt.json",
-        "sha256": "32ec3afcf72f7310b9610f86297ed84021d3517f9a07209472603f10f52864ba"
+        "sha256": "af999536ff1113c39fda96cfe16a1bb77bd7a1be2156a1d6bc7284a606c24892"
       },
       "contract": {
         "path": "releases/provisional-pr70-45318507/provenance/update-contract.json",
