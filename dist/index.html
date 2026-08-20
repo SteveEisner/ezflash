@@ -22,7 +22,7 @@
 			<div class="selected-device" id="selectedDeviceNote" hidden></div>
 			<fieldset class="device-select" id="deviceSelect" aria-label="Select your controller" aria-describedby="deviceSelectGuidance">
 				<legend>Which controller are you installing?</legend>
-								<div id="deviceOptions"><label class="device-option"><input type="radio" name="deviceChoice" disabled><span><strong>QuinLED Dig2Go</strong><small>Beginner setup · ESP32 controller</small></span></label><label class="device-option"><input type="radio" name="deviceChoice" disabled><span><strong>Athom C3</strong><small>ESP32-C3 controller</small></span></label><label class="device-option"><input type="radio" name="deviceChoice" disabled><span><strong>Waveshare S3</strong><small>ESP32-S3 controller</small></span></label></div>
+				<div id="deviceOptions" aria-live="polite"><p>Loading verified controller catalog: QuinLED Dig2Go · Athom C3 · Waveshare S3…</p></div>
 				<p id="deviceSelectGuidance">Choose the controller model you are installing. Easy Flash loads the matching firmware.</p>
 			</fieldset>
 			<div class="controller-state" id="controllerState" role="status" aria-live="polite">
