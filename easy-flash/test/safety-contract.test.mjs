@@ -21,6 +21,16 @@ test("local adapter validates required component IDs, bounds, overlap, and every
 	const corrupt=bytes.slice();corrupt[artifact.components[0].offset]^=1;await assert.rejects(validateMergedImageBytes(variant.target,{...artifact,sha256:await hash(corrupt)},corrupt,hash),/component bootloader hash mismatch/i);
 });
 
+test("accepts an S3 bootloader at offset zero but rejects invalid offsets", async () => {
+	const manifest=await loadFirmwareManifest(),variant=manifest.variants[0],artifact=variant.artifacts.find(({transport})=>transport==="usb");
+	const zeroOffset=structuredClone(artifact); zeroOffset.components[0].offset=0;
+	assert.equal(validateMergedImageStructure(variant.target, zeroOffset)[0].imageStart, 0);
+	for (const offset of [-1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+		const invalid=structuredClone(artifact); invalid.components[0].offset=offset;
+		assert.throws(() => validateMergedImageStructure(variant.target, invalid), /offset/);
+	}
+});
+
 class SerialMock extends EventTarget { constructor(port){super();this.port=port;this.requests=0;} async requestPort(){this.requests++;return this.port;} disconnect(port){const event=new Event("disconnect");Object.defineProperty(event,"port",{value:port});this.dispatchEvent(event);} }
 function runtimeFixture({secondChip="ESP32",changedInfo=false}={}) {
 	const port={getInfo:()=>changedInfo?{usbVendorId:9,usbProductId:2}:{usbVendorId:1,usbProductId:2}};let calls=0,writes=0,closed=0,boundary=0;const serial=new SerialMock(port);
