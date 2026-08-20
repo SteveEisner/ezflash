@@ -68,6 +68,6 @@ test("Diagnose presentation is grounded USB-only copy for every stoplight state"
  [{},["yellow","Couldn’t check this controller","The controller connected, but it did not provide enough information to confirm its condition.","Choose USB device again"]],
  [{bytesCaptured:3},["yellow","Couldn’t check this controller","The controller connected, but it did not provide enough information to confirm its condition.","Choose USB device again"]],
  [{state:"telemetry",target:"Dig2Go",chip:"ESP32",buttonDiagnostics:"healthy"},["green","Controller looks good","The controller responded and did not report a problem.","Check another USB device"]],
- [{state:"rescue"},["red","Recovery mode reported","The USB device reported recovery mode.","Check another USB device"]],
- [{buttonProblem:true},["red","Stuck button reported","The USB device reported a stuck button.","Check another USB device"]]
+ [{state:"rescue"},["red","Controller needs attention","The controller started in recovery mode.","Check another USB device"]],
+ [{buttonProblem:true},["red","Controller needs attention","The controller reported that its button may be stuck.","Check another USB device"]]
  ];for(const [input,[tone,label,summary,action]] of cases){const view=diagnosePresentation(input);assert.deepEqual([view.tone,view.label,view.summary,view.action],[tone,label,summary,action]);assert.doesNotMatch(`${view.label} ${view.summary} ${view.next}`,/\b(network|lights|LED|telemetry|inspection|retry)\b/i);}});
