@@ -112,6 +112,9 @@ export function createDiagnoseRuntime({ serial = globalThis.navigator?.serial, b
       }
       const parsed = parseDiagnosticText(text);
       onText(parsed.raw);
+      // A read that errored mid-stream without yielding a signature is unreadable,
+      // not "online and healthy" — the reader lost the device.
+      if (readFailed && parsed.state === "online") return { ...parsed, unreadable: true, portInfo: info };
       return { ...parsed, portInfo: info };
     } finally {
       if (reader) reader.releaseLock();

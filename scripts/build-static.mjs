@@ -12,7 +12,9 @@ const receiptRoot=dirname(receiptPath), out=resolve(root,'dist'), releaseRoot=re
 for(const f of ['index.html','styles.css','firmware-bench.css','app.mjs','hosted-release.mjs','local-flash.mjs','profiles.mjs','firmware-ui.mjs','device-identity.mjs','safety-contract.mjs','operation-receipts.mjs','diagnose.mjs']) await cp(resolve(root,'easy-flash',f),resolve(out,f));
 await cp(resolve(root,'easy-flash/maintainer'),resolve(out,'maintainer'),{recursive:true}); await cp(resolve(root,'easy-flash/maintainer/status.mjs'),resolve(out,'maintainer/status.mjs'));
 await cp(resolve(root,'easy-flash/vendor'),resolve(out,'vendor'),{recursive:true});
-const source=JSON.parse(await readFile(resolve(root,'easy-flash/firmware-manifest.json'),'utf8')), variant=source.variants[0], artifact=receipt.artifacts.usb, name=basename(artifact.path), publicPath=`releases/${release}/firmware/${name}`;
+const source=JSON.parse(await readFile(resolve(root,'easy-flash/firmware-manifest.json'),'utf8'));
+if (source.variants.length !== 1) throw new Error('build-static rewrites exactly one manifest variant; a multi-variant manifest needs per-variant hosting before publish');
+const variant=source.variants[0], artifact=receipt.artifacts.usb, name=basename(artifact.path), publicPath=`releases/${release}/firmware/${name}`;
 await cp(resolve(receiptRoot,artifact.path),resolve(out,publicPath)); variant.source={repository:receipt.source.repository,commit:receipt.source.commit,clean:receipt.source.clean}; variant.target.environment=receipt.environment; variant.partition.tableSha256=receipt.partition.sha256;
 variant.artifacts=[{kind:artifact.kind,transport:artifact.transport,path:publicPath,sizeBytes:artifact.lengthBytes,sha256:artifact.sha256,offset:artifact.writeOffset,components:artifact.components.map(c=>({name:c.id,offset:c.offset,sizeBytes:c.lengthBytes,sha256:c.sha256}))}];
 const partitionName=basename(receipt.partition.path), contractName='update-contract.json';

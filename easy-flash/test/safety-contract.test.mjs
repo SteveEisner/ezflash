@@ -43,7 +43,7 @@ function runtimeFixture({connectChip="ESP32",changedInfo=false}={}) {
 test("prepared token, exact port, physical model, and stored chip identity gate the pre-write boundary",async()=>{
 	const manifest=await loadFirmwareManifest(),variant=manifest.variants[0],artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"},fixture=runtimeFixture();
 	const evidence=await fixture.runtime.connectToController({variant,onStatus(){}});const base={variant,artifact,sessionToken:evidence.token,port:evidence.port,onStatus(){},onProgress(){},beforeWrite:fixture.mark};
-	await assert.rejects(fixture.runtime.installConnectedController({...base,physicalConfirmation:{asserted:false,targetId:variant.id,printedModel:variant.target.board}}),/printed Dig2Go/i);assert.equal(fixture.counts().boundary,0);
+	await assert.rejects(fixture.runtime.installConnectedController({...base,physicalConfirmation:{asserted:false,targetId:variant.id,printedModel:variant.target.board}}),/printed .* label/i);assert.equal(fixture.counts().boundary,0);
 	// A rejected assertion does not consume the prepared session.
 	await fixture.runtime.installConnectedController({...base,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board}});assert.equal(fixture.counts().boundary,1);assert.equal(fixture.counts().writes,1);
 	await assert.rejects(fixture.runtime.installConnectedController({...base,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board}}),/connect.*again/i);
@@ -51,7 +51,7 @@ test("prepared token, exact port, physical model, and stored chip identity gate 
 
 test("wrong target/model, swapped USB device, unsupported chip, and serial disconnect invalidate safely",async()=>{
 	const manifest=await loadFirmwareManifest(),variant=manifest.variants[0],artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"};
-	for(const confirmation of [{asserted:true,targetId:"other",printedModel:variant.target.board},{asserted:true,targetId:variant.id,printedModel:"Other board"}]) {const f=runtimeFixture(),e=await f.runtime.connectToController({variant,onStatus(){}});await assert.rejects(f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:confirmation,onStatus(){},onProgress(){}}),/printed Dig2Go/i);assert.equal(f.counts().writes,0);}
+	for(const confirmation of [{asserted:true,targetId:"other",printedModel:variant.target.board},{asserted:true,targetId:variant.id,printedModel:"Other board"}]) {const f=runtimeFixture(),e=await f.runtime.connectToController({variant,onStatus(){}});await assert.rejects(f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:confirmation,onStatus(){},onProgress(){}}),/printed .* label/i);assert.equal(f.counts().writes,0);}
 	// A controller whose chip does not match the selected target is rejected at connect, before any install path.
 	const wrong=runtimeFixture({connectChip:"ESP32-S3"});await assert.rejects(wrong.runtime.connectToController({variant,onStatus(){}}),/not the supported ESP32/i);assert.equal(wrong.counts().writes,0);
 	// A USB device swapped after connect is caught by the port-identity recheck at pre-write (no chip re-read, no port re-open).
@@ -74,4 +74,27 @@ test("quad flash modes never reach the write; pass-through modes do",async()=>{
 		await f.runtime.installConnectedController({variant:v,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}});
 		assert.equal(f.counts().writes,1);
 	}
+});
+
+test("chip families gate strictly: C61 is not C6, unknown families never collapse to ESP32",async()=>{
+	const { chipFamily }=await import("../local-flash.mjs");
+	assert.equal(chipFamily("ESP32-C61"),"ESP32-C61");
+	assert.equal(chipFamily("ESP32-C6 (QFN40)"),"ESP32-C6");
+	assert.equal(chipFamily("ESP32-D0WD-V3"),"ESP32");
+	assert.equal(chipFamily("ESP32-PICO-D4"),"ESP32");
+	// A future/unknown family must fail the match rather than pass as classic ESP32.
+	assert.notEqual(chipFamily("ESP32-C4"),"ESP32");
+	assert.notEqual(chipFamily("ESP32-H4"),"ESP32");
+});
+
+test("the write never patches the bootloader flash-size header from the catalog",async()=>{
+	const f=runtimeFixture();let captured=null;
+	const manifest=await loadFirmwareManifest(),variant=manifest.variants[0],artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"};
+	const e=await f.runtime.connectToController({variant,onStatus(){}});
+	f.runtime; // capture writeFlash args via a wrapped fixture is not exposed; assert source contract instead
+	const src=await readFile(new URL("../local-flash.mjs",import.meta.url),"utf8");
+	assert.match(src,/flashSize:"keep"/);
+	assert.doesNotMatch(src,/flashSize:flashSize\(/);
+	await f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:{asserted:true,targetId:variant.id,printedModel:variant.target.board},onStatus(){},onProgress(){}});
+	assert.equal(f.counts().writes,1);
 });
