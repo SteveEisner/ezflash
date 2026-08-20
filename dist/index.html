@@ -16,7 +16,8 @@
 	<main id="flashView" role="tabpanel" aria-labelledby="flashTab">
 		<section class="hero"><p class="eyebrow">WLEDTUBES · EASY FLASH</p><h1>Buy. Build. <em>Rave.</em></h1></section>
 		<section class="install-card" aria-labelledby="installTitle">
-			<nav class="state-rail" aria-label="Easy Flash progress"><span aria-current="step">1 Choose</span><span>2 Connect</span><span>3 Install</span></nav>
+			<div class="browser-gate" id="browserGate" role="alert" hidden><strong id="browserGateTitle">Easy Flash needs Chrome or Edge</strong><p id="browserGateMessage"></p></div>
+			<nav class="state-rail" aria-label="Easy Flash progress"><span aria-current="step">1 Choose</span><span>2 Connect</span><span>3 Install</span><span>4 Finish</span></nav>
 			<p class="kicker">EASY FLASH</p>
 			<h2 id="installTitle">Choose your controller</h2>
 			<p class="lede" id="instruction">Choose a controller, then connect it with a USB data cable.</p>
@@ -33,11 +34,11 @@
 
 			<button type="button" class="primary" id="install" disabled hidden>Install</button>
 			<button type="button" class="secondary" id="back" hidden>← Choose a different controller</button>
-			<button type="button" class="primary install" id="verify" hidden>Verify controller</button>
+			<button type="button" class="secondary install" id="verify" hidden>Check again</button>
 			<p class="action-note" id="actionNote" hidden>The write starts only when you choose the target-specific Install action.</p>
 			<details id="advancedDetails"><summary>Advanced details</summary><dl id="technicalDetails"><div><dt>Firmware</dt><dd>Loading verified Dig2Go firmware…</dd></div></dl></details>
 		</section>
-		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p></section>
+		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><div class="result-actions"><button type="button" class="primary" id="resultDone">Done</button><button type="button" class="secondary" id="resultDiagnose" hidden>Diagnose controller</button></div></section>
 	</main>
 	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><p class="eyebrow">WLEDTUBES · MAINTAINER</p><h1>Release status</h1><p class="lede">Read-only provenance snapshot. This tab cannot install, flash, or contact a device.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release evidence.</p></div></section>
 	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><p class="eyebrow">WLEDTUBES · READ-ONLY</p><h1>Diagnose a controller</h1><p class="lede">Diagnose opens the USB device and reads any diagnostic report it sends. It does not install firmware.</p><p class="diagnose-caveat">Opening some USB serial devices can reset or reboot them.</p><div class="diagnose-card"><div class="controller-state neutral" id="diagnoseState" role="status" aria-live="polite"><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready to diagnose</strong><p id="diagnoseMessage">Diagnose opens the USB device and reads any diagnostic report it sends. It does not install firmware.</p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div><div class="recovery-note" hidden><h2>Recovery guidance</h2><p>Confirm the exact target before using Flash. Diagnose never starts recovery on its own.</p></div></section>
