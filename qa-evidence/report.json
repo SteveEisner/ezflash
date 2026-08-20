@@ -1,0 +1,18 @@
+{
+  "commit": "d36282ec40702076e3293b5195a9ee61c7e1171a",
+  "viewportMatrix": ["1440x900", "390x844"],
+  "existingCaptures": 8,
+  "dimensionsVerified": true,
+  "duplicateHashes": {
+    "desktop": ["initial-1440x900.png", "diagnose-1440x900.png", "status-1440x900.png"],
+    "mobile": ["initial-390x844.png", "diagnose-390x844.png", "status-390x844.png"]
+  },
+  "visualConclusion": "The supplied qa-evidence captures are not state-distinct: Diagnose and Status hashes match Initial at each viewport. They are therefore retained as audit evidence but not accepted as a full-state harness result.",
+  "copyFix": "The content-free initial Ready to choose status block is hidden and empty until a meaningful status exists; source and dist are synchronized.",
+  "verification": {
+    "npmTest": "123 passed",
+    "npmVerify": "passed",
+    "gitDiffCheck": "passed",
+    "sourceDistParity": "app.mjs and index.html synchronized"
+  }
+}
