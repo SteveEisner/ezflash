@@ -5,7 +5,7 @@
   "variants": [
     {
       "id": "quinled-dig2go",
-      "label": "QuinLED Dig2Go — Tubes v14",
+      "label": "QuinLED Dig2Go \u2014 Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -86,7 +86,7 @@
     },
     {
       "id": "athom-c3-tubes",
-      "label": "Athom ESP32-C3 controller — Tubes v14",
+      "label": "Athom ESP32-C3 controller \u2014 Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -167,7 +167,7 @@
     },
     {
       "id": "waveshare-s3-tubes-remote",
-      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 — Tubes v14",
+      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 \u2014 Tubes v14",
       "description": "Exact WLEDTubes PR #70 provisional hardware target.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
@@ -206,8 +206,8 @@
           "kind": "complete-merged-image",
           "transport": "usb",
           "path": "releases/provisional-pr70-f0ccd8b2/firmware/waveshare-s3-tubes-remote-merged.bin",
-          "sizeBytes": 1285568,
-          "sha256": "4f2b6a06a74ec05f1045848f1a26ffa7e81ded91312a0fa7acbae75c484cc3f5",
+          "sizeBytes": 1274592,
+          "sha256": "4e49d75c7529050f9b02745426abb6ae46d8cdfde9ff71e3e3a5f29322b9277e",
           "offset": 0,
           "components": [
             {
@@ -231,8 +231,8 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1220032,
-              "sha256": "bb38509c6e744103f4f9c336a6ac37fdfe06f9e948a38a326f50edefd51ba698"
+              "sizeBytes": 1209056,
+              "sha256": "3b0fb00eb191e1887bab193c60323e559e7349edae5ab60606414a8910ca443f"
             }
           ]
         }
