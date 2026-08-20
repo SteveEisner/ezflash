@@ -25,7 +25,7 @@ export function initEasyFlash({document:doc=document,navigator:navigatorRef=glob
 		syncConnectLabel();
 	}
 	const selectedTarget=()=>selectHostedTarget(release.catalog,ui.options?.querySelector?.("input[name=deviceChoice]:checked")?.value||"quinled-dig2go");
-	const setStatus=(message,kind="")=>{ui.status.textContent=message;ui.state.className=`controller-state ${kind}`.trim();};
+	const setStatus=(message,kind="")=>{if(ui.state)ui.state.hidden=false;if(ui.status)ui.status.textContent=message;if(ui.state)ui.state.className=`controller-state ${kind}`.trim();};
 	const candidateAction=()=>({targetId:selection?.variant.id,label:INSTALL_ACTIONS[selection?.variant.id],artifactSha256:selection?.artifact.sha256,sessionToken:selection?.evidence?.token,port:selection?.evidence?.port});
 	const shortTarget=id=>({"quinled-dig2go":"Dig2Go","athom-c3-tubes":"Athom C3","waveshare-s3-tubes-remote":"Waveshare S3"}[id]||id);
 	const installAllowed=()=>Boolean(selection&&selection.evidence?.chipName);
