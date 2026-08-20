@@ -25,7 +25,7 @@
 			<fieldset class="device-select" id="deviceSelect" aria-label="Select your controller" aria-describedby="deviceSelectGuidance">
 				<legend>Which controller are you installing?</legend>
 				<div id="deviceOptions" aria-live="polite"><p>Loading verified controller catalog: QuinLED Dig2Go · Athom C3 · Waveshare S3…</p></div>
-				<p id="deviceSelectGuidance">Select the controller you plugged in, then choose its target-named Connect button.</p>
+				<p id="deviceSelectGuidance" hidden></p>
 			</fieldset>
 			<div class="controller-state" id="controllerState" role="status" aria-live="polite" hidden>
 				<span class="state-dot"></span><div><strong id="controllerStateTitle"></strong><p id="controllerStatus"></p></div>
@@ -33,15 +33,15 @@
 			<button type="button" class="primary" id="connect">Connect</button>
 
 			<button type="button" class="primary" id="install" disabled hidden>Install</button>
-			<button type="button" class="secondary" id="back" hidden>← Choose a different controller</button>
+			<button type="button" class="secondary" id="back" hidden>← Back</button>
 			<button type="button" class="secondary install" id="verify" hidden>Check again</button>
 			<p class="action-note" id="actionNote" hidden>The write starts only when you choose the target-specific Install action.</p>
 			<details id="advancedDetails"><summary>Advanced updates</summary><div id="technicalDetails" class="coming-soon"><strong>Coming soon</strong><p>OTA and nearby-device updates will live here. USB installation is available above.</p></div></details>
 		</section>
 		<section id="resultPanel" class="result-panel" hidden><p class="eyebrow">INSTALL RESULT</p><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><div class="result-actions"><button type="button" class="primary" id="resultDone">Done</button><button type="button" class="secondary" id="resultDiagnose" hidden>Diagnose controller</button></div></section>
 	</main>
-	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><h1>Release status</h1><p class="lede">Read-only release evidence.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release evidence.</p></div></section>
-	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Read the controller’s diagnostic report without installing firmware.</p><p class="diagnose-caveat">Opening some USB serial devices can reset or reboot them.</p><div class="diagnose-card"><div class="controller-state neutral" id="diagnoseState" role="status" aria-live="polite"><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready to diagnose</strong><p id="diagnoseMessage">Diagnose opens the USB device and reads any diagnostic report it sends. It does not install firmware.</p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div><div class="recovery-note" hidden><h2>Recovery guidance</h2><p>Confirm the exact target before using Flash. Diagnose never starts recovery on its own.</p></div></section>
+	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><h1>Release status</h1><p class="lede">Status never connects to a controller.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release details.</p></div></section>
+	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Read a controller’s USB diagnostic report without installing firmware.</p><p class="diagnose-caveat">Opening some USB serial devices can reset or reboot them.</p><div class="diagnose-card"><div class="controller-state neutral" id="diagnoseState" role="status" aria-live="polite"><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready</strong><p id="diagnoseMessage"></p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div><div class="recovery-note" hidden><h2>Recovery guidance</h2><p>Confirm the exact target before using Flash. Diagnose never starts recovery on its own.</p></div></section>
 	<footer>Tubes v14 / WLED 16 · Local and integrity-checked</footer>
 	<script type="module" src="app.mjs"></script>
 	<script type="module" src="maintainer/status.mjs"></script>
