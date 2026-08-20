@@ -41,24 +41,25 @@ function runtimeFixture({connectChip="ESP32",changedInfo=false}={}) {
 
 function fixtureVariant(manifest){const variant=structuredClone(manifest.variants[0]);variant.id="quinled-dig2go";variant.target.printedModel=variant.target.board;variant.bootIdentity={version:1,target:variant.id,source:"a".repeat(40),release:"16.0.1",tubes:14};return variant;}
 async function boundEvidence(fixture,variant,artifact){const evidence=await fixture.runtime.connectToController({onStatus(){}});return fixture.runtime.bindConnectedController({evidence,variant,artifact});}
-const confirmed=(variant,overrides={})=>({asserted:true,targetId:variant.id,printedModel:variant.target.board,...overrides});
+const confirmed=(variant,overrides={})=>({targetId:variant.id,label:{"quinled-dig2go":"Install Dig2Go firmware","athom-c3-tubes":"Install Athom C3 firmware","waveshare-s3-tubes-remote":"Install Waveshare S3 firmware"}[variant.id],artifactSha256:artifactFor(variant)?.sha256,sessionToken:null,port:null,...overrides});
+const artifactFor=(variant)=>variant.artifacts?.find(({transport})=>transport==="usb");
 
 test("prepared token, exact port, bound target, and physical model gate the pre-write boundary",async()=>{
 	const manifest=await loadFirmwareManifest(),variant=fixtureVariant(manifest),artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"},fixture=runtimeFixture();
 	const evidence=await boundEvidence(fixture,variant,artifact);const base={variant,artifact,sessionToken:evidence.token,port:evidence.port,onStatus(){},onProgress(){},beforeWrite:fixture.mark};
-	await assert.rejects(fixture.runtime.installConnectedController({...base,artifact:{...artifact,sha256:"b".repeat(64)},physicalConfirmation:confirmed(variant)}),/connect.*again/i);assert.equal(fixture.counts().writes,0);
-	await assert.rejects(fixture.runtime.installConnectedController({...base,physicalConfirmation:confirmed(variant,{asserted:false})}),/printed .* label/i);assert.equal(fixture.counts().boundary,0);
+	await assert.rejects(fixture.runtime.installConnectedController({...base,artifact:{...artifact,sha256:"b".repeat(64)},candidateAction:confirmed(variant)}),/connect.*again/i);assert.equal(fixture.counts().writes,0);
+	await assert.rejects(fixture.runtime.installConnectedController({...base,candidateAction:confirmed(variant,{label:"Other action"})}),/candidate action|stale/i);assert.equal(fixture.counts().boundary,0);
 	// A rejected assertion does not consume the prepared session.
-	await fixture.runtime.installConnectedController({...base,physicalConfirmation:confirmed(variant)});assert.equal(fixture.counts().boundary,1);assert.equal(fixture.counts().writes,1);
-	await assert.rejects(fixture.runtime.installConnectedController({...base,physicalConfirmation:confirmed(variant)}),/connect.*again/i);
+	await fixture.runtime.installConnectedController({...base,candidateAction:confirmed(variant)});assert.equal(fixture.counts().boundary,1);assert.equal(fixture.counts().writes,1);
+	await assert.rejects(fixture.runtime.installConnectedController({...base,candidateAction:confirmed(variant)}),/connect.*again/i);
 });
 
 test("wrong target/model, swapped USB device, and serial disconnect invalidate safely",async()=>{
 	const manifest=await loadFirmwareManifest(),variant=fixtureVariant(manifest),artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"};
-	for(const confirmation of [confirmed(variant,{targetId:"other"}),confirmed(variant,{printedModel:"Other board"}),confirmed(variant,{asserted:"yes"})]) {const f=runtimeFixture(),e=await boundEvidence(f,variant,artifact);await assert.rejects(f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:confirmation,onStatus(){},onProgress(){}}),/printed .* label/i);assert.equal(f.counts().writes,0);}
+	for(const confirmation of [confirmed(variant,{targetId:"other"}),confirmed(variant,{label:"Other action"}),confirmed(variant,{artifactSha256:"x".repeat(64)})]) {const f=runtimeFixture(),e=await boundEvidence(f,variant,artifact);await assert.rejects(f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,candidateAction:confirmation,onStatus(){},onProgress(){}}),/candidate action|stale/i);assert.equal(f.counts().writes,0);}
 	// A USB device swapped after connect is caught by the port-identity recheck at pre-write (no chip re-read, no port re-open).
-	const swapped=runtimeFixture(),eSwap=await boundEvidence(swapped,variant,artifact);swapped.port.getInfo=()=>({usbVendorId:9,usbProductId:2});await assert.rejects(swapped.runtime.installConnectedController({variant,artifact,sessionToken:eSwap.token,port:eSwap.port,physicalConfirmation:confirmed(variant),onStatus(){},onProgress(){}}),/USB controller changed/i);assert.equal(swapped.counts().writes,0);
-	const gone=runtimeFixture(),eGone=await boundEvidence(gone,variant,artifact);let reason=null;gone.runtime.setInvalidationHandler((event)=>reason=event.reason);gone.serial.disconnect(gone.port);await new Promise(setImmediate);assert.equal(reason,"disconnect");await assert.rejects(gone.runtime.installConnectedController({variant,artifact,sessionToken:eGone.token,port:eGone.port,physicalConfirmation:confirmed(variant),onStatus(){},onProgress(){}}),/connect.*again/i);
+	const swapped=runtimeFixture(),eSwap=await boundEvidence(swapped,variant,artifact);swapped.port.getInfo=()=>({usbVendorId:9,usbProductId:2});await assert.rejects(swapped.runtime.installConnectedController({variant,artifact,sessionToken:eSwap.token,port:eSwap.port,candidateAction:confirmed(variant),onStatus(){},onProgress(){}}),/USB controller changed/i);assert.equal(swapped.counts().writes,0);
+	const gone=runtimeFixture(),eGone=await boundEvidence(gone,variant,artifact);let reason=null;gone.runtime.setInvalidationHandler((event)=>reason=event.reason);gone.serial.disconnect(gone.port);await new Promise(setImmediate);assert.equal(reason,"disconnect");await assert.rejects(gone.runtime.installConnectedController({variant,artifact,sessionToken:eGone.token,port:eGone.port,candidateAction:confirmed(variant),onStatus(){},onProgress(){}}),/connect.*again/i);
 });
 
 test("chip evidence must be explicitly bound to one matching variant before install",async()=>{const manifest=await loadFirmwareManifest(),variant=fixtureVariant(manifest),artifact={...variant.artifacts[0],url:"https://flash.test/merged.bin",sha256:variant.artifacts[0].sha256},f=runtimeFixture(),e=await f.runtime.connectToController({onStatus(){}});assert.equal(e.variantId,undefined);assert.throws(()=>f.runtime.bindConnectedController({evidence:e,variant:{...variant,target:{...variant.target,chip:"ESP32-S3"}},artifact}),/does not match/i);});
@@ -70,14 +71,14 @@ test("quad flash modes never reach the write; pass-through modes do",async()=>{
 	for(const mode of ["qio","qout"]) {
 		const variant=structuredClone(baseVariant);variant.target.flashMode=mode;
 		const f=runtimeFixture(),e=await boundEvidence(f,variant,artifact);
-		await assert.rejects(f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:confirmed(variant),onStatus(){},onProgress(){}}),/refusing to patch the bootloader flash mode/i);
+		await assert.rejects(f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,candidateAction:confirmed(variant),onStatus(){},onProgress(){}}),/refusing to patch the bootloader flash mode/i);
 		assert.equal(f.counts().writes,0);
 	}
 	// "keep" (and an absent flashMode) still install normally.
 	for(const mode of ["keep",undefined]) {
 		const variant=structuredClone(baseVariant);variant.target.flashMode=mode;
 		const f=runtimeFixture(),e=await boundEvidence(f,variant,artifact);
-		await f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:confirmed(variant),onStatus(){},onProgress(){}});
+		await f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,candidateAction:confirmed(variant),onStatus(){},onProgress(){}});
 		assert.equal(f.counts().writes,1);
 	}
 });
@@ -95,7 +96,7 @@ test("chip families gate strictly: C61 is not C6, unknown families never collaps
 test("the write never patches the bootloader flash-size or flash-mode headers from the catalog",async()=>{
 	const manifest=await loadFirmwareManifest(),variant=fixtureVariant(manifest),artifact={...variant.artifacts[0],url:"https://flash.test/releases/test/firmware/merged.bin"};
 	const f=runtimeFixture(),e=await boundEvidence(f,variant,artifact);
-	await f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,physicalConfirmation:confirmed(variant),onStatus(){},onProgress(){}});
+	await f.runtime.installConnectedController({variant,artifact,sessionToken:e.token,port:e.port,candidateAction:confirmed(variant),onStatus(){},onProgress(){}});
 	assert.equal(f.counts().writes,1);
 	assert.equal(f.lastWrite().flashSize,"keep");
 	assert.equal(f.lastWrite().flashFreq,"keep");

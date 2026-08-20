@@ -1,5 +1,5 @@
 import { ESPLoader, Transport } from "./vendor/esptool-js/bundle.js";
-import { chipFamily, evaluatePhysicalConfirmation, validateMergedImageBytes } from "./safety-contract.mjs";
+import { chipFamily, validateMergedImageBytes } from "./safety-contract.mjs";
 export { chipFamily };
 import { failureReceipt, installReceipt, transferReceipt } from "./operation-receipts.mjs";
 import { verifyControllerBoot } from "./boot-verification.mjs";
@@ -49,11 +49,13 @@ export function createFlashRuntime({ serial=globalThis.navigator?.serial, Loader
 		return {...evidence,variantId:variant.id};
 	}
 
-	async function installConnectedController({variant,artifact,sessionToken,port,physicalConfirmation,onStatus,onProgress,onReceipt=()=>{},beforeWrite=()=>{}}) {
+	async function installConnectedController({variant,artifact,sessionToken,port,candidateAction,onStatus,onProgress,onReceipt=()=>{},beforeWrite=()=>{}}) {
 		if (flashInProgress) throw new Error("An install is already running"); const session=active;
 		if (!session || session.token !== sessionToken || session.port !== port || session.variantId !== variant.id || session.binding.chip!==variant.target.chip || session.binding.hardwareFamily!==variant.target.hardwareFamily || session.binding.printedModel!==variant.target.printedModel || session.binding.artifactSha256!==artifact.sha256 || session.binding.artifactUrl!==artifact.url) throw new Error("Connect the controller again before installing");
-		const evidence=evaluatePhysicalConfirmation(variant,session.chipName,physicalConfirmation);
-		if (!evidence.admitted) throw new Error(`Check the printed ${variant.target.board} label before installing`);
+		const expectedAction={"quinled-dig2go":"Install Dig2Go firmware","athom-c3-tubes":"Install Athom C3 firmware","waveshare-s3-tubes-remote":"Install Waveshare S3 firmware"}[variant.id];
+		const admitted= candidateAction?.targetId===variant.id && candidateAction.label===expectedAction && candidateAction.artifactSha256===artifact.sha256 && (!candidateAction.sessionToken || candidateAction.sessionToken===sessionToken) && (!candidateAction.port || candidateAction.port===port);
+		if (!admitted) throw new Error("The selected Install action is stale or does not match the prepared controller");
+		const evidence={admitted:true,status:"candidate-action",method:"target-named-install",targetId:variant.id,observedChip:session.chipName};
 		flashInProgress=true; let intendedBytes=0; let transferredBytes=0; let failureStage="validation"; const startedAt=new Date();
 		try {
 			onStatus("Checking the bundled firmware…"); const image=await fetchVerifiedImage(variant,artifact); const components=await validateMergedImageBytes(variant.target,artifact,image,sha256Hex);
