@@ -28,8 +28,8 @@ test("Status renders shared release evidence once and all three target artifacts
 	const manifest={provenance:{mode:"fixture"},variants:targets.map(([id,board,chip])=>({id,label:board,hardwareTested:false,source:{repository:"repo",commit:"commit"},target:{board,chip,environment:`env-${id}`},partition:{csv:`${id}.csv`,tableSha256:"b".repeat(64)},artifacts:[{kind:"complete-merged-image",sizeBytes:123,sha256:"a".repeat(64)}]}))};
 	renderStatus(root,{current:{releaseId:"pr70",generatedAt:"now"},manifest,receipt:{ci:{runId:"42"}}});
 	assert.equal(nodes.length,2);
-	assert.equal(nodes[0].children[0].textContent,"Release evidence");
-	assert.equal(nodes[1].children[0].textContent,"Supported firmware");
+	assert.equal(nodes[0].children[0].textContent,"Current release");
+	assert.equal(nodes[1].children[0].textContent,"Supported controllers");
 	assert.equal(nodes[1].children[1].children.length,3);
 	for(const [,board] of targets){const card=nodes[1].children[1].children.find(node=>node.children?.[0]?.textContent?.includes(board));assert.ok(card,`missing ${board}`);}
 	delete globalThis.document;
