@@ -5,10 +5,13 @@ import { getHardwareArtifacts } from "../firmware-ui.mjs";
 import {resolveDetectedTarget} from "../hosted-release.mjs";
 import { loadFirmwareManifest } from "../firmware-manifest.mjs";
 
-test("launch is one connect then one explicit install", async () => {
+test("launch is connect-first with the controller list always expanded", async () => {
 	const html=await readFile(new URL("../index.html",import.meta.url),"utf8");
 	assert.match(html,/Plug in your controller/); assert.match(html,/id="connect">Connect/); assert.match(html,/id="install" disabled hidden>Install/);
-	assert.doesNotMatch(html,/<select|id="targetSelect"|type="checkbox"|physicalConfirmation|confirmedPrintedModel/); assert.match(html,/target-named Install action confirms the displayed candidate/); assert.match(html,/never starts automatically/);
+	assert.doesNotMatch(html,/<select|id="targetSelect"|deviceOptions|deviceSelect|selectedDeviceNote/);
+	// Operator-checkbox confirmation is the install gate (main safety invariant).
+	assert.match(html,/id="physicalConfirmation"/); assert.match(html,/id="confirmedPrintedModel" type="checkbox"/); assert.match(html,/computer detected a compatible chip, but cannot prove the board model/);
+	assert.match(html,/target-named Install action confirms the displayed candidate/); assert.match(html,/never starts automatically/);
 	assert.match(html,/<details id="advancedDetails">/); assert.match(html,/Buy\. Build\. <em>Rave\.<\/em>/);
 	assert.doesNotMatch(html,/Controller<\/span>|Lights<\/span>|Power<\/span>|Review<\/span>|firmwareCards|Download complete|Run safe demo/);
 });
@@ -30,11 +33,12 @@ test("catalog contains only the canonical Dig2Go artifact", async () => {
 	assert.equal(artifacts[0].target.board,"QuinLED Dig2Go");
 });
 
-test("connect inspects once and install reuses the prepared session", async () => {
+test("connect detects in one step and install reuses the prepared session", async () => {
 	const app=await readFile(new URL("../app.mjs",import.meta.url),"utf8");
 	const flash=await readFile(new URL("../local-flash.mjs",import.meta.url),"utf8");
 	assert.match(app,/connectToController/); assert.match(app,/installConnectedController/); assert.doesNotMatch(app,/window\.confirm/);
 	assert.equal((flash.match(/serial\.requestPort\(\)/g)||[]).length,1);
+	// chip identification runs inside connect (single open, one loader.main), not as a later manual step
 	assert.ok(flash.indexOf("loader.main()") < flash.indexOf("active={token"));
 	assert.match(flash,/session\.token !== sessionToken/); assert.match(flash,/eraseAll:false/); assert.match(flash,/boot-identity-verified/); assert.match(flash,/health:verification\.status===/);
 	assert.doesNotMatch(flash,/Flash complete|result:\s*"complete"/i);

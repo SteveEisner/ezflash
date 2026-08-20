@@ -14,3 +14,11 @@ for(const path of ["../merged.bin","/firmware/merged.bin","https://evil.example/
 test("fails closed for missing, duplicate, or unknown target catalogs",async()=>{for(const mutate of [value=>value.variants.pop(),value=>value.variants[2]=structuredClone(value.variants[1]),value=>value.variants[2].id="generic-s3"]){let count=0;const bad=manifest();mutate(bad);await assert.rejects(()=>loadHostedRelease({baseUrl:"https://flash.example/",fetchImpl:async()=>({ok:true,json:async()=>++count===1?{releaseId:"r-1"}:bad})}),/exactly three|catalog/i);}});
 
 test("fails closed when immutable boot identity is missing or not source-bound",async()=>{for(const mutate of [value=>delete value.variants[0].bootIdentity,value=>value.variants[0].bootIdentity.source="c".repeat(40),value=>value.variants[0].bootIdentity.target="athom-c3-tubes"]){let count=0;const bad=manifest();mutate(bad);await assert.rejects(()=>loadHostedRelease({baseUrl:"https://flash.example/",fetchImpl:async()=>({ok:true,json:async()=>++count===1?{releaseId:"r-1"}:bad})}),/boot identity/i);}});
+
+test("resolveDetectedTarget maps classic ESP32 dies to the plain-ESP32 target", async () => {
+	const { resolveDetectedTarget } = await import("../hosted-release.mjs");
+	const catalog=[{variant:{id:"dig2go",target:{chip:"ESP32"}}},{variant:{id:"s3",target:{chip:"ESP32-S3"}}}];
+	assert.equal(resolveDetectedTarget(catalog,"ESP32-D0WD-V3").variant.id,"dig2go");
+	assert.equal(resolveDetectedTarget(catalog,"ESP32-S3 (QFN56)").variant.id,"s3");
+	assert.throws(()=>resolveDetectedTarget(catalog,"ESP32-C4"),/Unsupported/);
+});

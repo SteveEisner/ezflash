@@ -188,7 +188,7 @@
         "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16",
         "hardwareFamily": "waveshare-s3-touch-amoled-2.16",
         "flashSizeBytes": 16777216,
-        "flashMode": "qio"
+        "flashMode": "keep"
       },
       "status": "provisional",
       "hardwareTested": false,
