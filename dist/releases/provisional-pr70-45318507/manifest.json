@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 2,
+  "provisional": true,
+  "promotion": "Blocked until PR #70 exact head is merged and the dependency is re-pinned to merged upstream main.",
+  "variants": [
+    {
+      "id": "quinled-dig2go",
+      "label": "QuinLED Dig2Go \u2014 Tubes v14",
+      "description": "Exact WLEDTubes PR #70 provisional hardware target.",
+      "source": {
+        "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+        "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "clean": true
+      },
+      "bootIdentity": {
+        "version": 1,
+        "target": "quinled-dig2go",
+        "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "release": "16.0.1",
+        "tubes": 14
+      },
+      "target": {
+        "environment": "esp32_quinled_dig2go_tubes",
+        "chip": "ESP32",
+        "board": "QuinLED Dig2Go",
+        "printedModel": "QuinLED Dig2Go",
+        "hardwareFamily": "quinled-dig2go",
+        "flashSizeBytes": 4194304,
+        "flashMode": "dio"
+      },
+      "status": "provisional",
+      "hardwareTested": false,
+      "partition": {
+        "csv": "tools/WLED_ESP32_4MB_1MB_FS.csv",
+        "tableSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+        "otaSlot": {
+          "id": "ota_0",
+          "offset": 65536,
+          "sizeBytes": 1572864
+        },
+        "path": "provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv"
+      },
+      "artifacts": [
+        {
+          "kind": "complete-merged-image",
+          "transport": "usb",
+          "path": "releases/provisional-pr70-45318507/firmware/quinled-dig2go-merged.bin",
+          "sizeBytes": 1325744,
+          "sha256": "c960f7f877f2c9d434a1089e5790bb56d1d1133f0e99af0f60558ad61b1f34da",
+          "offset": 0,
+          "components": [
+            {
+              "name": "bootloader",
+              "offset": 4096,
+              "sizeBytes": 17376,
+              "sha256": "3b827cbff49bcd26eb3a37d8d2801c15317e8007cb251c8b546c5bfa33dba416"
+            },
+            {
+              "name": "partitions",
+              "offset": 32768,
+              "sizeBytes": 3072,
+              "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+            },
+            {
+              "name": "boot-app0",
+              "offset": 57344,
+              "sizeBytes": 8192,
+              "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+            },
+            {
+              "name": "application",
+              "offset": 65536,
+              "sizeBytes": 1260208,
+              "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35"
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+        "ota": {
+          "sizeBytes": 1260208,
+          "sha256": "d6b0168bcecf8f5404653b9bac69ee3d21ddcb1f1514733d3dfe4343a6808d35",
+          "path": "releases/provisional-pr70-45318507/firmware/quinled-dig2go.bin"
+        }
+      }
+    },
+    {
+      "id": "athom-c3-tubes",
+      "label": "Athom ESP32-C3 controller \u2014 Tubes v14",
+      "description": "Exact WLEDTubes PR #70 provisional hardware target.",
+      "source": {
+        "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+        "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "clean": true
+      },
+      "bootIdentity": {
+        "version": 1,
+        "target": "athom-c3-tubes",
+        "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "release": "16.0.1",
+        "tubes": 14
+      },
+      "target": {
+        "environment": "esp32-c3-athom_tubes",
+        "chip": "ESP32-C3",
+        "board": "esp32-c3-devkitm-1",
+        "printedModel": "Athom ESP32-C3 controller",
+        "hardwareFamily": "athom-esp32-c3",
+        "flashSizeBytes": 4194304,
+        "flashMode": "dio"
+      },
+      "status": "provisional",
+      "hardwareTested": false,
+      "partition": {
+        "csv": "tools/WLED_ESP32_4MB_1MB_FS.csv",
+        "tableSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+        "otaSlot": {
+          "id": "ota_0",
+          "offset": 65536,
+          "sizeBytes": 1572864
+        },
+        "path": "provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv"
+      },
+      "artifacts": [
+        {
+          "kind": "complete-merged-image",
+          "transport": "usb",
+          "path": "releases/provisional-pr70-45318507/firmware/athom-c3-tubes-merged.bin",
+          "sizeBytes": 1263968,
+          "sha256": "3ab6599684566925568f8665f69bc1e030f68861a69b2e0702498ba02572ee24",
+          "offset": 0,
+          "components": [
+            {
+              "name": "bootloader",
+              "offset": 0,
+              "sizeBytes": 10608,
+              "sha256": "3ad906095ba135b40d0bda12e113e630cc6d3c0abef3c6347e94dcaaa6670791"
+            },
+            {
+              "name": "partitions",
+              "offset": 32768,
+              "sizeBytes": 3072,
+              "sha256": "ab7a19ebb0ea19e684687802f2d8f199225a270c6b7dd72d73e8a8876f382e73"
+            },
+            {
+              "name": "boot-app0",
+              "offset": 57344,
+              "sizeBytes": 8192,
+              "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+            },
+            {
+              "name": "application",
+              "offset": 65536,
+              "sizeBytes": 1198432,
+              "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24"
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
+        "ota": {
+          "sizeBytes": 1198432,
+          "sha256": "b120770cf7cf6670a89513d550763d740ae867a8aed889ad55637c34833a6f24",
+          "path": "releases/provisional-pr70-45318507/firmware/athom-c3-tubes.bin"
+        }
+      }
+    },
+    {
+      "id": "waveshare-s3-tubes-remote",
+      "label": "Waveshare ESP32-S3-Touch-AMOLED-2.16 \u2014 Tubes v14",
+      "description": "Exact WLEDTubes PR #70 provisional hardware target.",
+      "source": {
+        "repository": "https://github.com/SteveEisner/WLEDtubes.git",
+        "commit": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "clean": true
+      },
+      "bootIdentity": {
+        "version": 1,
+        "target": "waveshare-s3-tubes-remote",
+        "source": "f0ccd8b28d44b2411f4ed9ba491e3a342e092566",
+        "release": "16.0.1",
+        "tubes": 14
+      },
+      "target": {
+        "environment": "waveshare_s3_tubes_target",
+        "chip": "ESP32-S3",
+        "board": "esp32-s3-devkitc-1",
+        "printedModel": "Waveshare ESP32-S3-Touch-AMOLED-2.16",
+        "hardwareFamily": "waveshare-s3-touch-amoled-2.16",
+        "flashSizeBytes": 16777216,
+        "flashMode": "qio"
+      },
+      "status": "provisional",
+      "hardwareTested": false,
+      "partition": {
+        "csv": "contracts/update/partitions/WLED_ESP32S3_WAVESHARE_16MB.csv",
+        "tableSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
+        "otaSlot": {
+          "id": "ota_0",
+          "offset": 65536,
+          "sizeBytes": 6291456
+        },
+        "path": "provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv"
+      },
+      "artifacts": [
+        {
+          "kind": "complete-merged-image",
+          "transport": "usb",
+          "path": "releases/provisional-pr70-45318507/firmware/waveshare-s3-tubes-remote-merged.bin",
+          "sizeBytes": 1274592,
+          "sha256": "4e49d75c7529050f9b02745426abb6ae46d8cdfde9ff71e3e3a5f29322b9277e",
+          "offset": 0,
+          "components": [
+            {
+              "name": "bootloader",
+              "offset": 0,
+              "sizeBytes": 13792,
+              "sha256": "acbb1da736a723d59cb1baa1f6f8e6c5b88d58a31f8a34388484d4791eaf00f7"
+            },
+            {
+              "name": "partitions",
+              "offset": 32768,
+              "sizeBytes": 3072,
+              "sha256": "bd52d72f689f42be90a1c1a229f35071684b92453ee9a5c9640daf39087b07d0"
+            },
+            {
+              "name": "boot-app0",
+              "offset": 57344,
+              "sizeBytes": 8192,
+              "sha256": "f94c5d786a7a8fab06ac5d10e33bf37711a6697636dc037559ea19cc410a17f0"
+            },
+            {
+              "name": "application",
+              "offset": 65536,
+              "sizeBytes": 1209056,
+              "sha256": "3b0fb00eb191e1887bab193c60323e559e7349edae5ab60606414a8910ca443f"
+            }
+          ]
+        }
+      ],
+      "provenance": {
+        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
+        "partitionSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
+        "ota": {
+          "sizeBytes": 1209056,
+          "sha256": "3b0fb00eb191e1887bab193c60323e559e7349edae5ab60606414a8910ca443f",
+          "path": "releases/provisional-pr70-45318507/firmware/waveshare-s3-tubes-remote.bin"
+        }
+      }
+    }
+  ],
+  "provenance": {
+    "mode": "provisional",
+    "receiptDigestSha256": "e97794ac72ab06af0866f51a4cb67def86f8954976fcc9c8d41002b40ae47194",
+    "sourceReceiptDigestSha256": "0dcaf6f350909e94611c228470124a9954e354831579df8234ecc35ffb372a67",
+    "contractSha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83",
+    "evidence": {
+      "receipt": {
+        "path": "releases/provisional-pr70-45318507/provenance/build-receipt.json",
+        "sha256": "32ec3afcf72f7310b9610f86297ed84021d3517f9a07209472603f10f52864ba"
+      },
+      "contract": {
+        "path": "releases/provisional-pr70-45318507/provenance/update-contract.json",
+        "sha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83"
+      }
+    }
+  }
+}
