@@ -43,7 +43,7 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/provisional-pr70-f0ccd8b2/firmware/quinled-dig2go-merged.bin",
+          "path": "releases/provisional-pr70-45318507/firmware/quinled-dig2go-merged.bin",
           "sizeBytes": 1325744,
           "sha256": "c960f7f877f2c9d434a1089e5790bb56d1d1133f0e99af0f60558ad61b1f34da",
           "offset": 0,
@@ -76,7 +76,7 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/quinled-dig2go-quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-45318507/provenance/quinled-dig2go-quinled-dig2go-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
           "sizeBytes": 1260208,
@@ -124,7 +124,7 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/provisional-pr70-f0ccd8b2/firmware/athom-c3-tubes-merged.bin",
+          "path": "releases/provisional-pr70-45318507/firmware/athom-c3-tubes-merged.bin",
           "sizeBytes": 1263968,
           "sha256": "3ab6599684566925568f8665f69bc1e030f68861a69b2e0702498ba02572ee24",
           "offset": 0,
@@ -157,7 +157,7 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/athom-c3-tubes-athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
+        "partitionPath": "releases/provisional-pr70-45318507/provenance/athom-c3-tubes-athom-c3-tubes-WLED_ESP32_4MB_1MB_FS.csv",
         "partitionSha256": "d99fde46aaccb19761d16c2b1470f9b5c8293592eb05fade81cf47384a071f44",
         "ota": {
           "sizeBytes": 1198432,
@@ -205,7 +205,7 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/provisional-pr70-f0ccd8b2/firmware/waveshare-s3-tubes-remote-merged.bin",
+          "path": "releases/provisional-pr70-45318507/firmware/waveshare-s3-tubes-remote-merged.bin",
           "sizeBytes": 1274592,
           "sha256": "4e49d75c7529050f9b02745426abb6ae46d8cdfde9ff71e3e3a5f29322b9277e",
           "offset": 0,
@@ -238,7 +238,7 @@
         }
       ],
       "provenance": {
-        "partitionPath": "releases/provisional-pr70-f0ccd8b2/provenance/waveshare-s3-tubes-remote-waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
+        "partitionPath": "releases/provisional-pr70-45318507/provenance/waveshare-s3-tubes-remote-waveshare-s3-tubes-remote-WLED_ESP32S3_WAVESHARE_16MB.csv",
         "partitionSha256": "afcd596b982397fc252d1fd869085d49e5fe28eea870d7fc7ad15deb8f353e46",
         "ota": {
           "sizeBytes": 1209056,
@@ -254,11 +254,11 @@
     "contractSha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83",
     "evidence": {
       "receipt": {
-        "path": "releases/provisional-pr70-f0ccd8b2/provenance/build-receipt.json",
+        "path": "releases/provisional-pr70-45318507/provenance/build-receipt.json",
         "sha256": "af999536ff1113c39fda96cfe16a1bb77bd7a1be2156a1d6bc7284a606c24892"
       },
       "contract": {
-        "path": "releases/provisional-pr70-f0ccd8b2/provenance/update-contract.json",
+        "path": "releases/provisional-pr70-45318507/provenance/update-contract.json",
         "sha256": "5577068a06e63df12a918b1b107a5c88a991b85bd7912b3735ccefaaf9920b83"
       }
     }
