@@ -22,3 +22,5 @@ test("resolveDetectedTarget maps classic ESP32 dies to the plain-ESP32 target", 
 	assert.equal(resolveDetectedTarget(catalog,"ESP32-S3 (QFN56)").variant.id,"s3");
 	assert.throws(()=>resolveDetectedTarget(catalog,"ESP32-C4"),/Unsupported/);
 });
+
+test("rejects a catalog whose target requests a quad flash mode at load time",async()=>{for(const mode of ["qio","qout"]){let count=0;const bad=manifest();bad.variants[2].target.flashMode=mode;await assert.rejects(()=>loadHostedRelease({baseUrl:"https://flash.example/",fetchImpl:async()=>({ok:true,json:async()=>++count===1?{releaseId:"r-1"}:bad})}),/flash mode/i);}for(const mode of [undefined,"keep","dio","dout"]){let count=0;const good=manifest();if(mode!==undefined)good.variants[2].target.flashMode=mode;const release=await loadHostedRelease({baseUrl:"https://flash.example/",fetchImpl:async()=>({ok:true,json:async()=>++count===1?{releaseId:"r-1"}:good})});assert.equal(release.catalog.length,3);}});

@@ -12,6 +12,10 @@ export function validateHostedCatalog(manifest,releaseId,baseUrl) {
 	const ids=new Set();
 	const catalog=manifest.variants.map(variant=>{
 		if(!TARGETS.has(variant?.id)||ids.has(variant.id)||variant.hardwareTested!==false)throw Error("The target catalog is invalid");ids.add(variant.id);
+		// Mirrors the write-time refusal in local-flash.mjs: quad flash modes (qio/qout) rewrite the
+		// bootloader header and can watchdog-loop boards whose flash wiring cannot fast-boot quad mode.
+		const flashMode=variant.target?.flashMode??"keep";
+		if(!["keep","dio","dout"].includes(flashMode))throw Error(`Refusing to patch the bootloader flash mode to ${flashMode}; use "keep" unless the override is hardware-proven`);
 		const identity=variant.bootIdentity;if(identity?.version!==1||identity.target!==variant.id||identity.source!==variant.source?.commit||!/^[0-9a-f]{40}$/.test(identity.source)||!/^[A-Za-z0-9._-]+$/.test(identity.release)||!Number.isSafeInteger(identity.tubes)||identity.tubes<1)throw Error("The boot identity contract is invalid");
 		const candidates=variant.artifacts?.filter(a=>a.transport==="usb"&&a.kind==="complete-merged-image")||[];if(candidates.length!==1)throw Error("Each target must select exactly one merged USB image");
 		const artifact={...candidates[0]},prefix=`releases/${releaseId}/firmware/`,file=artifact.path?.slice(prefix.length);
