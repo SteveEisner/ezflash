@@ -11,7 +11,7 @@ test("launch is connect-first with the controller list always expanded", async (
 	assert.match(html,/deviceOptions|deviceSelect|selectedDeviceNote/); assert.match(html,/QuinLED Dig2Go/); assert.match(html,/Athom C3/); assert.match(html,/Waveshare S3/);
 	assert.doesNotMatch(html,/physicalConfirmation|confirmedPrintedModel|type="checkbox"|operator-checkbox|computer detected a compatible chip, but cannot prove the board model/);
 	assert.match(html,/target-specific Install|Install replaces the controller firmware/); assert.match(html,/write starts only/);
-	assert.match(html,/<details id="advancedDetails">/); assert.match(html,/Buy\. Build\. <em>Rave\.<\/em>/); assert.match(html,/<summary>Advanced updates<\/summary>/); assert.match(html,/Coming soon<\/strong><p>OTA and nearby-device updates will live here\. USB installation is available above\.<\/p>/); assert.doesNotMatch(html,/Targets|artifact|P2P.*button|button.*P2P/);
+	assert.match(html,/<details id="advancedDetails">/); assert.match(html,/MAKE YOUR OWN TUBE/); assert.match(html,/Build lights that coordinate with nearby WLEDTubes/); assert.match(html,/<summary>Advanced updates<\/summary>/); assert.match(html,/Coming soon<\/strong><p>OTA and nearby-device updates will live here\. USB installation is available above\.<\/p>/); assert.doesNotMatch(html,/Targets|artifact|P2P.*button|button.*P2P/);
 	assert.doesNotMatch(html,/Controller<\/span>|Lights<\/span>|Power<\/span>|Review<\/span>|firmwareCards|Download complete|Run safe demo/);
 });
 
