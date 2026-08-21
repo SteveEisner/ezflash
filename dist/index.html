@@ -14,21 +14,17 @@
 		<nav id="maintainer-nav" role="tablist" aria-label="Easy Flash sections"><button type="button" id="flashTab" role="tab" aria-selected="true" aria-controls="flashView" tabindex="0">Flash</button><button type="button" id="statusTab" role="tab" aria-selected="false" aria-controls="statusView" tabindex="-1">Status</button><button type="button" id="diagnoseTab" role="tab" aria-selected="false" aria-controls="diagnoseView" tabindex="-1">Diagnose</button></nav></div>
 	</header>
 	<main id="flashView" role="tabpanel" aria-labelledby="flashTab">
-		<section class="hero"><h1>Buy. Build. <em>Rave.</em></h1></section>
+		<section class="hero"><span class="eyebrow">MAKE YOUR OWN TUBE</span><h1>Bring the flock<br><em>home.</em></h1><p>Build lights that coordinate with nearby WLEDTubes and join the flock.</p><a class="owner-path" id="ownerPath" href="#deviceSelect">Already have a controller? <strong>Install firmware</strong> <span aria-hidden="true">↓</span></a></section>
 		<section class="install-card" aria-labelledby="installTitle">
 			<div class="browser-gate" id="browserGate" role="alert" hidden><strong id="browserGateTitle">Easy Flash needs Chrome or Edge</strong><p id="browserGateMessage"></p></div>
 			<nav class="state-rail" aria-label="Easy Flash progress"><span aria-current="step">1 Choose</span><span>2 Connect</span><span>3 Connected</span><span>4 Install</span></nav>
 
 			<h2 id="installTitle">Install firmware</h2>
 			<p class="lede" id="instruction">Select the controller you plugged in. Chrome will ask which USB device to use.</p>
-			<section class="journey" id="journey" aria-labelledby="journeyTitle">
-				<h3 id="journeyTitle">Your Tubes journey</h3>
-				<div class="journey-grid">
-					<div class="journey-step journey-buy"><span>01 · Buy</span><strong>Start with a Dig2Go</strong><p>QuinLED Dig2Go is a ready-made starting point for Tubes. Explore the hardware, then come back here when it’s in hand.</p><a href="https://dig2go.info/" target="_blank" rel="noopener noreferrer" aria-label="Explore Dig2Go (opens in a new tab)">Explore Dig2Go <span aria-hidden="true">↗</span></a></div>
-					<div class="journey-step journey-build"><span>02 · Build</span><strong>Flash what you own</strong><p>Choose your controller below. Easy Flash connects over USB and keeps Install as a separate, deliberate step.</p></div>
-					<div class="journey-step journey-rave"><span>03 · Rave</span><strong>Light up the room</strong><p>After flashing, connect your lights, power normally, and join the Tubes flock.</p></div>
-				</div>
-				<p class="journey-lineage">Steve, the WLEDTubes owner, beta-tested early Dig2Go hardware; that path helped seed today’s Tubes project.</p>
+			<section class="recommendation" id="recommendation" aria-labelledby="recommendationTitle">
+				<div><span class="recommendation-kicker">RECOMMENDED START</span><h3 id="recommendationTitle">Start with a ready-made Dig2Go</h3><p>Dig2Go is a ready-made starting point for Tubes. Already have a controller? Choose it below.</p></div>
+				<a class="recommendation-link" href="https://dig2go.info/" target="_blank" rel="noopener noreferrer" aria-label="Explore Dig2Go (opens in a new tab)">Explore Dig2Go <span aria-hidden="true">↗</span></a>
+				<details class="lineage"><summary>Why Dig2Go?</summary><p>Steve beta-tested early Dig2Go hardware while the Tubes project was taking shape.</p></details>
 			</section>
 			<div class="selected-device" id="selectedDeviceNote" hidden></div>
 			<fieldset class="device-select" id="deviceSelect" aria-label="Select your controller" aria-describedby="deviceSelectGuidance">
