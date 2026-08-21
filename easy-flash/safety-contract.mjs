@@ -57,9 +57,4 @@ export async function validateMergedImageBytes(target, artifact, bytes, sha256He
 	}
 	return components;
 }
-
-export function evaluatePhysicalConfirmation(variant, chipName, physicalConfirmation) {
-	const admitted=physicalConfirmation?.asserted === true && physicalConfirmation.targetId === variant.id && physicalConfirmation.printedModel === variant.target.board;
-	return { admitted,status:admitted ? "operator-confirmed" : "unknown",method:admitted ? "operator-checkbox" : "chip-only",targetId:variant.id,observedChip:chipName,assertedPrintedModel:admitted ? physicalConfirmation.printedModel : null };
-}
 // AI: end
