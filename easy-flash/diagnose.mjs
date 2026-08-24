@@ -1,14 +1,14 @@
 const RESCUE_PATTERNS=[/WLED rescue mode(?::| active)/i];
 const ERROR_PATTERNS=[/Guru Meditation|panic|fatal|brownout|assert|error:/i];
-const BUTTON_DIAGNOSTIC=/WLED button diagnostics:\s*(STUCK_BUTTON|AVAILABLE|INACTIVE|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
+const BUTTON_DIAGNOSTIC=/WLED button diagnostics:\s*(STUCK_BUTTON|AVAILABLE\/INACTIVE|AVAILABLE|INACTIVE|healthy|disabled \(WLED_DISABLE_STUCK_BUTTON_DIAGNOSTICS\))/i;
 const DEFAULT_BAUD_RATE=115200,READ_WINDOW_MS=1200,MAX_BYTES=8192;
 export function parseDiagnosticText(text=""){
  const raw=String(text), rescue=RESCUE_PATTERNS.some(p=>p.test(raw)), buttonDiagnostic=[...raw.matchAll(new RegExp(BUTTON_DIAGNOSTIC.source,"gi"))].at(-1)?.[1]??null;
  const target=raw.match(/(?:target|board|model)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim()||null;
  const chip=raw.match(/(?:chip|chip family|platform)\s*[:=]\s*([^\r\n,]+)/i)?.[1]?.trim()||null;
  const malformed=raw.trim()&&(!target&&!chip)&&ERROR_PATTERNS.some(p=>p.test(raw));
- const buttonProblem=buttonDiagnostic?.toUpperCase()==="STUCK_BUTTON";
- return {raw,state:rescue?"rescue":malformed?"malformed":raw.trim()?"telemetry":"unsupported",rescue,malformed,ledsAbsent:rescue,networkAbsent:rescue,target,observedTarget:target,chip,button:buttonDiagnostic,buttonProblem,buttonDiagnostics:buttonDiagnostic?.toLowerCase()||null,targetIdentity:target?undefined:"unknown"};
+ const buttonProblem=buttonDiagnostic?.toUpperCase()==="STUCK_BUTTON", normalizedButton=buttonDiagnostic?.toLowerCase()||null;
+ return {raw,state:rescue?"rescue":malformed?"malformed":raw.trim()?"telemetry":"unsupported",rescue,malformed,ledsAbsent:rescue,networkAbsent:rescue,target,observedTarget:target,chip,button:buttonDiagnostic,buttonProblem,buttonDiagnostics:normalizedButton,targetIdentity:target?undefined:"unknown"};
 }
 export function diagnosePresentation(d={}){
  if(d.state==="rescue")return {tone:"red",label:"Controller needs attention",summary:"The controller started in recovery mode.",next:"Confirm the exact target before using Flash; Diagnose does not start recovery.",action:"Check another USB device",recovery:true};
