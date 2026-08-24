@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "authority": {
+    "branch": "test/v15-preview-tailnet",
+    "knownGoodHead": "987c1f7",
+    "tree": "e913cadbade6055ae41e0852a05b20aef5f173d4"
+  },
+  "frozenFiles": {
+    "easy-flash/index.html": "605365698c6780df223d56aa419a10da140b0af948c6be6a4413baf8fc713d02",
+    "easy-flash/app.mjs": "eb96818beebb23a121ddbcb04b0d7be53a2da187de1f80abb09846c5805eba5b",
+    "easy-flash/local-flash.mjs": "4b5a6bcb2b33343794a203d930e87ac8750e6248742a7640222a90461fad76be",
+    "easy-flash/hosted-release.mjs": "308a7ae88a54362ba846f370bd712bf7942524823a8586f9d3b28e1ddc5ec3cc",
+    "easy-flash/safety-contract.mjs": "f85155295769aa30be1591c39e9af0571c1705d29475d9a1dea5860bfeddd589",
+    "easy-flash/styles.css": "69a70c907e820e9ce593bef4420994a6b15911b5598bb7d6c136576d98702060",
+    "easy-flash/server.mjs": "42918c6dd64df41346b3fd5a2614b5fb279ba7f8460ed410f435f33fb43a8efc",
+    "easy-flash/vendor/esptool-js/bundle.js": "ef7d5a237d3f273ecf546bcee65dddad90bd82cf02f22a980d1537e0cd79a152",
+    "easy-flash/maintainer/index.html": "1904621a97b564c3919e5412f49b61bff954f09df3229f406ee12b5efb710c0a",
+    "easy-flash/maintainer/status.css": "43b328ebaf0e396378079f9eb8dfa41eab5c906136a8a02b3f0548c069adbb8d",
+    "easy-flash/maintainer/status.mjs": "c442f2796eb571506147c832ad0581da2071e38037d81010ddebfe6b71ee1b0c",
+    "scripts/build-static.mjs": "211ae0b0f23cfb4be935ba455edd39d513fbf4b8b66f32589d9d3a4d1be09482",
+    "scripts/build-v15-preview.mjs": "7ebff57dc26792b9f47b46cea693cb00bbf8e7620a83058219d97ca1a6fb2aa8",
+    "scripts/serve-v15-preview.mjs": "9c1c733e6bf942085ca2760b34c4fcf97ad9a70dea7d8161238a68b38d49ea7d",
+    "scripts/stage-v15-preview-firmware.mjs": "30e0d5b29f3bab405186a36d7bc661aa2f33eb6c87e2963b661125df5352533a",
+    "scripts/verify-v15-preview.mjs": "ddb2bbcd3ee78c7434452d068eca35a024811b61cc9cd3c9e25fa26526ae9dd2",
+    "scripts/v15-preview-contract.mjs": "d24deecac44ecc1450dbae4b1b3f9d8940b51dba50de631c1979861dd2dafda5"
+  },
+  "allowedEditRoots": [
+    "easy-flash/diagnose.mjs",
+    "easy-flash/test/diagnose*.test.mjs",
+    "easy-flash/test/helpers/diagnose*.mjs"
+  ],
+  "receiptPath": "dist/releases/provisional-pr70-45318507/provenance/build-receipt.json",
+  "targetArtifactSha256": {
+    "quinled-dig2go": "c960f7f877f2c9d434a1089e5790bb56d1d1133f0e99af0f60558ad61b1f34da",
+    "athom-c3-tubes": "3ab6599684566925568f8665f69bc1e030f68861a69b2e0702498ba02572ee24",
+    "waveshare-s3-tubes-remote": "4e49d75c7529050f9b02745426abb6ae46d8cdfde9ff71e3e3a5f29322b9277e"
+  },
+  "requiredUiMarkers": [
+    "Flash",
+    "Diagnose",
+    "Status",
+    "Hooray \u2014 done!",
+    "unplug",
+    "replug",
+    "not the selected controller",
+    "waveshare-s3-tubes-remote",
+    "athom-c3-tubes",
+    "quinled-dig2go"
+  ]
+}
