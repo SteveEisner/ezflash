@@ -1,6 +1,6 @@
 export const V15_PREVIEW = Object.freeze({
   channel: "local-tailnet-preview-v15", releaseId: "preview-v15-diag-4fa5bc61",
-  sourceCommit: "4fa5bc6192f3ecd4bbaf12e3a3917dc4b0febeb8", sourceTree: "c13b1ca5570ffb7ecbd17885e260a08a58893130",
+  sourceCommit: "f662c58c9b9cbe88914a4ea772763eb90dc52033", sourceTree: "189defbe6b5a1a6682bdfc08d4497fdb49ad026b",
   label: "Preview v15 · Diagnose telemetry",
   targets: Object.freeze([
     Object.freeze({id: "quinled-dig2go", environment: "esp32_quinled_dig2go_tubes"}),

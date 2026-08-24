@@ -78,7 +78,8 @@ test("timeout, disconnect, and chooser cancellation cleanly stop without writes"
 test("Diagnose presentation is grounded USB-only copy for every stoplight state",()=>{const cases=[
  [{},["yellow","Unknown","There is not enough complete, trusted information to classify this controller.","Choose USB device again"]],
  [{bytesCaptured:3},["yellow","Unknown","There is not enough complete, trusted information to classify this controller.","Choose USB device again"]],
- [{state:"telemetry",target:"Dig2Go",chip:"ESP32",buttonDiagnostics:"healthy"},["green","Controller looks good","The controller responded and did not report a problem.","Check another USB device"]],
- [{state:"rescue"},["red","Controller needs attention","The controller started in recovery mode.","Check another USB device"]],
- [{buttonProblem:true},["red","Controller needs attention","The controller reported that its button may be stuck.","Check another USB device"]]
+ [{state:"telemetry",target:"Dig2Go",chip:"ESP32",tubes:15,rescue:false,buttonDiagnostics:"healthy",button:"healthy"},["green","Healthy","This is a complete current Tubes v15 identity with rescue inactive and no observed button fault.","Check another USB device"]],
+ [{state:"telemetry",target:"Dig2Go",chip:"ESP32",tubes:14,rescue:false,buttonDiagnostics:"healthy",button:"healthy"},["yellow","Old","This is a complete trusted Tubes identity below the current accepted generation.","Check another USB device"]],
+ [{state:"rescue",rescue:true},["red","Broke","The controller is in rescue mode.","Check another USB device"]],
+ [{buttonProblem:true},["red","Broke","The controller reported STUCK_BUTTON.","Check another USB device"]]
  ];for(const [input,[tone,label,summary,action]] of cases){const view=diagnosePresentation(input);assert.deepEqual([view.tone,view.label,view.summary,view.action],[tone,label,summary,action]);assert.doesNotMatch(`${view.label} ${view.summary} ${view.next}`,/\b(network|lights|LED|telemetry|inspection|retry)\b/i);}});
