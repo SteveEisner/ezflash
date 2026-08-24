@@ -4,13 +4,19 @@ import {readFile, writeFile} from "node:fs/promises";
 import {resolve, sep} from "node:path";
 import {fileEvidence, jsonHash} from "./release-provenance.mjs";
 import {verifyBuildReceipt} from "./verify-build-receipt.mjs";
-import {assertV15PreviewReceipt, V15_PREVIEW} from "./v15-preview-contract.mjs";
+import {assertHolisticPreviewSource, assertV15PreviewReceipt, V15_PREVIEW} from "./v15-preview-contract.mjs";
 const args=process.argv.slice(2), value=name=>{const i=args.indexOf(name);return i<0?undefined:args[i+1]};
 const receiptPath=value("--receipt");
 if (!receiptPath) throw Error("--receipt is required; preview never falls back to production or fixture inputs");
 const output=resolve(value("--output")||"build/v15-preview-site");
 if (output===resolve("dist") || !output.startsWith(resolve("build")+sep)) throw Error("preview output must stay under build/ and may not replace production dist/");
 const receipt=assertV15PreviewReceipt(await verifyBuildReceipt(resolve(receiptPath)));
+assertHolisticPreviewSource({
+  indexHtml: await readFile(resolve("easy-flash/index.html"), "utf8"),
+  appSource: await readFile(resolve("easy-flash/app.mjs"), "utf8"),
+  diagnoseSource: await readFile(resolve("easy-flash/diagnose.mjs"), "utf8"),
+  manifest: JSON.parse(await readFile(resolve("easy-flash/firmware-manifest.json"), "utf8")),
+});
 const result=spawnSync(process.execPath,[resolve("scripts/build-static.mjs"),"--receipt",resolve(receiptPath),"--release",V15_PREVIEW.releaseId,"--output",output],{stdio:"inherit"});
 if(result.status!==0)process.exit(result.status??1);
 const indexPath=resolve(output,"index.html"), manifestPath=resolve(output,"releases",V15_PREVIEW.releaseId,"manifest.json"), currentPath=resolve(output,"current.json");

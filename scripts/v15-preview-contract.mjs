@@ -9,6 +9,18 @@ export const V15_PREVIEW = Object.freeze({
   ])
 });
 
+// Preview is a receipt-bound build of the complete app, never a reduced shell.
+export function assertHolisticPreviewSource({indexHtml, appSource, diagnoseSource, manifest}) {
+  const checks = [
+    [indexHtml, /flashTab|Flash/], [indexHtml, /diagnoseTab|Diagnose/], [indexHtml, /statusTab|Status/],
+    [appSource, /mismatchRecovery|wrong-device|connectedTargetId/], [appSource, /controller|deviceSelect/],
+    [appSource, /Done|done/], [diagnoseSource, /telemetry|diagnose/i],
+  ];
+  if (checks.some(([source, pattern]) => typeof source !== "string" || !pattern.test(source))) throw Error("v15 preview must contain the complete Flash, Diagnose, Status, recovery, selector, and Done app");
+  if (!Array.isArray(manifest?.variants) || manifest.variants.length < 1) throw Error("v15 preview must retain the canonical controller catalog");
+  return true;
+}
+
 // This gate is deliberately separate from production's dependency lock and build command.
 export function assertV15PreviewReceipt(receipt) {
   if (receipt?.mode !== "provisional" || receipt?.source?.commit !== V15_PREVIEW.sourceCommit || receipt.source.clean !== true) throw Error("v15 preview requires the exact clean PR71 source");
