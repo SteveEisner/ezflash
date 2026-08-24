@@ -75,10 +75,19 @@ test("exact target reports classify three carriers but generic C3/S3 chips remai
 
 test("timeout, disconnect, and chooser cancellation cleanly stop without writes",async()=>{const timed=mockPort({hang:true}),result=await createDiagnoseRuntime({serial:{requestPort:async()=>timed},timeoutMs:5}).inspect();assert.equal(result.state,"unsupported");assert.deepEqual(timed.state(),{released:true,closed:true,cancelled:true});const disconnected=mockPort({rejectRead:true}),lost=await createDiagnoseRuntime({serial:{requestPort:async()=>disconnected}}).inspect();assert.equal(lost.state,"unsupported");assert.deepEqual(disconnected.state(),{released:true,closed:true,cancelled:false});const error=Object.assign(Error("cancelled"),{name:"NotFoundError"});await assert.rejects(createDiagnoseRuntime({serial:{requestPort:async()=>{throw error;}}}).inspect(),{name:"NotFoundError"});});
 
+test("captured Athom C3 sparse rescue-inactive evidence is healthy only with supported USB identity",()=>{
+ const captured={raw:"WLEDTUBES_DIAG rescue=INACTIVE\\n",state:"partial",rescue:false,bytesCaptured:24,portInfo:{usbVendorId:0x303a,usbProductId:0x1001},chip:"ESP32-C3"};
+ const view=diagnosePresentation(captured);
+ assert.equal(view.label,"Healthy");
+ assert.match(view.summary,/reported no explicit fault/i);
+ assert.equal(diagnosePresentation({...captured,portInfo:{usbVendorId:1,usbProductId:2}}).label,"Unknown");
+ assert.equal(diagnosePresentation({raw:"garbage",state:"partial",bytesCaptured:24,portInfo:captured.portInfo}).label,"Unknown");
+});
+
 test("Diagnose presentation is grounded USB-only copy for every stoplight state",()=>{const cases=[
- [{},["yellow","Unknown","The controller was unsupported, unreadable, or did not respond.","Choose USB device again"]],
- [{bytesCaptured:3},["green","Healthy","The supported controller responded normally and reported no explicit fault.","Check another USB device"]],
- [{state:"partial",bytesCaptured:24},["green","Healthy","The supported controller responded normally and reported no explicit fault.","Check another USB device"]],
+ [{},["yellow","Unknown","The controller did not provide a valid supported diagnostic report.","Choose USB device again"]],
+  [{bytesCaptured:3},["yellow","Unknown","The controller did not provide a valid supported diagnostic report.","Choose USB device again"]],
+  [{state:"partial",bytesCaptured:24},["yellow","Unknown","The controller did not provide a valid supported diagnostic report.","Choose USB device again"]],
  [{state:"telemetry",target:"Dig2Go",chip:"ESP32",tubes:15,rescue:false,buttonDiagnostics:"healthy",button:"healthy"},["green","Healthy","This is a complete current Tubes v15 identity with rescue inactive and no observed button fault.","Check another USB device"]],
  [{state:"telemetry",target:"Dig2Go",chip:"ESP32",tubes:14,rescue:false,buttonDiagnostics:"healthy",button:"healthy"},["yellow","Old","This is a complete trusted Tubes identity below the current accepted generation.","Check another USB device"]],
  [{state:"rescue",rescue:true},["red","Broke","The controller is in rescue mode.","Check another USB device"]],
