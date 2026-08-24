@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+import {spawnSync} from "node:child_process";
+import {readFile, writeFile} from "node:fs/promises";
+import {resolve, sep} from "node:path";
+import {fileEvidence, jsonHash} from "./release-provenance.mjs";
+import {verifyBuildReceipt} from "./verify-build-receipt.mjs";
+import {assertV15PreviewReceipt, V15_PREVIEW} from "./v15-preview-contract.mjs";
+const args=process.argv.slice(2), value=name=>{const i=args.indexOf(name);return i<0?undefined:args[i+1]};
+const receiptPath=value("--receipt");
+if (!receiptPath) throw Error("--receipt is required; preview never falls back to production or fixture inputs");
+const output=resolve(value("--output")||"build/v15-preview-site");
+if (output===resolve("dist") || !output.startsWith(resolve("build")+sep)) throw Error("preview output must stay under build/ and may not replace production dist/");
+const receipt=assertV15PreviewReceipt(await verifyBuildReceipt(resolve(receiptPath)));
+const result=spawnSync(process.execPath,[resolve("scripts/build-static.mjs"),"--receipt",resolve(receiptPath),"--release",V15_PREVIEW.releaseId,"--output",output],{stdio:"inherit"});
+if(result.status!==0)process.exit(result.status??1);
+const indexPath=resolve(output,"index.html"), manifestPath=resolve(output,"releases",V15_PREVIEW.releaseId,"manifest.json"), currentPath=resolve(output,"current.json");
+let html=await readFile(indexPath,"utf8");
+html=html.replace("WLEDTUBES EASY FLASH</span>",`${V15_PREVIEW.label} · ${V15_PREVIEW.sourceCommit.slice(0,8)}</span>`).replace("Tubes v14 / WLED 16 · Local and integrity-checked",`Tubes v15 · PR #71 · ${V15_PREVIEW.sourceCommit.slice(0,8)} · Local and integrity-checked`);
+await writeFile(indexPath,html);
+const manifest=JSON.parse(await readFile(manifestPath));
+manifest.preview={channel:V15_PREVIEW.channel,label:V15_PREVIEW.label,sourceCommit:V15_PREVIEW.sourceCommit,sourceTree:V15_PREVIEW.sourceTree};
+manifest.promotion="Temporary tailnet-only preview. Never accepted by the production build or verifier.";
+for(const variant of manifest.variants)variant.description=`${V15_PREVIEW.label} · ${V15_PREVIEW.sourceCommit.slice(0,8)} · exact ${variant.id} target.`;
+await writeFile(manifestPath,JSON.stringify(manifest,null,2)+"\n");
+const current=JSON.parse(await readFile(currentPath));current.previewChannel=V15_PREVIEW.channel;await writeFile(currentPath,JSON.stringify(current,null,2)+"\n");
+const artifacts=[];
+for(const target of receipt.targets){const path=`releases/${V15_PREVIEW.releaseId}/firmware/${target.targetId}-merged.bin`, evidence=await fileEvidence(resolve(output,path));artifacts.push({targetId:target.targetId,environment:target.environment,path,sizeBytes:evidence.lengthBytes,sha256:evidence.sha256});}
+const staging={schemaVersion:1,channel:V15_PREVIEW.channel,source:{commit:V15_PREVIEW.sourceCommit,tree:V15_PREVIEW.sourceTree},releaseId:V15_PREVIEW.releaseId,sourceBuildReceipt:resolve(receiptPath),artifacts};
+staging.receiptSha256=jsonHash(staging);await writeFile(resolve(output,"preview-staging-receipt.json"),JSON.stringify(staging,null,2)+"\n");
+console.log(`built isolated ${V15_PREVIEW.label} at ${output}`);
