@@ -76,8 +76,8 @@ test("exact target reports classify three carriers but generic C3/S3 chips remai
 test("timeout, disconnect, and chooser cancellation cleanly stop without writes",async()=>{const timed=mockPort({hang:true}),result=await createDiagnoseRuntime({serial:{requestPort:async()=>timed},timeoutMs:5}).inspect();assert.equal(result.state,"unsupported");assert.deepEqual(timed.state(),{released:true,closed:true,cancelled:true});const disconnected=mockPort({rejectRead:true}),lost=await createDiagnoseRuntime({serial:{requestPort:async()=>disconnected}}).inspect();assert.equal(lost.state,"unsupported");assert.deepEqual(disconnected.state(),{released:true,closed:true,cancelled:false});const error=Object.assign(Error("cancelled"),{name:"NotFoundError"});await assert.rejects(createDiagnoseRuntime({serial:{requestPort:async()=>{throw error;}}}).inspect(),{name:"NotFoundError"});});
 
 test("Diagnose presentation is grounded USB-only copy for every stoplight state",()=>{const cases=[
- [{},["yellow","Couldn’t check this controller","The controller connected, but it did not provide enough information to confirm its condition.","Choose USB device again"]],
- [{bytesCaptured:3},["yellow","Couldn’t check this controller","The controller connected, but it did not provide enough information to confirm its condition.","Choose USB device again"]],
+ [{},["yellow","Unknown","There is not enough complete, trusted information to classify this controller.","Choose USB device again"]],
+ [{bytesCaptured:3},["yellow","Unknown","There is not enough complete, trusted information to classify this controller.","Choose USB device again"]],
  [{state:"telemetry",target:"Dig2Go",chip:"ESP32",buttonDiagnostics:"healthy"},["green","Controller looks good","The controller responded and did not report a problem.","Check another USB device"]],
  [{state:"rescue"},["red","Controller needs attention","The controller started in recovery mode.","Check another USB device"]],
  [{buttonProblem:true},["red","Controller needs attention","The controller reported that its button may be stuck.","Check another USB device"]]
