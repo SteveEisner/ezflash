@@ -1,3 +1,6 @@
+import { ESPLoader, Transport } from "./vendor/esptool-js/bundle.js";
+import { inspectImageBytes, classifyDiagnose } from "./diagnose-image.mjs";
+
 const RESCUE_PATTERNS=[/WLED rescue mode(?::| active)/i];
 const ERROR_PATTERNS=[/Guru Meditation|panic|fatal|brownout|assert|error:/i];
 const DEFAULT_BAUD_RATE=115200,READ_WINDOW_MS=6000,MAX_BYTES=8192;
@@ -25,5 +28,21 @@ export function diagnosePresentation(d={}){
  return {tone:"yellow",label:"Unknown",summary:"The controller did not provide a valid supported diagnostic report.",next:"",action:"Choose USB device again"};
 }
 export function diagnoseSummary(d){return diagnosePresentation(d).summary;}
-export function createDiagnoseRuntime({serial=globalThis.navigator?.serial,baudRate=DEFAULT_BAUD_RATE,timeoutMs=READ_WINDOW_MS,maxBytes=MAX_BYTES}={}){async function inspect({onText=()=>{},onStatus=()=>{}}={}){if(!serial?.requestPort)throw new Error("Open Easy Flash in desktop Chrome or Edge over HTTPS to use serial diagnostics.");const port=await serial.requestPort(),info=port.getInfo?.()||{};let opened=false,reader,text="",bytesRead=0;try{if(!port.readable){await port.open({baudRate});opened=true}onStatus("Connected read-only. Waiting for a diagnostic banner…");reader=port.readable?.getReader();if(!reader)return {...parseDiagnosticText(""),portInfo:info,bytesCaptured:0};const rawBytes=new Uint8Array(maxBytes),deadline=Date.now()+timeoutMs;while(bytesRead<maxBytes&&Date.now()<deadline){let result;try{result=await Promise.race([reader.read(),new Promise(r=>setTimeout(()=>r({timeout:true}),Math.max(1,deadline-Date.now())))])}catch{break}if(result.timeout){await reader.cancel?.();break}if(result.done)break;if(result.value){const chunk=result.value.subarray(0,maxBytes-bytesRead);rawBytes.set(chunk,bytesRead);bytesRead+=chunk.byteLength}}let decoded=rawBytes.subarray(0,bytesRead);while(decoded.byteLength){try{text=new TextDecoder("utf-8",{fatal:true}).decode(decoded);break}catch{decoded=decoded.subarray(0,-1)}}const parsed=parseDiagnosticText(text);onText(parsed.raw);return {...parsed,portInfo:info,bytesCaptured:bytesRead}}finally{reader?.releaseLock();if(opened)await port.close()}}return {inspect}};
+export function createReadOnlyInspector({loaderFactory = async ({port, baudRate, onStatus}) => { const transport = new Transport(port); const loader = new ESPLoader({ transport, baudrate: baudRate, romBaudrate: baudRate, terminal: { clean: onStatus, write: onStatus, writeLine: onStatus } }); await loader.main(); return { loader, transport }; }} = {}) {
+ return async function inspect({ port, targetId, currentSha256, currentLength, onStatus = () => {} }) {
+  const { loader, transport } = await loaderFactory({ port, baudRate: DEFAULT_BAUD_RATE, onStatus });
+  try {
+   const read = async (offset, length) => new Uint8Array(await loader.readFlash({ offset, length, reportProgress: () => {} }));
+   const partitionTable = await read(0x8000, 0x1000);
+   const otaSelect = await read(0xd000, 0x2000);
+   const partitions = (await import("./diagnose-image.mjs")).parsePartitionTable(partitionTable);
+   const apps = partitions.filter(p => p.type === 0 && p.subtype >= 0x10 && p.subtype <= 0x1f);
+   const max = Math.max(...apps.map(p => p.size));
+   const appBytes = await read(apps.length > 1 ? 0x10000 : apps[0].offset, max);
+   return inspectImageBytes({ partitionTable, otaSelect: apps.length > 1 ? otaSelect : null, appBytes, targetId, currentSha256, currentLength });
+  } finally { await transport.disconnect?.(); await transport.close?.(); }
+ };
+}
+
+export function createDiagnoseRuntime({serial=globalThis.navigator?.serial,baudRate=DEFAULT_BAUD_RATE,timeoutMs=READ_WINDOW_MS,maxBytes=MAX_BYTES,inspector=createReadOnlyInspector()}={}){async function inspect({targetId,currentSha256,currentLength,onText=()=>{},onStatus=()=>{}}={}){if(!serial?.requestPort)throw new Error("Open Easy Flash in desktop Chrome or Edge over HTTPS to use serial diagnostics.");const port=await serial.requestPort(),info=port.getInfo?.()||{};let opened=false,reader,text="",bytesRead=0;try{if(!port.readable){await port.open({baudRate});opened=true}onStatus("Connected read-only. Reading diagnostic banner and active image…");reader=port.readable?.getReader();if(!reader)return {...parseDiagnosticText(""),portInfo:info,bytesCaptured:0};const rawBytes=new Uint8Array(maxBytes),deadline=Date.now()+timeoutMs;while(bytesRead<maxBytes&&Date.now()<deadline){let result;try{result=await Promise.race([reader.read(),new Promise(r=>setTimeout(()=>r({timeout:true}),Math.max(1,deadline-Date.now())))])}catch{break}if(result.timeout){await reader.cancel?.();break}if(result.done)break;if(result.value){const chunk=result.value.subarray(0,maxBytes-bytesRead);rawBytes.set(chunk,bytesRead);bytesRead+=chunk.byteLength}}let decoded=rawBytes.subarray(0,bytesRead);while(decoded.byteLength){try{text=new TextDecoder("utf-8",{fatal:true}).decode(decoded);break}catch{decoded=decoded.subarray(0,-1)}}const parsed=parseDiagnosticText(text);onText(parsed.raw);if(!targetId)return {...parsed,portInfo:info,bytesCaptured:bytesRead};const image=await inspector({port,targetId,currentSha256,currentLength,onStatus});return {...parsed,...image,portInfo:info,bytesCaptured:bytesRead}}finally{reader?.releaseLock();if(opened)await port.close()}}return {inspect}};
 const runtime=createDiagnoseRuntime();export const inspect=runtime.inspect;
