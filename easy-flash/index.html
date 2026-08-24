@@ -30,6 +30,7 @@
 			<div class="status-banner" id="controllerState" role="status" aria-live="polite" hidden>
 				<span class="state-dot"></span><div><strong id="controllerStateTitle"></strong><p id="controllerStatus"></p></div>
 			</div>
+			<div id="mismatchRecovery" class="status-banner attention" role="alert" hidden><div><strong id="mismatchTitle">The connected controller is not the selected controller</strong><p id="mismatchFacts"></p><p id="mismatchReason"></p><div class="result-actions"><button type="button" class="primary" id="useConnected" hidden>Use connected device</button><button type="button" class="secondary" id="chooseAnother">Choose another device</button><button type="button" class="secondary" id="changeTarget">Change target</button></div></div></div>
 			<button type="button" class="primary" id="connect">Connect</button>
 
 			<button type="button" class="primary" id="install" disabled hidden>Install</button>
