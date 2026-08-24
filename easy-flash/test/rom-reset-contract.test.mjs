@@ -11,7 +11,7 @@ test("ROM install does not claim an application-session preflight or soft-reset 
   assert.doesNotMatch(source, /after\("soft_reset"\)/);
 });
 
-test("ROM install keeps missing post-boot identity pending instead of Done", () => {
+test("ROM install records missing post-boot identity as optional evidence", () => {
   assert.match(source, /verification\.status===\"pending\"/);
   assert.match(source, /health:verification\.status===\"verified\"\?\"boot-identity-verified\":\"unverified\"/);
   assert.match(source, /pendingVerification=verification\.status===\"pending\"/);

@@ -1,10 +1,10 @@
-# Athom C3 ROM Web Serial: no-unplug decision
+# Athom C3 ROM Web Serial: write-completion decision
 
-**Decision: BLOCK a claimed no-unplug ROM transaction. Keep Easy Flash as an explicit ROM write with honest post-write verification, and use an application-owned OTA path for already-running devices in a later, separately gated change.**
+**Decision: treat a verified ROM write as Done without requiring post-boot re-enumeration.** Easy Flash remains an explicit, fail-closed ROM write with honest optional post-write evidence. A first install may require a power cycle; runtime identity proof is optional and available through Diagnose/Status.
 
 ## Required product transaction
 
-`output off → write → actual restart → exact v15 verify → output normal → Done` is not implementable truthfully with the current Athom C3 native USB Serial/JTAG ROM path, without changing the firmware/update architecture or adding a physical reset/power capability.
+`write validation → declared component bytes written → Done` is the product completion boundary. Reset and runtime identity are useful additional evidence, but are not required to claim the intended firmware bytes were written.
 
 The safe current transaction is:
 
@@ -12,10 +12,8 @@ The safe current transaction is:
 2. Bind: the operator confirms the printed Athom C3 model; the exact release, target, component geometry, and SHA-256 are bound to the session.
 3. Install: the browser validates the merged image immediately before writing and writes only the declared component ranges. No erase-all and no catalog-driven flash-header patching.
 4. Reset request: esptool-js `after("hard_reset")` requests the reset constructor's RTS sequence, then the transport is closed.
-5. Verify: the browser waits for the port to return and accepts only an exact `WLEDTUBES_BOOT v=1 ...` identity line matching target, source, release, and Tubes count. Pending remains unverified; it is never Done.
-6. If the native USB port does not return, the operator reconnects or uses the board's physical reset/power procedure. The UI must not claim restart, output restoration, or success.
-
-This is a **safe ROM recovery/install**, not a no-unplug transaction.
+5. Optional evidence: if the controller re-enumerates and emits an exact `WLEDTUBES_BOOT v=1 ...` identity line matching target, source, release, and Tubes count, record it as additional verified evidence. If it does not, the write is still Done; it is not runtime proof.
+6. Guidance: the controller should restart. If the lights or controller remain frozen or off, unplug and replug USB once. Diagnose/Status can provide stronger installed/runtime proof.
 
 ## Why Web Serial cannot prove no-unplug here
 
