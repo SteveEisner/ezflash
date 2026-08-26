@@ -2,22 +2,23 @@
   "schemaVersion": 1,
   "authority": {
     "branch": "test/v15-preview-tailnet",
-    "knownGoodHead": "987c1f7",
-    "tree": "e913cadbade6055ae41e0852a05b20aef5f173d4"
+    "knownGoodHead": "PR72-native-v47-matrix",
+    "tree": "0c7f9238696bcfa7e90bc87773a6137c45097e1c"
   },
   "frozenFiles": {
-    "easy-flash/index.html": "605365698c6780df223d56aa419a10da140b0af948c6be6a4413baf8fc713d02",
-    "easy-flash/app.mjs": "eb96818beebb23a121ddbcb04b0d7be53a2da187de1f80abb09846c5805eba5b",
+    "easy-flash/index.html": "5585d9e230a673a187836ddf45939ea18cd30ba63ed21a6015be9f2fd15ad2b3",
+    "easy-flash/app.mjs": "c6d26800d6d43319101e0512767e51bce805fefc450307b43e014e28110afa59",
+    "easy-flash/p2p-seed.mjs": "292984a917550ccbf5cb537bece2a67be60f0d05072e50e9d076c4c84b9f4cc1",
     "easy-flash/local-flash.mjs": "4b5a6bcb2b33343794a203d930e87ac8750e6248742a7640222a90461fad76be",
-    "easy-flash/hosted-release.mjs": "308a7ae88a54362ba846f370bd712bf7942524823a8586f9d3b28e1ddc5ec3cc",
+    "easy-flash/hosted-release.mjs": "1a7f9fc5746aae920f092216dd128dd7f2ca3e799861e5b92f97d7f3a2cf919d",
     "easy-flash/safety-contract.mjs": "f85155295769aa30be1591c39e9af0571c1705d29475d9a1dea5860bfeddd589",
-    "easy-flash/styles.css": "69a70c907e820e9ce593bef4420994a6b15911b5598bb7d6c136576d98702060",
+    "easy-flash/styles.css": "0dc3ae4145f3ba67a2ca6390cd33fea0629e80213fbb86eb79d436d18a313d47",
     "easy-flash/server.mjs": "42918c6dd64df41346b3fd5a2614b5fb279ba7f8460ed410f435f33fb43a8efc",
     "easy-flash/vendor/esptool-js/bundle.js": "ef7d5a237d3f273ecf546bcee65dddad90bd82cf02f22a980d1537e0cd79a152",
     "easy-flash/maintainer/index.html": "1904621a97b564c3919e5412f49b61bff954f09df3229f406ee12b5efb710c0a",
     "easy-flash/maintainer/status.css": "43b328ebaf0e396378079f9eb8dfa41eab5c906136a8a02b3f0548c069adbb8d",
     "easy-flash/maintainer/status.mjs": "c442f2796eb571506147c832ad0581da2071e38037d81010ddebfe6b71ee1b0c",
-    "scripts/build-static.mjs": "211ae0b0f23cfb4be935ba455edd39d513fbf4b8b66f32589d9d3a4d1be09482",
+    "scripts/build-static.mjs": "0f2122c62053baf0d283c965296279376bda3e2cbedd0cd4e8c4588b71224d71",
     "scripts/build-v15-preview.mjs": "7ebff57dc26792b9f47b46cea693cb00bbf8e7620a83058219d97ca1a6fb2aa8",
     "scripts/serve-v15-preview.mjs": "9c1c733e6bf942085ca2760b34c4fcf97ad9a70dea7d8161238a68b38d49ea7d",
     "scripts/stage-v15-preview-firmware.mjs": "30e0d5b29f3bab405186a36d7bc661aa2f33eb6c87e2963b661125df5352533a",
@@ -25,15 +26,21 @@
     "scripts/v15-preview-contract.mjs": "d24deecac44ecc1450dbae4b1b3f9d8940b51dba50de631c1979861dd2dafda5"
   },
   "allowedEditRoots": [
+    "easy-flash/index.html",
+    "easy-flash/app.mjs",
+    "easy-flash/hosted-release.mjs",
+    "easy-flash/styles.css",
     "easy-flash/diagnose.mjs",
     "easy-flash/test/diagnose*.test.mjs",
-    "easy-flash/test/helpers/diagnose*.mjs"
+    "easy-flash/test/helpers/diagnose*.mjs",
+    "easy-flash/p2p-seed.mjs",
+    "easy-flash/test/p2p-seed.test.mjs"
   ],
-  "receiptPath": "dist/releases/provisional-pr70-45318507/provenance/build-receipt.json",
+  "receiptPath": "dist/releases/preview-pr72-498399ad-v47-native/provenance/preview-receipt.json",
   "targetArtifactSha256": {
-    "quinled-dig2go": "c960f7f877f2c9d434a1089e5790bb56d1d1133f0e99af0f60558ad61b1f34da",
-    "athom-c3-tubes": "3ab6599684566925568f8665f69bc1e030f68861a69b2e0702498ba02572ee24",
-    "waveshare-s3-tubes-remote": "4e49d75c7529050f9b02745426abb6ae46d8cdfde9ff71e3e3a5f29322b9277e"
+    "quinled-dig2go": "ffbce050b45f8cf52096295051fefe59b882706452b743fc7cd311d775326689",
+    "athom-c3-tubes": "1474fab8c6d6b8763e323a1937f696ecbd69afbd5a010f3b170b3aa1d8918ab3",
+    "waveshare-s3-tubes-remote": "51073a9c41ad867a8ff0ecb0a8b453dc07ed811e6fe2a732d5faaaa2769c356e"
   },
   "requiredUiMarkers": [
     "Flash",

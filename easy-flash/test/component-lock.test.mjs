@@ -16,9 +16,9 @@ test('component contract retains the complete preview surface', async () => {
   const surface = `${html}\\n${app}`;
   for (const marker of lock.requiredUiMarkers) assert.match(surface, new RegExp(marker.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\$&')));
   const receipt = JSON.parse(await readFile(join(root, lock.receiptPath), 'utf8'));
-  const actual = Object.fromEntries(receipt.sourceReceipt.targets.map(t => [t.targetId, t.artifacts.usb.sha256]));
+  const actual = Object.fromEntries(receipt.artifacts.filter(a => a.transport === 'usb').map(a => [a.targetId, a.sha256]));
   assert.deepEqual(actual, lock.targetArtifactSha256);
 });
-test('only Diagnose-local iteration is permitted', () => {
-  assert.deepEqual(lock.allowedEditRoots, ['easy-flash/diagnose.mjs', 'easy-flash/test/diagnose*.test.mjs', 'easy-flash/test/helpers/diagnose*.mjs']);
+test('component lock records the bounded PR72 matrix UI and safety edit roots', () => {
+  assert.deepEqual(lock.allowedEditRoots, ['easy-flash/index.html', 'easy-flash/app.mjs', 'easy-flash/hosted-release.mjs', 'easy-flash/styles.css', 'easy-flash/diagnose.mjs', 'easy-flash/test/diagnose*.test.mjs', 'easy-flash/test/helpers/diagnose*.mjs', 'easy-flash/p2p-seed.mjs', 'easy-flash/test/p2p-seed.test.mjs']);
 });

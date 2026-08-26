@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 2,
+  "releaseId": "preview-pr72-498399ad-v47-native",
+  "source": {
+    "commit": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
+    "tree": "0c7f9238696bcfa7e90bc87773a6137c45097e1c",
+    "baseCommit": "d21b3850aaff523396192db9ef62a3fbf7118c96",
+    "releaseVersionOverride": null,
+    "nativeReleaseVersion": 47,
+    "trackedClean": false,
+    "excludedTrackedDocumentationChanges": [
+      "M usermods/Tubes/DIG2GO_P2P_STEVE_HANDOFF.md",
+      " M usermods/Tubes/MODERN_PROPAGATION.md"
+    ]
+  },
+  "componentsProvenance": {
+    "application": "Exact authorized native PR72 RELEASE_VERSION 47 build outputs with parsed TUBEUP1 identities.",
+    "bootloaderAndPartitions": "S3 components come from the exact PR72 environment build directory. Dig2Go, P2P Dig2Go, and C3 use byte-identical immutable Easy Flash components from the same pinned PlatformIO/toolchain and unchanged partition contract."
+  },
+  "matrix": [
+    {
+      "targetId": "quinled-dig2go",
+      "environment": "esp32_quinled_dig2go_tubes",
+      "family": 1,
+      "variant": 0,
+      "tubes": 47,
+      "propagation": false,
+      "application": {
+        "sizeBytes": 1334288,
+        "sha256": "c2e4a451e86dd4dab895fb02d00744d43192dfbadb0a2ac5d166e62b08b21ae9"
+      },
+      "buildOverride": "none; native RELEASE_VERSION 47"
+    },
+    {
+      "targetId": "athom-c3-tubes",
+      "environment": "esp32-c3-athom_tubes",
+      "family": 3,
+      "variant": 0,
+      "tubes": 47,
+      "propagation": false,
+      "application": {
+        "sizeBytes": 1274736,
+        "sha256": "e437f595278cd20d994ba345d2f33dabe5210f5e694b97e43bf5401981726cdd"
+      },
+      "buildOverride": "none; native RELEASE_VERSION 47"
+    },
+    {
+      "targetId": "waveshare-s3-tubes-remote",
+      "environment": "esp32-s3-matrix-m1_tubes",
+      "family": 2,
+      "variant": 0,
+      "tubes": 47,
+      "propagation": false,
+      "application": {
+        "sizeBytes": 1235856,
+        "sha256": "2d02b2dc197af0e44e764263b9d6512c0cc9535200f1f6c84209a08b815397d2"
+      },
+      "buildOverride": "PLATFORMIO_BUILD_FLAGS='-D WLED_RELEASE_NAME=\\\"ESP32-S3_MATRIX_M1\\\"'"
+    },
+    {
+      "targetId": "quinled-dig2go",
+      "environment": "esp32_quinled_dig2go_tubes_p2p",
+      "family": 1,
+      "variant": 0,
+      "tubes": 47,
+      "propagation": true,
+      "application": {
+        "sizeBytes": 1346720,
+        "sha256": "6ea9a3c78df2511f1cbdde9d62cd776e645e4a8607af370e70164be5a939e20c"
+      },
+      "buildOverride": "exactly three P2P environment flags; native RELEASE_VERSION 47"
+    }
+  ],
+  "artifacts": [
+    {
+      "targetId": "quinled-dig2go",
+      "transport": "usb",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-merged.bin",
+      "sizeBytes": 1399824,
+      "sha256": "ffbce050b45f8cf52096295051fefe59b882706452b743fc7cd311d775326689",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "quinled-dig2go",
+      "transport": "ota",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-ota.bin",
+      "sizeBytes": 1334288,
+      "sha256": "c2e4a451e86dd4dab895fb02d00744d43192dfbadb0a2ac5d166e62b08b21ae9",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "quinled-dig2go",
+      "transport": "usb-propagating",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-propagating-merged.bin",
+      "sizeBytes": 1412256,
+      "sha256": "f4b98966fa2d4fac2760d147ca58ddc4e8c38a59411f70637bed8ca526fd4423",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "quinled-dig2go",
+      "transport": "ota-propagating",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-propagating-ota.bin",
+      "sizeBytes": 1346720,
+      "sha256": "6ea9a3c78df2511f1cbdde9d62cd776e645e4a8607af370e70164be5a939e20c",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "athom-c3-tubes",
+      "transport": "usb",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/athom-c3-tubes-merged.bin",
+      "sizeBytes": 1340272,
+      "sha256": "1474fab8c6d6b8763e323a1937f696ecbd69afbd5a010f3b170b3aa1d8918ab3",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "athom-c3-tubes",
+      "transport": "ota",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/athom-c3-tubes-ota.bin",
+      "sizeBytes": 1274736,
+      "sha256": "e437f595278cd20d994ba345d2f33dabe5210f5e694b97e43bf5401981726cdd",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "waveshare-s3-tubes-remote",
+      "transport": "usb",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/waveshare-s3-tubes-remote-merged.bin",
+      "sizeBytes": 1301392,
+      "sha256": "51073a9c41ad867a8ff0ecb0a8b453dc07ed811e6fe2a732d5faaaa2769c356e",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    },
+    {
+      "targetId": "waveshare-s3-tubes-remote",
+      "transport": "ota",
+      "path": "releases/preview-pr72-498399ad-v47-native/firmware/waveshare-s3-tubes-remote-ota.bin",
+      "sizeBytes": 1235856,
+      "sha256": "2d02b2dc197af0e44e764263b9d6512c0cc9535200f1f6c84209a08b815397d2",
+      "hardwareEvidence": "build and static identity only; no Easy Flash hardware write"
+    }
+  ],
+  "evidence": "Source-built and TUBEUP1 identity parsed/verified; Easy Flash static integration only.",
+  "exclusions": [
+    "hardware writes",
+    "bench MACs",
+    "persistent credentials",
+    "proof debris"
+  ],
+  "receiptSha256": "c77ab7ea015ed279f8ac7febd3e697635c8b2673afa9944284e3dffd9a9d65aa"
+}

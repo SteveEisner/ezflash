@@ -1,0 +1,3 @@
+const {contextBridge,ipcRenderer}=require("electron");
+contextBridge.exposeInMainWorld("easyFlashFleet",Object.freeze({scan:()=>ipcRenderer.invoke("fleet:scan"),update:value=>ipcRenderer.invoke("fleet:update",structuredClone(value)),onEvent:listener=>{const wrapped=(_event,value)=>listener(structuredClone(value));ipcRenderer.on("fleet:event",wrapped);return()=>ipcRenderer.removeListener("fleet:event",wrapped);}}));
+window.addEventListener("DOMContentLoaded",()=>{const script=document.createElement("script");script.type="module";script.src="fleet-update.mjs";document.head.append(script);},{once:true});

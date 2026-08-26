@@ -54,3 +54,4 @@ body{background:radial-gradient(circle at 12% 0%,#49307c55 0,transparent 28rem),
 .state-rail span[aria-current="step"]{color:var(--spectrum-c)}.state-rail span+span::before{color:#6f73a0}
 #statusView .error{color:#ffcf70;background:#302314;border-color:#73521b}
 @media (max-width:760px){.recommendation{grid-template-columns:1fr;gap:10px}.recommendation-link{justify-self:start}}
+.advanced-grid{display:grid;gap:1rem;margin-top:1rem}.advanced-grid section{padding:1rem;border:1px solid var(--line);border-radius:12px;background:#151724}.advanced-grid .baton-card{border-color:var(--orange)}.advanced-links{display:flex;flex-wrap:wrap;gap:.6rem}.advanced-links a{color:var(--orange);text-decoration:underline}.baton-card button{margin-top:.5rem}

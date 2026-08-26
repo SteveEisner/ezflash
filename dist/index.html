@@ -30,18 +30,19 @@
 			<div class="status-banner" id="controllerState" role="status" aria-live="polite" hidden>
 				<span class="state-dot"></span><div><strong id="controllerStateTitle"></strong><p id="controllerStatus"></p></div>
 			</div>
+			<div id="mismatchRecovery" class="status-banner attention" role="alert" hidden><div><strong id="mismatchTitle">The connected controller is not the selected controller</strong><p id="mismatchFacts"></p><p id="mismatchReason"></p><div class="result-actions"><button type="button" class="primary" id="useConnected" hidden>Use connected device</button><button type="button" class="secondary" id="chooseAnother">Choose another device</button><button type="button" class="secondary" id="changeTarget">Change target</button></div></div></div>
 			<button type="button" class="primary" id="connect">Connect</button>
 
 			<button type="button" class="primary" id="install" disabled hidden>Install</button>
 			<button type="button" class="secondary" id="back" hidden>← Back</button>
 			<p class="action-note" id="actionNote" hidden>The write starts only when you choose the target-specific Install action.</p>
-			<details id="advancedDetails"><summary>Advanced updates</summary><div id="technicalDetails" class="coming-soon"><strong>Coming soon</strong><p>OTA and nearby-device updates will live here. USB installation is available above.</p></div></details>
+			<details id="advancedDetails"><summary>Advanced updates</summary><div id="technicalDetails" class="advanced-grid"><section class="baton-card"><strong>Dig2Go propagation baton · explicit</strong><p>Installs the separate propagating Dig2Go image. It can start one commanded 20-second baton; it is never the default and does not apply to C3 or S3.</p><button type="button" class="secondary" id="connectPropagating">Connect Dig2Go for propagating install</button></section></div></details>
 		</section>
-		<section id="resultPanel" class="result-panel" hidden><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><p id="resultNext" class="result-next"></p><div class="result-actions"><button type="button" class="primary" id="resultDiagnose" hidden>Diagnose controller</button><button type="button" class="primary" id="resultVerify" hidden>Check again</button><button type="button" class="primary" id="resultDone">Hooray — done!</button></div></section>
+		<section id="resultPanel" class="result-panel" hidden><h2 id="resultTitle">Install stopped</h2><p id="resultMessage"></p><p id="resultNext" class="result-next"></p><div class="result-actions"><button type="button" class="secondary" id="resultSeed" hidden>Update nearby Dig2Gos</button><button type="button" class="primary" id="resultDiagnose" hidden>Diagnose controller</button><button type="button" class="primary" id="resultVerify" hidden>Check again</button><button type="button" class="primary" id="resultDone">Hooray — done!</button></div></section>
 	</main>
 	<section id="statusView" role="tabpanel" aria-labelledby="statusTab" hidden><h1>Release status</h1><p class="lede">See what Easy Flash can install right now.</p><div id="status" aria-live="polite"><p>Select Status to load immutable release details.</p></div></section>
 	<section id="diagnoseView" role="tabpanel" aria-labelledby="diagnoseTab" hidden><h1>Diagnose a controller</h1><p class="lede">Check whether a connected controller reports a problem.</p><p class="diagnose-caveat">Your controller may restart while it is checked.</p><div class="diagnose-card"><div class="status-banner neutral" id="diagnoseState" role="status" aria-live="polite" hidden><span class="state-dot" aria-hidden="true"></span><div><strong id="diagnoseTitle">Ready</strong><p id="diagnoseMessage"></p><p class="diagnose-next"></p></div></div><button type="button" class="primary" id="diagnoseInspect">Choose USB device</button><details id="diagnoseTechnical" hidden><summary>Technical details</summary><div id="diagnoseFacts" class="diagnose-facts"></div></details></div></section>
-	<footer>Tubes v14 / WLED 16 · Local and integrity-checked</footer>
+	<footer>Tubes v47 / WLED 16 · Local and integrity-checked · If a controller stays offline after installation, unplug and replug USB once.</footer>
 	<script type="module" src="app.mjs"></script>
 	<script type="module" src="maintainer/status.mjs"></script>
 </body>

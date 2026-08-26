@@ -1,6 +1,7 @@
 {
-  "releaseId": "provisional-pr70-45318507",
-  "manifest": "releases/provisional-pr70-45318507/manifest.json",
-  "generatedAt": "2026-08-20T16:59:25.475Z",
-  "provisional": true
+  "releaseId": "preview-pr72-498399ad-v47-native",
+  "manifest": "releases/preview-pr72-498399ad-v47-native/manifest.json",
+  "generatedAt": "2026-08-26T18:24:23.219Z",
+  "provisional": true,
+  "previewChannel": "local-tailnet-pr72-v47-matrix"
 }
