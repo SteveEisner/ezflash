@@ -1,30 +1,30 @@
 {
   "schemaVersion": 2,
   "provisional": true,
-  "promotion": "Local PR72 native-v47 matrix preview. Build/static evidence only; no Easy Flash laptop, OTA, propagation, or hardware proof claimed.",
+  "promotion": "Local exact-head native-v49 S3 carrier matrix preview. Build/static evidence only; no Easy Flash laptop, OTA, propagation, or hardware proof claimed.",
   "preview": {
-    "channel": "local-pr72-native-v47-matrix",
-    "sourceCommit": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
-    "sourceTree": "0c7f9238696bcfa7e90bc87773a6137c45097e1c"
+    "channel": "local-s3-carrier-native-v49-matrix",
+    "sourceCommit": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
+    "sourceTree": "0a5fed94d46db9a5f63c771b036e4d391cf5b17f"
   },
   "variants": [
     {
       "id": "quinled-dig2go",
-      "label": "QuinLED Dig2Go — Tubes v47",
-      "description": "Native PR72 v47 ordinary firmware. Peer propagation is disabled.",
+      "label": "QuinLED Dig2Go — Tubes v49",
+      "description": "Native merged-main v49 ordinary firmware. Peer propagation is disabled.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
-        "tree": "0c7f9238696bcfa7e90bc87773a6137c45097e1c",
+        "commit": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
+        "tree": "0a5fed94d46db9a5f63c771b036e4d391cf5b17f",
         "clean": true,
-        "buildOverride": "none; native RELEASE_VERSION 47"
+        "buildOverride": "none; native RELEASE_VERSION 49"
       },
       "bootIdentity": {
         "version": 1,
         "target": "quinled-dig2go",
-        "source": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
+        "source": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
         "release": "16.0.1",
-        "tubes": 47,
+        "tubes": 49,
         "family": 1,
         "variant": 0
       },
@@ -44,9 +44,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-merged.bin",
-          "sizeBytes": 1399824,
-          "sha256": "ffbce050b45f8cf52096295051fefe59b882706452b743fc7cd311d775326689",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/quinled-dig2go-merged.bin",
+          "sizeBytes": 1400672,
+          "sha256": "62cc3113893934338f0988e097d04674adc7bdb4e6ddfc68e331b6eed98ad553",
           "offset": 0,
           "components": [
             {
@@ -70,25 +70,25 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1334288,
-              "sha256": "c2e4a451e86dd4dab895fb02d00744d43192dfbadb0a2ac5d166e62b08b21ae9"
+              "sizeBytes": 1335136,
+              "sha256": "3a96ea6d5c701c86df63d2fa968805968fe550dcabe069bc3b30493279a1da09"
             }
           ]
         },
         {
           "kind": "application-image",
           "transport": "ota",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-ota.bin",
-          "sizeBytes": 1334288,
-          "sha256": "c2e4a451e86dd4dab895fb02d00744d43192dfbadb0a2ac5d166e62b08b21ae9",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/quinled-dig2go-ota.bin",
+          "sizeBytes": 1335136,
+          "sha256": "3a96ea6d5c701c86df63d2fa968805968fe550dcabe069bc3b30493279a1da09",
           "offset": 65536
         },
         {
           "kind": "complete-merged-image",
           "transport": "usb-propagating",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-propagating-merged.bin",
-          "sizeBytes": 1412256,
-          "sha256": "f4b98966fa2d4fac2760d147ca58ddc4e8c38a59411f70637bed8ca526fd4423",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/quinled-dig2go-propagating-merged.bin",
+          "sizeBytes": 1413136,
+          "sha256": "b6e2a5a59bf2e6be54287e945068fada7c5b5070451d12d8cc0ef0adc019f7ce",
           "offset": 0,
           "components": [
             {
@@ -112,17 +112,17 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1346720,
-              "sha256": "6ea9a3c78df2511f1cbdde9d62cd776e645e4a8607af370e70164be5a939e20c"
+              "sizeBytes": 1347600,
+              "sha256": "81a7c4b917486eb942f9e270ab9794c97c130d42323cbcde5411767ee9f56c8f"
             }
           ]
         },
         {
           "kind": "application-image",
           "transport": "ota-propagating",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/quinled-dig2go-propagating-ota.bin",
-          "sizeBytes": 1346720,
-          "sha256": "6ea9a3c78df2511f1cbdde9d62cd776e645e4a8607af370e70164be5a939e20c",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/quinled-dig2go-propagating-ota.bin",
+          "sizeBytes": 1347600,
+          "sha256": "81a7c4b917486eb942f9e270ab9794c97c130d42323cbcde5411767ee9f56c8f",
           "offset": 65536
         }
       ],
@@ -142,21 +142,21 @@
     },
     {
       "id": "athom-c3-tubes",
-      "label": "Athom ESP32-C3 controller — Tubes v47",
-      "description": "Native PR72 v47 ordinary firmware. Peer propagation is disabled.",
+      "label": "Athom ESP32-C3 controller — Tubes v49",
+      "description": "Native merged-main v49 ordinary firmware. Peer propagation is disabled.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
-        "tree": "0c7f9238696bcfa7e90bc87773a6137c45097e1c",
+        "commit": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
+        "tree": "0a5fed94d46db9a5f63c771b036e4d391cf5b17f",
         "clean": true,
-        "buildOverride": "none; native RELEASE_VERSION 47"
+        "buildOverride": "none; native RELEASE_VERSION 49"
       },
       "bootIdentity": {
         "version": 1,
         "target": "athom-c3-tubes",
-        "source": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
+        "source": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
         "release": "16.0.1",
-        "tubes": 47,
+        "tubes": 49,
         "family": 3,
         "variant": 0
       },
@@ -176,9 +176,9 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/athom-c3-tubes-merged.bin",
-          "sizeBytes": 1340272,
-          "sha256": "1474fab8c6d6b8763e323a1937f696ecbd69afbd5a010f3b170b3aa1d8918ab3",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/athom-c3-tubes-merged.bin",
+          "sizeBytes": 1341616,
+          "sha256": "6561a5f5d67c1da1a021055e47d5e976e590c1874f36393e2c66c40d31c30b86",
           "offset": 0,
           "components": [
             {
@@ -202,48 +202,48 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1274736,
-              "sha256": "e437f595278cd20d994ba345d2f33dabe5210f5e694b97e43bf5401981726cdd"
+              "sizeBytes": 1276080,
+              "sha256": "0bc24a247f942b63ce12eecb0be1ec773c1e2308169887f8ec1ca89d4377a46d"
             }
           ]
         },
         {
           "kind": "application-image",
           "transport": "ota",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/athom-c3-tubes-ota.bin",
-          "sizeBytes": 1274736,
-          "sha256": "e437f595278cd20d994ba345d2f33dabe5210f5e694b97e43bf5401981726cdd",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/athom-c3-tubes-ota.bin",
+          "sizeBytes": 1276080,
+          "sha256": "0bc24a247f942b63ce12eecb0be1ec773c1e2308169887f8ec1ca89d4377a46d",
           "offset": 65536
         }
       ]
     },
     {
       "id": "waveshare-s3-tubes-remote",
-      "label": "Waveshare ESP32-S3 Matrix M1 — Tubes v47",
-      "description": "Native PR72 v47 ordinary firmware. Peer propagation is disabled.",
+      "label": "Waveshare ESP32-S3 Tubes Carrier — Tubes v49",
+      "description": "Native merged-main v49 ordinary firmware. Peer propagation is disabled.",
       "source": {
         "repository": "https://github.com/SteveEisner/WLEDtubes.git",
-        "commit": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
-        "tree": "0c7f9238696bcfa7e90bc87773a6137c45097e1c",
+        "commit": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
+        "tree": "0a5fed94d46db9a5f63c771b036e4d391cf5b17f",
         "clean": true,
-        "buildOverride": "PLATFORMIO_BUILD_FLAGS='-D WLED_RELEASE_NAME=\\\"ESP32-S3_MATRIX_M1\\\"'"
+        "buildOverride": "native waveshare_s3_tubes_carrier with validated embedded Dig2Go P2P and C3 v49 payloads"
       },
       "bootIdentity": {
         "version": 1,
         "target": "waveshare-s3-tubes-remote",
-        "source": "498399ad08735c5d846fd8c16c2e728dadcf9dc2",
+        "source": "321fa8d8c6068c98b5211001ebb07dde902b2fe0",
         "release": "16.0.1",
-        "tubes": 47,
+        "tubes": 49,
         "family": 2,
         "variant": 0
       },
       "target": {
-        "environment": "esp32-s3-matrix-m1_tubes",
+        "environment": "waveshare_s3_tubes_carrier",
         "chip": "ESP32-S3",
         "board": "esp32-s3-devkitc-1",
-        "printedModel": "Waveshare ESP32-S3 Matrix M1",
+        "printedModel": "Waveshare ESP32-S3 Tubes Carrier",
         "hardwareFamily": "waveshare-s3-tubes-remote",
-        "flashSizeBytes": 4194304,
+        "flashSizeBytes": 16777216,
         "flashMode": "keep"
       },
       "status": "build-only",
@@ -253,22 +253,22 @@
         {
           "kind": "complete-merged-image",
           "transport": "usb",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/waveshare-s3-tubes-remote-merged.bin",
-          "sizeBytes": 1301392,
-          "sha256": "51073a9c41ad867a8ff0ecb0a8b453dc07ed811e6fe2a732d5faaaa2769c356e",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/waveshare-s3-tubes-remote-merged.bin",
+          "sizeBytes": 3997536,
+          "sha256": "68fbd9904cffdb10f0c9cd9d7d114d405b8d5af2ba8864c5fcdd290777576d37",
           "offset": 0,
           "components": [
             {
               "name": "bootloader",
               "offset": 0,
               "sizeBytes": 13792,
-              "sha256": "6b4ac87c8326ddc7372f919b56dcf159c092af18cc0983721a3c1dfadccfe97e"
+              "sha256": "acbb1da736a723d59cb1baa1f6f8e6c5b88d58a31f8a34388484d4791eaf00f7"
             },
             {
               "name": "partitions",
               "offset": 32768,
               "sizeBytes": 3072,
-              "sha256": "37b0579517eae4229e91e71273de96734c7b47c616c33af875e95b092911e8cf"
+              "sha256": "bd52d72f689f42be90a1c1a229f35071684b92453ee9a5c9640daf39087b07d0"
             },
             {
               "name": "boot-app0",
@@ -279,27 +279,27 @@
             {
               "name": "application",
               "offset": 65536,
-              "sizeBytes": 1235856,
-              "sha256": "2d02b2dc197af0e44e764263b9d6512c0cc9535200f1f6c84209a08b815397d2"
+              "sizeBytes": 3932000,
+              "sha256": "57523b06edfc39453821cf7f1d2598564a375333c05f610ee06aaad4aa6f158b"
             }
           ]
         },
         {
           "kind": "application-image",
           "transport": "ota",
-          "path": "releases/preview-pr72-498399ad-v47-native/firmware/waveshare-s3-tubes-remote-ota.bin",
-          "sizeBytes": 1235856,
-          "sha256": "2d02b2dc197af0e44e764263b9d6512c0cc9535200f1f6c84209a08b815397d2",
+          "path": "releases/preview-s3-carrier-321fa8d8-v49-native/firmware/waveshare-s3-tubes-remote-ota.bin",
+          "sizeBytes": 3932000,
+          "sha256": "57523b06edfc39453821cf7f1d2598564a375333c05f610ee06aaad4aa6f158b",
           "offset": 65536
         }
       ]
     }
   ],
   "provenance": {
-    "mode": "exact-pr72-native-v47",
+    "mode": "exact-s3-carrier-native-v49",
     "evidence": {
       "receipt": {
-        "path": "releases/preview-pr72-498399ad-v47-native/provenance/preview-receipt.json"
+        "path": "releases/preview-s3-carrier-321fa8d8-v49-native/provenance/preview-receipt.json"
       }
     }
   }

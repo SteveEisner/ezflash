@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Thin NDJSON adapter over Steve's committed native-v47 fleet pull workflow."""
+"""Thin NDJSON adapter over Steve's committed native-v49 fleet pull workflow."""
 import argparse,json,pathlib,sys,time
 HERE=pathlib.Path(__file__).resolve().parent;sys.path.insert(0,str(HERE))
 import fleet_pull_update as pull
-RELEASE=47;PROFILES={(1,0):('Dig2Go','esp32_quinled_dig2go_tubes.bin','DIG2GO_TUBES'),(2,0):('S3 Matrix M1','esp32-s3-matrix-m1_tubes.bin','ESP32-S3_MATRIX_M1'),(3,0):('Athom C3','esp32-c3-athom_tubes.bin','ESP32-C3_ATHOM_TUBES')}
+RELEASE=49;PROFILES={(1,0):('Dig2Go','esp32_quinled_dig2go_tubes.bin','DIG2GO_TUBES'),(2,0):('S3 Matrix M1','esp32-s3-matrix-m1_tubes.bin','ESP32-S3_MATRIX_M1'),(3,0):('Athom C3','esp32-c3-athom_tubes.bin','ESP32-C3_ATHOM_TUBES')}
 def emit(value):print(json.dumps(value),flush=True)
 def ports():return sorted(set(pathlib.Path('/dev').glob('cu.usbmodem*'))|set(pathlib.Path('/dev').glob('cu.usbserial*')))
 def manifest(port=None):
@@ -14,8 +14,8 @@ def manifest(port=None):
  raise RuntimeError(last)
 def shape(d):
  key=(int(d['family']),int(d['variant']));profile=PROFILES.get(key);version=int(d['tubes']);eligible=bool(profile) and 22<=version<RELEASE
- state='eligible' if eligible else ('skipped — already v47' if profile and version==RELEASE else 'failed closed — unknown, mismatched, legacy, or newer target')
- return {'mac':str(d['mac']),'deviceId':f"0x{int(d['node']):04X}",'model':profile[0] if profile else f'unknown family {key[0]} variant {key[1]}','version':version,'lastHeard':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'reachability':'nonce-bound mesh report','artifact':f'{profile[0]} ordinary v47' if profile else None,'eligible':eligible,'state':state}
+ state='eligible' if eligible else ('skipped — already v49' if profile and version==RELEASE else 'failed closed — unknown, mismatched, legacy, or newer target')
+ return {'mac':str(d['mac']),'deviceId':f"0x{int(d['node']):04X}",'model':profile[0] if profile else f'unknown family {key[0]} variant {key[1]}','version':version,'lastHeard':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'reachability':'nonce-bound mesh report','artifact':f'{profile[0]} ordinary v49' if profile else None,'eligible':eligible,'state':state}
 def scan():
  port,devices=manifest();emit({'type':'scan','serialPath':str(port),'devices':[shape(d) for d in devices]})
 def update(args):

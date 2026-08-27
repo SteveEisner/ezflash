@@ -1,7 +1,7 @@
 {
-  "releaseId": "preview-pr72-498399ad-v47-native",
-  "manifest": "releases/preview-pr72-498399ad-v47-native/manifest.json",
-  "generatedAt": "2026-08-26T18:24:23.219Z",
+  "releaseId": "preview-s3-carrier-321fa8d8-v49-native",
+  "manifest": "releases/preview-s3-carrier-321fa8d8-v49-native/manifest.json",
+  "generatedAt": "2026-08-27T20:04:56.808Z",
   "provisional": true,
-  "previewChannel": "local-tailnet-pr72-v47-matrix"
+  "previewChannel": "local-s3-carrier-native-v49-matrix"
 }

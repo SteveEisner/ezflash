@@ -19,6 +19,6 @@ test('component contract retains the complete preview surface', async () => {
   const actual = Object.fromEntries(receipt.artifacts.filter(a => a.transport === 'usb').map(a => [a.targetId, a.sha256]));
   assert.deepEqual(actual, lock.targetArtifactSha256);
 });
-test('component lock records the bounded PR72 matrix UI and safety edit roots', () => {
+test('component lock records the bounded native-v49 matrix UI and safety edit roots', () => {
   assert.deepEqual(lock.allowedEditRoots, ['easy-flash/index.html', 'easy-flash/app.mjs', 'easy-flash/hosted-release.mjs', 'easy-flash/styles.css', 'easy-flash/diagnose.mjs', 'easy-flash/test/diagnose*.test.mjs', 'easy-flash/test/helpers/diagnose*.mjs', 'easy-flash/p2p-seed.mjs', 'easy-flash/test/p2p-seed.test.mjs']);
 });
